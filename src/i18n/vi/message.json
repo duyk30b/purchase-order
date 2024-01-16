@@ -1,0 +1,76 @@
+{
+  "defineJob": {
+    "notification": {
+      "createJobTitle": "Tạo công việc",
+      "createJobContent": "Công việc {{type}} ngày {{date}} cho thiết bị {{deviceCode}} đã được tạo.",
+      "assignmentTitle": "Phân công công việc",
+      "assignmentContent": "{{username}} đã phân công cho bạn công việc có mã {{code}}.",
+      "confirmTitle": "Xác nhận công việc",
+      "confirmContent": "{{username}} xác nhận sẽ thực hiện công việc {{code}}.",
+      "rejectTitle": "Từ chối công việc",
+      "rejectContent": "{{username}} đã từ chối công việc {{code}}.",
+      "completeTitle": "Công việc đã được thực hiện",
+      "completeContent": "{{username}} đã thực hiện xong công việc {{code}} (Cần nghiệm thu).",
+      "resolveTitle": "Hoàn thành công việc",
+      "resolveContent": "Công việc có mã {code} đã được nghiệm thu.",
+      "resolveAutoContent": "{username} đã hoàn thành công việc {code}.",
+      "reworkTitle": "Yêu cầu làm lại công việc",
+      "reworkContent": "{{username}} yêu cầu bạn làm lại công việc {{code}}.",
+      "jobsInstallationContent": "Công việc lắp đặt cho phân công thiết bị có mã {code} đã được tạo"
+    },
+    "type": {
+      "0": "bảo trì",
+      "1": "sửa chữa đột xuất",
+      "2": "kiểm tra định kỳ",
+      "3": "lắp đặt",
+      "4": "kiểm định"
+    }
+  },
+  "defineDeviceAssignment": {
+    "notification": {
+      "createTitle": "Tạo phân công thiết bị",
+      "createdContent": "{username} đã phân công thiết bị {code}.",
+      "approveTitle": "Xác nhận phân công thiết bị",
+      "approveContent": "{username} đã xác nhận việc phân công thiết bị {code}.",
+      "rejectTitle": "Từ chối phân công thiết bị",
+      "rejectContent": "{username} đã từ chối việc phân công thiết bị có mã {code}.",
+      "completeTitle": "Hoàn thành phân công thiết bị",
+      "completeContent": "Hoàn thành lắp đặt thiết bị theo mã phân công {code}."
+    }
+  },
+  "defineRepairRequest": {
+    "notification": {
+      "createTitle": "Tạo yêu cầu sửa chữa đột xuất",
+      "createContent": "{username} đã tạo yêu cầu sửa chữa đột xuất thiết bị {deviceCode}",
+      "rejectTitle": "Từ chối yêu cầu sửa chữa đột xuất",
+      "rejectContent": "{username} đã từ chối yêu cầu sửa chữa thiết bị {deviceCode}",
+      "confirmTitle": "Xác nhận yêu cầu sửa chữa đột xuất",
+      "confirmContent": "Yêu cầu sửa chữa thiết bị {deviceCode} đã được xác nhận",
+      "jobCreatedContent": "Công việc sửa chữa thiết bị {deviceCode} đã được tạo",
+      "jobAssignmentContent": "Công việc sửa chữa thiết bị {deviceCode} đã được phân công"
+    }
+  },
+  "defineDeviceRequest": {
+    "notification": {
+      "createTitle": "Tạo yêu cầu thiết bị",
+      "createContent": "{username} đã tạo yêu cầu thiết bị {deviceRequestCode}",
+      "approveTitle": "Xác nhận yêu cầu thiết bị",
+      "approveContent": "{username} đã xác nhận yêu cầu thiết bị {deviceRequestCode}",
+      "rejectTitle": "Từ chối yêu cầu thiết bị",
+      "rejectContent": "{username} đã từ chối yêu cầu thiết bị {deviceRequestCode}",
+      "completeTitle": "Hoàn thành yêu cầu thiết bị",
+      "completeContent": "Yêu cầu thiết bị {deviceRequestCode} đã được hoàn thành"
+    }
+  },
+  "defineWarning": {
+    "notification": {
+      "createTitle": "Tạo cảnh bảo hệ thống",
+      "createContent": "Hệ thống cảnh báo công việc ngày {{date}}."
+    }
+  },
+  "undefinedJobTitle": "Công việc không xác định",
+  "defineTemplate": {
+    "codeAlreadyExists": "Mã loại nghiệp vụ đã tồn tại!",
+    "statusInValid": "Trạng thái loại nghiệp vụ không hợp lệ"
+  }
+}

@@ -1,0 +1,542 @@
+{
+  "common": {
+    "createdAt": "作成日",
+    "updatedAt": "編集日",
+    "yes": "はい",
+    "no": "いいえ",
+    "active": "アクティブ",
+    "inactive": "インアクティブ",
+    "activeColumn": "ステータス",
+    "wfx": "WFX",
+    "mmsx": "MMSX",
+    "manageBy": "管理システム",
+    "codeOnWfx": "WFX管理コード",
+    "deviceUseStatus": {
+      "using": "使用中",
+      "preventive": "予備",
+      "broken": "故障",
+      "awaitClearance": "処分待ち",
+      "useless": "低使用頻度"
+    }
+  },
+  "deviceGroup": {
+    "title": "設備カテゴリ一覧",
+    "code": "カテゴリコード",
+    "name": "カテゴリ名",
+    "maintenanceAttribute": "保守属性",
+    "frequency": "頻度（周期／分）",
+    "maintenanceTemplate": "保守案内票様式",
+    "installationTemplate": "設置票様式",
+    "accreditationTemplate": "検定票様式",
+    "errorTypes": "よくある不具合",
+    "articleDeviceGroup": "設備グループ",
+    "attributeTypes": "属性タイプ",
+    "canUpdateStatus": "ステータスを更新することができます。",
+    "active": "ステータス",
+    "manageBy": "管理システム",
+    "codeOnWfx": "WFX管理コード",
+    "supplies": {
+      "title": "部品・資材一覧",
+      "supply": "部品・資材名",
+      "type": "タイプ",
+      "quantity": "数量",
+      "estimateUsedTime": "使用時間",
+      "canFixable": "故障時に修正することができます。"
+    },
+    "maintenanceIndex": {
+      "accessory": "部品",
+      "device": "設備",
+      "title": "保守情報",
+      "supply": "名称",
+      "type": "タイプ",
+      "maintenanceFrequency": "予防保全頻度",
+      "mtbf": "MTBF（周期／分）",
+      "mttr": "MTTR（分）",
+      "mtta": "MTTA（分）",
+      "mttf": "MTTF（周期／分）"
+    }
+  },
+  "checklistTemplate": {
+    "active": "ステータス",
+    "title": "点検票様式一覧",
+    "code": "様式コード",
+    "name": "様式名",
+    "description": "説明",
+    "details": {
+      "headerTitle": "点検詳細内容",
+      "title": "項目名",
+      "obligatory": "必須",
+      "description": "説明"
+    }
+  },
+  "installationTemplate": {
+    "active": "ステータス",
+    "title": "設置票様式一覧",
+    "code": "様式コード",
+    "name": "様式名",
+    "description": "説明",
+    "details": {
+      "headerTitle": "設置一覧",
+      "title": "項目名",
+      "obligatory": "必須",
+      "description": "説明"
+    }
+  },
+  "accreditationTemplate": {
+    "active": "ステータス",
+    "title": "検定票様式一覧",
+    "code": "様式コード",
+    "name": "様式名",
+    "periodic": "検定期間",
+    "description": "説明",
+    "details": {
+      "headerTitle": "検定一覧",
+      "title": "項目名",
+      "obligatory": "必須",
+      "description": "説明"
+    }
+  },
+  "attributeType": {
+    "active": "ステータス",
+    "title": "値タイプ一覧",
+    "code": "値コード",
+    "name": "値名",
+    "description": "値の説明",
+    "unit": "単位"
+  },
+  "maintenanceAttribute": {
+    "active": "ステータス",
+    "title": "保守属性一覧",
+    "code": "属性コード",
+    "name": "属性名",
+    "description": "説明"
+  },
+  "supplyGroup": {
+    "title": "資材グループ一覧",
+    "code": "資材グループコード",
+    "name": "資材グループ名",
+    "description": "資材グループ説明",
+    "active": "ステータス",
+    "createdAt": "作成日"
+  },
+  "supply": {
+    "active": "ステータス",
+    "title": "部品・資材一覧",
+    "code": "部品・資材コード",
+    "name": "部品・資材名",
+    "nameOther": "別名",
+    "supplyGroupName": "資材グループ名",
+    "unit": "計算単位名",
+    "vendor": "仕入先名",
+    "type": "タイプ",
+    "price": "価格",
+    "description": "部品・資材説明",
+    "updatedAt": "最新更新日"
+  },
+  "device": {
+    "active": "ステータス",
+    "title": "設備情報",
+    "code": "設備コード",
+    "name": "設備名",
+    "serial": "設備シリアル番号",
+    "factory": "工場",
+    "area": "エリア",
+    "model": "モデル",
+    "vendor": "仕入先",
+    "manufacturer": "メーカー",
+    "creationDate": "作成日",
+    "identificationNo": "設備識別",
+    "deviceGroup": "設備カテゴリ名",
+    "deviceGroupCode": "設備カテゴリコード",
+    "deviceType": "設備カテゴリグループ",
+    "articleDeviceGroupCode": "設備グループコード",
+    "articleDeviceGroupName": "設備グループ名",
+    "warehouse": "倉庫名",
+    "depreciation": "減価償却情報",
+    "type": "設備タイプ",
+    "manufactureDate": "製造年月日",
+    "warrantyPeriod": "保証期間",
+    "status": "使用状況",
+    "manageBy": "管理システム",
+    "rent": "賃借",
+    "buy": "購入",
+    "inactive": "インアクティブ",
+    "activeStatus": "稼働時間",
+    "inactiveStatus": "非活性",
+    "capitalizationDate": "Ngày đưa vào sử dụng"
+  },
+  "maintenanceTeam": {
+    "active": "ステータス",
+    "title": "保守チーム一覧",
+    "code": "保守チームコード",
+    "name": "保守チーム名",
+    "leader": "隊長",
+    "factory": "工場"
+  },
+  "deviceRequest": {
+    "active": "ステータス",
+    "title": "設備申請一覧",
+    "code": "申請コード",
+    "name": "申請名",
+    "type": "申請種類",
+    "toFactory": "受取工場",
+    "returnFactory": "返却工場",
+    "deviceGroup": "設備グループ",
+    "quantity": "設備グループ",
+    "description": "説明",
+    "status": "ステータス",
+    "expectReturnDate": "返却予定日",
+    "transferRequest": "移動申請",
+    "requestProvide": {
+      "title": "設備貸与申請一覧",
+      "deviceGroup": "設備グループ",
+      "warehouseQuantity": "利用可能倉庫数量",
+      "requestQuantity": "申請数量"
+    },
+    "requestReturn": {
+      "title": "設備返却申請一覧",
+      "serial": "シリアル番号",
+      "name": "申請名",
+      "area": "返却エリア",
+      "warehouse": "返却倉庫"
+    }
+  },
+  "unit": {
+    "active": "ステータス",
+    "title": "計算単位管理",
+    "code": "単位コード",
+    "name": "単位名",
+    "manageBy": "管理システム",
+    "description": "説明"
+  },
+  "interRegion": {
+    "title": "地区間範囲一覧",
+    "code": "地区間範囲コード",
+    "name": "地区間範囲名",
+    "description": "説明",
+    "manageBy": "管理システム",
+    "active": "ステータス"
+  },
+  "region": {
+    "title": "地区一覧",
+    "code": "地区コード",
+    "name": "地区名",
+    "description": "説明",
+    "interRegion": "地区間範囲名",
+    "manageBy": "管理システム",
+    "active": "ステータス"
+  },
+  "area": {
+    "title": "エリア一覧",
+    "code": "エリアコード",
+    "name": "エリア名",
+    "description": "説明",
+    "factory": "工場名",
+    "active": "ステータス"
+  },
+  "errorType": {
+    "active": "ステータス",
+    "title": "不具合分類一覧",
+    "code": "不具合コード",
+    "name": "不具合名",
+    "description": "説明",
+    "priority": "優先度"
+  },
+  "vendor": {
+    "title": "仕入先一覧",
+    "code": "仕入先コード",
+    "name": "仕入先名",
+    "description": "説明",
+    "address": "所在地",
+    "email": "メールアドレス",
+    "phone": "電話番号",
+    "taxCode": "納税者番号",
+    "contactUser": "連絡先",
+    "active": "ステータス"
+  },
+  "deviceType": {
+    "active": "ステータス",
+    "title": "設備カテゴリグループ一覧",
+    "code": "設備カテゴリグループコード",
+    "name": "設備カテゴリグループ名",
+    "description": "説明",
+    "deviceGroup": "設備カテゴリ",
+    "manageBy": "管理システム",
+    "status": "ステータス"
+  },
+  "deviceName": {
+    "active": "ステータス",
+    "title": "設備名一覧",
+    "code": "設備名コード",
+    "name": "設備名",
+    "description": "説明",
+    "manageBy": "管理システム",
+    "codeOnWfx": "WFX管理コード",
+    "status": "ステータス"
+  },
+  "deviceAssignment": {
+    "active": "ステータス",
+    "title": "設備割当一覧",
+    "code": "割当コード",
+    "requestName": "申請名",
+    "assignDate": "割当日",
+    "factory": "工場名",
+    "deviceGroup": "設備カテゴリ",
+    "assignUser": "使用者",
+    "quantity": "数量",
+    "status": "ステータス",
+    "details": {
+      "title": "設備割当一覧",
+      "serial": "シリアル番号",
+      "deviceGroup": "設備カテゴリ",
+      "area": "エリア名"
+    }
+  },
+  "articleDeviceGroup": {
+    "title": "設備グループ一覧",
+    "code": "設備グループコード",
+    "name": "設備グループ名",
+    "description": "説明",
+    "createdAt": "作成日",
+    "manageBy": "管理システム",
+    "codeOnWfx": "WFX管理コード",
+    "active": "ステータス"
+  },
+  "maintenanceTemplate": {
+    "title": "保守票様式一覧",
+    "code": "保守票様式コード",
+    "name": "保守票様式名",
+    "description": "保守票様式説明",
+    "active": "ステータス",
+    "details": {
+      "TITLE": "保守票様式詳細",
+      "title": "作業名",
+      "type": "作業種類",
+      "description": "説明",
+      "checklistTemplate": "点検票様式",
+      "periodTime": "定期保守期間",
+      "obligatory": "必須"
+    }
+  },
+  "reportMaintenancePlan": {
+    "active": "ステータス",
+    "title": "設備機械保守・点検日程",
+    "name": "設備名",
+    "jobTitle": "保守内容",
+    "unitType": {
+      "month": "月年",
+      "year": "年"
+    }
+  },
+  "reportMaintenancePlanSub": {
+    "name": "設備名",
+    "jobTitle": "保守内容"
+  },
+  "deviceUseStatus": {
+    "active": "ステータス",
+    "title": "設備使用状況",
+    "companyTotal": "会社合計",
+    "stt": "項番",
+    "useUnit": "単位",
+    "total": "合計",
+    "status": {
+      "using": "使用中",
+      "preventive": "予備",
+      "broken": "故障",
+      "awaitClearance": "処分待ち"
+    },
+    "quantity": "数量",
+    "scale": "割合（%）",
+    "note": "備考"
+  },
+  "deviceUseStatusDetail": {
+    "active": "ステータス",
+    "title": "設備使用状況報告",
+    "stt": "項番",
+    "name": "設備グループ",
+    "unit": "計算単位",
+    "deviceGroupUnit": "個",
+    "quantity": "数量",
+    "using": "使用中",
+    "preventive": "予備",
+    "broken": "故障",
+    "awaitClearance": "処分待ち",
+    "problem": "原因と対応策"
+  },
+  "warehouseExportDetail": {
+    "active": "ステータス",
+    "title": "出庫伝票",
+    "company": "PHONG PHU INTERNATIONAL JSC",
+    "companyAddress": " Tang Nhon Phu Str, Tang Nhon Phu B Ward, Thu Duc City, Ho Chi Minh City",
+    "debit": "買掛金",
+    "credit": "売掛金",
+    "body": {
+      "printDate": "",
+      "number": "番号：",
+      "warehouse": "移動元倉庫：",
+      "toFactory": "お届け先：",
+      "receiveFullName": "受取人氏名：",
+      "address": "所在地：",
+      "reason": "出庫理由：",
+      "note": "備考：",
+      "contractNum": "契約番号：",
+      "symbol": "記号：",
+      "date": "日付：",
+      "numSo": "受注書番号：",
+      "gdiNo": "GDI番号："
+    },
+    "stt": "項番",
+    "name": "商品名",
+    "color": "色",
+    "size": "サイズ",
+    "unit": "計算単位",
+    "actualQuantity": "実際出庫数量",
+    "licenseNo": "伝票番号：",
+    "dateFormat": "年 月 日",
+    "signature": {
+      "createName": "伝票作成者",
+      "receiveName": "受取人",
+      "stocker": "倉庫管理主任者",
+      "chiefAccountant": "会計主任者",
+      "manager": "取締役"
+    },
+    "signName": "（署名、氏名）"
+  },
+  "warehouseImportDetail": {
+    "active": "ステータス",
+    "title": "原材料入庫伝票",
+    "company": "PHONG PHU INTERNATIONAL JSC",
+    "companyAddress": " Tang Nhon Phu Str, Tang Nhon Phu B Ward, Thu Duc City, Ho Chi Minh City",
+    "debit": "買掛金",
+    "credit": "売掛金",
+    "body": {
+      "printDate": "",
+      "number": "番号：",
+      "deliver": "配達人氏名：",
+      "symbol": "記号：",
+      "contractNum": "契約番号：",
+      "templateNum": "伝票番号：",
+      "date": "Ngày:",
+      "warehouse": "移動先倉庫：",
+      "soNum": "受注書番号：",
+      "poNum": "発注書番号："
+    },
+    "stt": "項番",
+    "name": "商品名",
+    "color": "色",
+    "size": "サイズ",
+    "uom": "数量単位（UOM）",
+    "quantity": "数量",
+    "price": "単価",
+    "intoMoney": "金額",
+    "unit": "計算単位",
+    "defaultUnit": "ベトナムドン",
+    "quantityTotal": "総数量",
+    "amount": "金額合計",
+    "tax": "輸入税",
+    "additionalFee": "追加料金",
+    "vat": "付加価値税",
+    "total": "合計金額",
+    "totalByText": "合計金額（文字）：",
+    "licenseNo": "伝票番号：",
+    "dateFormat": "年 月 日",
+    "signature": {
+      "createName": "伝票作成者",
+      "receiveName": "受取人",
+      "stocker": "倉庫管理主任者",
+      "chiefAccountant": "会計主任者",
+      "manager": "取締役"
+    },
+    "signName": "（署名、氏名）"
+  },
+  "inventoryDeviceGroup": {
+    "active": "ステータス",
+    "title": "在庫設備一覧",
+    "assetName": "設備カテゴリ",
+    "factory": "工場",
+    "warehouse": "倉庫名",
+    "stockQuantity": "数量",
+    "unit": "計算単位"
+  },
+  "inventorySupply": {
+    "active": "ステータス",
+    "title": "在庫部品・資材一覧",
+    "supplyGroup": "部品・資材グループ",
+    "code": "部品・資材コード",
+    "name": "部品・資材名",
+    "type": "部品・資材種類",
+    "factory": "工場",
+    "warehouse": "倉庫名",
+    "vendor": "仕入先",
+    "quantity": "数量",
+    "unit": "計算単位"
+  },
+  "deviceInventory": {
+    "active": "ステータス",
+    "title": "設備在庫管理",
+    "identificationNo": "設備識別",
+    "serial": "設備シリアル番号",
+    "name": "設備名",
+    "vendor": "仕入先",
+    "model": "モデル",
+    "manufacturer": "メーカー"
+  },
+  "reportNewInvestmentDevice": {
+    "factory": "工場",
+    "manufacturer": "メーカー",
+    "deviceName": "設備名",
+    "model": "モデル",
+    "vendor": "サプライヤー",
+    "capitalizationDate": "使用開始日",
+    "quantity": "数量",
+    "company": "購入会社名"
+  },
+  "operationValue": {
+    "title": "Bảng tổng hợp chi phí vận hành sản xuất toàn công ty theo ",
+    "date": "時間",
+    "factory": "工場"
+  },
+  "timeUnit": {
+    "day": "日",
+    "week": "週",
+    "month": "月",
+    "quarter": "四半期",
+    "year": "年"
+  },
+  "sparePartPlan": {
+    "title": "DỰ TRỪ CHI PHÍ PHỤC VỤ SẢN XUẤT",
+    "company": "DỰ TRỪ CỔ PHẦN QUỐC TẾ PHONG PHÚ",
+    "factory": "NHÀ MÁY",
+    "form": "Form: ...",
+    "month": "Tháng",
+    "dear": "Kính gửi",
+    "stt": "STT",
+    "code": "MSVT",
+    "name": "TÊN VẬT TƯ, PHỤ TÙNG",
+    "unit": "ĐVT",
+    "proposalQuantity": "ĐỀ XUẤT",
+    "stockQuantity": "TỒN KHO",
+    "extraProposalQuantity": "CẦN MUA",
+    "price": "ĐƠN GIÁ",
+    "intoMoney": "THÀNH TIỀN",
+    "note": "GHI CHÚ",
+    "moneyTotal": "TỔNG SỐ CHI PHÍ ĐỀ XUẤT",
+    "textTotal": "Bằng số: ",
+    "dateFormat": "Ngày...... tháng...... năm......",
+    "total": "Tổng tiền",
+    "totalByText": "Tổng Số tiền (Viết bằng chữ): ",
+    "checklistTitle": "PHẦN KIỂM TRA XÉT DUYỆT",
+    "checklist": {
+      "revenueUsd": "DOANH THU KẾ HOẠCH (USD): (1)",
+      "rate": "TỶ GIÁ (USD): (2)",
+      "revenueVnd": "DOANH THU KẾ HOẠCH (VNĐ): (3)",
+      "totalCostSparePart": "TỔNG DỰ TRÙ CHI PHÍ VẬT TƯ (I+II+III+IV) (VNĐ): (4)",
+      "totalCostSparePartPerRevenue": "TỶ LỆ DỰ TRÙ CHI PHÍ VẬT TƯ/DOANH THU: (5)",
+      "totalCostConfirmed": "P.QLTBM ĐỀ XÉT DUYỆT (HẠN MỨC KHÔNG QUÁ 2% DOANH THU) (6)",
+      "totalCostOther": "TỔNG DỰ TRÙ CHI PHÍ KHÁC (V): (7)",
+      "totalCostOtherPerRevenue": "TỶ LỆ DỰ TRÙ CHI PHÍ KHÁC / DOANH THU (8)",
+      "otherTotalCostConfirmed": "P.QLTBM ĐỀ XÉT DUYỆT (HẠN MỨC KHÔNG QUÁ 1.24% DOANH THU): (9)",
+      "totalCostSuggest": "TỔNG CHI PHÍ ĐỀ NGHỊ DUYỆT: (10) = (6) + (9)"
+    }
+  }
+}

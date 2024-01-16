@@ -1,0 +1,27 @@
+consul:
+  host: ${{ CONSUL_HOST }}
+  port: ${{ CONSUL_PORT }}
+  defaults:
+    token: ${{CONSUL_TOKEN}}
+kong:
+  host: ${{ KONG_HOST }}
+  port: ${{ KONG_PORT }}
+  upstream:
+    name: ${{ SERVICE_NAME }}
+service:
+  id: ${{ SERVICE_NAME }}
+  name: ${{ SERVICE_NAME }}
+  port: ${{ SERVER_HTTP_PORT }}
+  apiPath: ${{ API_PATH }}
+  tags: ["v1.0.1"]
+  healthCheck:
+    timeout: 5s
+    interval: 2s
+    route: ${{ API_PATH }}/health
+  maxRetry: 10
+  retryInterval: 1500
+loadbalance:
+  rule: RandomRule
+  services:
+    - name: auth-service
+      rule: RoundRobinRule

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  purchased-order-service:
+    container_name: purchased-order-service
+    image: purchased-order-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    networks:
+      mesx-net:
+        ipv4_address: ${CONTAINER_NETWORK_IP}
+    command: npm run start:dev
+    ports:
+      - ${APP_CONTAINER_PORT}:${SERVER_HTTP_PORT}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+networks:
+  mesx-net:
+    name: ${MESX_NET_NAME}
+    external: true

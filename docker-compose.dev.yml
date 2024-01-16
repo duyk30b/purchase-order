@@ -1,0 +1,9 @@
+# docker compose version
+version: '3.8'
+
+services:
+  purchased-order-service:
+    build:
+      context: .
+      target: development
+    command: npm run start:dev

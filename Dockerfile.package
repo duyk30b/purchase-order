@@ -1,0 +1,30 @@
+# ----------------
+# STEP 1:
+# build with pkg
+FROM node:18-alpine AS build
+
+WORKDIR /app
+
+# install dependencies with cache
+COPY package.json .
+
+RUN npm i
+
+COPY . /app
+
+RUN npm run package
+
+# ----------------
+# STEP 2:
+# run with alpine
+FROM alpine:3.16.1 as Runner
+
+ENV NODE_ENV=production
+
+# install required libs
+RUN apk update && apk add --no-cache libstdc++ libgcc
+
+# copy prebuilt binary from previous step
+COPY --from=build /app/package/app_pkg ./app_pkg
+
+ENTRYPOINT [ "./app_pkg" ]
