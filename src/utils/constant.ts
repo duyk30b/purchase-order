@@ -1,0 +1,72 @@
+import {
+  MIME_TYPE_IMAGE_ENUM,
+  MIME_TYPE_OFFICE_ENUM,
+  MIME_TYPE_TEXT_ENUM,
+} from '@constant/common';
+
+export const LANG = {
+  EN: 'en',
+  VI: 'vi',
+  JP: 'jp',
+};
+
+export const DEFAULT_LANG = LANG.VI;
+
+export enum IS_ACTION_ENUM {
+  NO,
+  YES,
+}
+
+export const FORMAT_DATE_UNDERSCORE = 'DD_MM_YYYY';
+export const FORMAT_DATE = 'YYYY-MM-DD';
+export const FORMAT_DATE_NUMBER = 'YYYYMMDD';
+export const FORMAT_DATE_NUMBER_MONGO = '%Y%m%d';
+
+export enum ROLE {
+  ADMIN,
+  FACTORY_MANAGER,
+  LEADER,
+  MEMBER,
+  OTHER,
+}
+
+export const CODE_DEFAULT = {
+  GAP: 1,
+  CODE_LENGTH: 7,
+  PAD_CHAR: '0',
+};
+
+export enum IS_MASTER_DATA {
+  NO,
+  YES,
+}
+
+export enum IS_GET_ALL_FACTORY {
+  NO,
+  YES,
+}
+
+export const MIME_TYPES_FOR_TEMPLATE = [
+  MIME_TYPE_IMAGE_ENUM.JPEG,
+  MIME_TYPE_IMAGE_ENUM.PNG,
+  MIME_TYPE_IMAGE_ENUM.BMP,
+  MIME_TYPE_OFFICE_ENUM.DOC,
+  MIME_TYPE_OFFICE_ENUM.DOCX,
+  MIME_TYPE_OFFICE_ENUM.PDF,
+  MIME_TYPE_OFFICE_ENUM.PPT,
+  MIME_TYPE_OFFICE_ENUM.PPTX,
+  MIME_TYPE_OFFICE_ENUM.XLSX,
+  MIME_TYPE_TEXT_ENUM.CSV,
+  MIME_TYPE_TEXT_ENUM.TXT,
+];
+
+export const TIMEZONE_LOCAL = 'Asia/Ho_Chi_Minh';
+
+export const PLAN_MODE = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  REJECT: 'REJECT',
+  APPROVE: 'APPROVE',
+  DETAIL: 'DETAIL',
+  LIST: 'LIST',
+};

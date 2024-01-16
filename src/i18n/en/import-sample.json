@@ -1,0 +1,16 @@
+{
+  "device": {
+    "action": "Create",
+    "code": "C998",
+    "name": "Sensor A",
+    "description": "Sensor for device",
+    "periodicInspectionTime": "10",
+    "frequency": "Frequency",
+    "price": "6969",
+    "deviceGroupName": "Group ABC",
+    "responsibleUser": "admin",
+    "responsibleMaintenanceTeam": " ",
+    "isForManufacturing": "Yes",
+    "maintenanceAttributeName": "Name"
+  }
+}
