@@ -8,3 +8,4 @@
 
 2. Run compose in local: `make up`
 3. Build image: `make build`
+4. Run debug
