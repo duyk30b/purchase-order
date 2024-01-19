@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+.env
+.env.local
+
 # Logs
 logs
 *.log
@@ -33,15 +36,3 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-# Volume
-mongo-entrypoint
-
-.env
-
-.gitlab-ci.yml
-# docker-compose.yml
-# docker-compose.production.yml
-
-setup_env.sh
-setup_demo_env.sh

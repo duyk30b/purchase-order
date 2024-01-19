@@ -1,0 +1,186 @@
+import { Model, UpdateQuery } from 'mongoose'
+import { BaseCondition } from '../common/dto/base-condition'
+import { NoExtra } from '../common/helpers'
+import { BaseMongoCondition } from './base-mongo.condition'
+
+export abstract class BaseMongoRepository<
+  _SCHEMA,
+  _TYPE,
+  _SORT = { [P in keyof _SCHEMA]?: 'ASC' | 'DESC' },
+  _RELATION = { [P in keyof _SCHEMA]?: boolean },
+  _INSERT = _TYPE,
+  _UPDATE = _TYPE,
+> extends BaseMongoCondition<_SCHEMA> {
+  private model: Model<_SCHEMA>
+
+  protected constructor(model: Model<_SCHEMA>) {
+    super()
+    this.model = model
+  }
+
+  async pagination<S extends _SORT, R extends _RELATION>(options: {
+    page: number
+    limit: number
+    condition?: BaseCondition<_SCHEMA>
+    sort?: NoExtra<_SORT, S>
+    relation?: NoExtra<_RELATION, R>
+  }) {
+    const { limit, page, sort, condition, relation } = options
+    const skip = (page - 1) * limit
+    const filter = this.getFilterOptions(condition)
+
+    let query = this.model.find(filter).skip(skip).limit(limit)
+    if (relation) {
+      const keys = this.getRelationOptions(relation)
+      query = query.populate(keys) as any
+    }
+    if (sort) {
+      const order = this.getSortOptions(sort)
+      query = query.sort(order) as any
+    }
+
+    const [docs, count] = await Promise.all([query.exec(), this.model.countDocuments(filter)])
+    const data: _SCHEMA[] = docs.map((i) => i.toObject())
+    return { skip, limit, count, data }
+  }
+
+  async findMany<S extends _SORT, R extends _RELATION>(options: {
+    limit?: number
+    condition?: BaseCondition<_SCHEMA>
+    sort?: NoExtra<_SORT, S>
+    relation?: NoExtra<_RELATION, R>
+  }): Promise<_TYPE[]> {
+    const { condition, sort, relation, limit } = options
+    const filter = this.getFilterOptions(condition)
+
+    let query = this.model.find(filter)
+    if (limit) query = query.limit(limit)
+    if (relation) {
+      const keys = this.getRelationOptions(relation)
+      query = query.populate(keys) as any
+    }
+    if (sort) {
+      const order = this.getSortOptions(sort)
+      query = query.sort(order) as any
+    }
+
+    const docs = await query.exec()
+    const result = docs.map((i) => i.toObject())
+    return result as _TYPE[]
+  }
+
+  async findManyBy(condition: BaseCondition<_SCHEMA>): Promise<_TYPE[]> {
+    const filter = this.getFilterOptions(condition)
+
+    const docs = await this.model.find(filter).exec()
+    const result = docs.map((i) => i.toObject())
+    return result as _TYPE[]
+  }
+
+  async findManyByIds(ids: string[]): Promise<_TYPE[]> {
+    const docs = await this.model.find({ _id: { $in: ids } } as any).exec()
+    const result = docs.map((i) => i.toObject())
+    return result as _TYPE[]
+  }
+
+  async findOne<S extends _SORT, R extends _RELATION>(options: {
+    condition: BaseCondition<_TYPE>
+    sort?: NoExtra<_SORT, S>
+    relation?: NoExtra<_RELATION, R>
+  }): Promise<_TYPE> {
+    const { condition, sort, relation } = options
+
+    const filter = this.getFilterOptions(condition)
+
+    let query = this.model.findOne(filter)
+    if (relation) {
+      const keys = this.getRelationOptions(relation)
+      query = query.populate(keys) as any
+    }
+    if (sort) {
+      const order = this.getSortOptions(sort)
+      query = query.sort(order) as any
+    }
+
+    const doc = await query
+    return doc ? doc.toObject() : null
+  }
+
+  async findOneBy(condition: BaseCondition<_SCHEMA>): Promise<_TYPE> {
+    const filter = this.getFilterOptions(condition)
+
+    const doc = await this.model.findOne(filter)
+    const result = doc ? doc.toObject() : null
+    return result as _TYPE
+  }
+
+  async findOneById(id: string): Promise<_TYPE> {
+    const doc = await this.model.findOne({ _id: id } as any)
+    const result = doc ? doc.toObject() : null
+    return result as _TYPE
+  }
+
+  async insertOne<T extends Partial<_INSERT>>(data: NoExtra<Partial<_INSERT>, T>): Promise<_TYPE> {
+    const model = new this.model(data)
+    const doc = await model.save()
+    const result = doc.toObject()
+    return result as _TYPE
+  }
+
+  async insertOneFullField<T extends _INSERT>(data: NoExtra<_INSERT, T>): Promise<_TYPE> {
+    const model = new this.model(data)
+    const hydratedDocument = await model.save()
+    const result = hydratedDocument.toObject()
+    return result as _TYPE
+  }
+
+  async insertMany<T extends Partial<_INSERT>>(
+    data: NoExtra<Partial<_INSERT>, T>[]
+  ): Promise<_TYPE[]> {
+    const hydratedDocument = await this.model.insertMany(data)
+    const result = hydratedDocument.map((i: any) => i.toObject())
+    return result
+  }
+
+  async insertManyFullField<T extends _INSERT>(data: NoExtra<_INSERT, T>[]): Promise<_TYPE[]> {
+    const hydratedDocument = await this.model.insertMany(data)
+    const result = hydratedDocument.map((i: any) => i.toObject())
+    return result
+  }
+
+  async updateOne<T extends Partial<_UPDATE>>(
+    condition: BaseCondition<_SCHEMA>,
+    data: NoExtra<Partial<_UPDATE>, T>
+  ): Promise<_TYPE> {
+    const filter = this.getFilterOptions(condition)
+    const hydratedDocument = await this.model.findOneAndUpdate(
+      filter,
+      data as unknown as UpdateQuery<_SCHEMA>,
+      { new: true }
+    )
+    const result = hydratedDocument ? hydratedDocument.toObject() : null
+    return result as _TYPE
+  }
+
+  async softDeleteOne(condition: BaseCondition<_SCHEMA>) {
+    const filter = this.getFilterOptions(condition)
+    const result = await this.model.updateOne(filter, {
+      $set: {
+        deletedAt: new Date(),
+      },
+    } as UpdateQuery<_SCHEMA>)
+    return result.upsertedCount
+  }
+
+  async deleteOne(condition: BaseCondition<_SCHEMA>) {
+    const filter = this.getFilterOptions(condition)
+    const result = await this.model.deleteOne(filter)
+    return result.deletedCount
+  }
+
+  async deleteMany(condition: BaseCondition<_SCHEMA>) {
+    const filter = this.getFilterOptions(condition)
+    const result = await this.model.deleteMany(filter)
+    return result.deletedCount
+  }
+}

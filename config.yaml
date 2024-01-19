@@ -7,7 +7,7 @@ kong:
   host: ${{ KONG_HOST }}
   port: ${{ KONG_PORT }}
   upstream:
-    name: ${{ SERVICE_NAME }}
+    name: ${{ SERVICE_NAME }}-upstream
 service:
   id: ${{ SERVICE_NAME }}
   name: ${{ SERVICE_NAME }}
