@@ -1,60 +1,37 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-import { UserCronService } from '@components/user/user.cron.service';
-import { ResponseCodeEnum } from '@constant/response-code.enum';
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { INSERT_PERMISSION } from '@utils/permissions/permission';
-import { ResponseBuilder } from '@utils/response-builder';
-import { I18nService } from 'nestjs-i18n';
+import { sleep } from '@nestcloud/common'
+import { Injectable, Logger } from '@nestjs/common'
+import { NatsClientUserService } from './components/transporter/nats/service/nats-client-user.service'
+import { INSERT_PERMISSION } from './core/guard/permission'
 
 @Injectable()
-export class AppService implements OnModuleInit {
-  constructor(
-    private readonly userService: UserCronService,
+export class AppService {
+  private readonly logger = new Logger(AppService.name)
 
-    private readonly i18n: I18nService,
-  ) {}
+  constructor(private readonly natsClientUserService: NatsClientUserService) {}
 
   async onModuleInit() {
-    await this.updatePermissions();
+    this.logger.log('------- Init Module -------')
+    await this.updatePermissions()
   }
 
-  async ping(): Promise<any> {
-    return new ResponseBuilder('pong item stock planning')
-      .withCode(ResponseCodeEnum.SUCCESS)
-      .withMessage(await this.i18n.translate('error.SUCCESS'))
-      .build();
-  }
-
-  getHealth(): any {
-    return new ResponseBuilder()
-      .withCode(ResponseCodeEnum.SUCCESS)
-      .withMessage('This is purchased-order-service')
-      .build();
+  getHello(): string {
+    return 'Hello World!'
   }
 
   async updatePermissions() {
-    let status = false;
-    let number = 1;
+    const maxRetry = 6
+    let success = false
+    let number = 1
     do {
       try {
-        const responseInsert = await this.userService.insertPermission(
-          INSERT_PERMISSION,
-        );
-        const responseDelete =
-          await this.userService.deletePermissionNotActive();
-        if (
-          responseInsert.statusCode === ResponseCodeEnum.SUCCESS &&
-          responseDelete.statusCode === ResponseCodeEnum.SUCCESS
-        ) {
-          status = true;
-        } else {
-          number++;
-          setTimeout(function () {}, 5000);
-        }
+        await this.natsClientUserService.insertPermission(INSERT_PERMISSION)
+        await this.natsClientUserService.deletePermissionNotActive()
+        success = true
+        this.logger.log('Update Permissions success !!!')
       } catch (err) {
-        number++;
-        setTimeout(function () {}, 5000);
+        number++
+        await sleep(5000)
       }
-    } while (!status && number < 6);
+    } while (!success && number < maxRetry)
   }
 }
