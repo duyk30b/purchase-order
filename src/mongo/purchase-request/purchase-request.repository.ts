@@ -14,7 +14,7 @@ export class PurchaseRequestRepository extends BaseMongoRepository<
   PurchaseRequest,
   PurchaseRequestType,
   { [P in '_id']?: 'ASC' | 'DESC' },
-  { [P in keyof PurchaseRequest]?: unknown },
+  { [P in 'purchaseRequestItemList']?: boolean },
   PurchaseRequestInsertType,
   PurchaseRequestUpdateType
 > {

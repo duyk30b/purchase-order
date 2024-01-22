@@ -37,7 +37,8 @@ export class ApiPurchaseRequestService {
       limit,
       relation,
       condition: {
-        code: filter.searchText,
+        code: filter.searchText ? { LIKE: filter.searchText } : undefined,
+        // code: filter.code,
         requestDate: filter.requestDate,
         receiveDate: filter.receiveDate,
         costCenterId: filter.costCenterId,
@@ -58,7 +59,8 @@ export class ApiPurchaseRequestService {
 
     return await this.purchaseRequestRepository.findMany({
       condition: {
-        code: filter.searchText,
+        code: filter.searchText ? { LIKE: filter.searchText } : undefined,
+        // code: filter.code,
         requestDate: filter.requestDate,
         receiveDate: filter.receiveDate,
         costCenterId: filter.costCenterId,
@@ -71,9 +73,14 @@ export class ApiPurchaseRequestService {
   }
 
   async getOne(id: string, query?: PurchaseRequestGetOneQuery) {
-    const data = await this.purchaseRequestRepository.findOneBy({ id })
+    const data = await this.purchaseRequestRepository.findOne({
+      relation: { purchaseRequestItemList: true },
+      condition: { id },
+    })
     if (!data) throw new BusinessException('error.NOT_FOUND')
-    return data
+
+    const dataExtend = await this.informationService.getInformationFromPurchaseRequest([data])
+    return { data, dataExtend }
   }
 
   async createOne(body: PurchaseRequestCreateBody, userId: number) {

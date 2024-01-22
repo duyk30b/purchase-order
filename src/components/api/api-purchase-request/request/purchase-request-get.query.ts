@@ -15,7 +15,7 @@ import {
 export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
-    example: JSON.stringify({ purchaseRequestItemList: true }),
+    example: JSON.stringify(<PurchaseRequestRelationQuery>{ vendor: true }),
   })
   @Expose()
   @Transform(({ value }) => {
@@ -37,7 +37,8 @@ export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
     example: JSON.stringify(<PurchaseRequestFilterQuery>{
-      searchText: { LIKE: 'RQ' },
+      searchText: '001',
+      code: { LIKE: 'RQ' },
       requestDate: { GTE: new Date() },
       receiveDate: { LT: new Date() },
       costCenterId: '63fdde9517a7317f0e8f959a',
