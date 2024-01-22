@@ -3,8 +3,8 @@ import { Expose, Transform, plainToInstance } from 'class-transformer'
 import { IsObject, ValidateNested } from 'class-validator'
 import { LimitQuery, PaginationQuery } from '../../../../common/dto/query'
 import {
-  PurchaseRequestStatusEnum,
-  SourceAddressEnum,
+  PurchaseRequestStatus,
+  SourceAddress,
 } from '../../../../mongo/purchase-request/purchase-request.schema'
 import {
   PurchaseRequestFilterQuery,
@@ -41,9 +41,9 @@ export class PurchaseRequestGetQuery {
       requestDate: { GTE: new Date() },
       receiveDate: { LT: new Date() },
       costCenterId: '63fdde9517a7317f0e8f959a',
-      sourceAddress: SourceAddressEnum.Japan,
+      sourceAddress: SourceAddress.Japan,
       vendorId: '63fdde9517a7317f0e8f959a',
-      status: PurchaseRequestStatusEnum.DRAFT,
+      status: PurchaseRequestStatus.DRAFT,
     }),
   })
   @Expose()

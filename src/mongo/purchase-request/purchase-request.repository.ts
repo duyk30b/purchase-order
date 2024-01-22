@@ -20,9 +20,26 @@ export class PurchaseRequestRepository extends BaseMongoRepository<
 > {
   constructor(
     @InjectModel('PurchaseRequestSchema')
-    private readonly purchaseOrderModel: Model<PurchaseRequest>
+    private readonly purchaseRequestModel: Model<PurchaseRequest>
   ) {
-    super(purchaseOrderModel)
+    super(purchaseRequestModel)
+  }
+
+  public async generateNextCode(options: {
+    prefix?: string
+    padSize?: number
+    padChar?: string
+  }): Promise<string> {
+    const prefix = options.prefix || 'PR'
+    const padSize = options.padSize || 7
+    const padChar = options.padChar || '0'
+    const lastDocument = await this.purchaseRequestModel
+      .findOne({ code: { $regex: new RegExp(`^${prefix}`, 'i') } })
+      .sort({ code: -1 })
+    const lastCode = lastDocument?.toObject()?.code || ''
+    const lastNumber = +lastCode.replace(prefix, '') || 0
+    const currentNumber = (lastNumber + 1).toString().padStart(padSize, padChar)
+    return `${prefix}${currentNumber}`
   }
 
   async incrementQuantity(
@@ -32,7 +49,7 @@ export class PurchaseRequestRepository extends BaseMongoRepository<
     }
   ) {
     const filter = this.getFilterOptions(condition)
-    return await this.purchaseOrderModel.findOneAndUpdate(
+    return await this.purchaseRequestModel.findOneAndUpdate(
       filter,
       {
         $inc: {

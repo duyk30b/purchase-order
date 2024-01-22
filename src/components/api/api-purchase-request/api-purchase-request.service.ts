@@ -4,6 +4,10 @@ import { BusinessException } from '../../../core/exception-filter/exception-filt
 import { PurchaseRequestItemRepository } from '../../../mongo/purchase-request-item/purchase-request-item.repository'
 import { PurchaseRequestItemType } from '../../../mongo/purchase-request-item/purchase-request-item.schema'
 import { PurchaseRequestRepository } from '../../../mongo/purchase-request/purchase-request.repository'
+import {
+  PurchaseRequestStatus,
+  PurchaseRequestType,
+} from '../../../mongo/purchase-request/purchase-request.schema'
 import { InformationService } from '../../data-extend/information.service'
 import { ValidateService } from '../../data-extend/validate.service'
 import {
@@ -78,17 +82,22 @@ export class ApiPurchaseRequestService {
     await Promise.all([
       this.validateService.validateCostCenter(body.costCenterId),
       this.validateService.validateVendor(body.vendorId),
-      // this.validateService.validateItem(body),
+      this.validateService.validateItem(body.items.map((i) => i.itemId)),
     ])
 
-    const purchaseRequest = await this.purchaseRequestRepository.insertOneFullField({
-      ...purchaseRequestBody,
-      userIdRequest: userId,
-      createdByUserId: userId,
-      updatedByUserId: userId,
-    })
+    const code = await this.purchaseRequestRepository.generateNextCode({})
 
-    const itemsDto = items.map((item) => {
+    const purchaseRequest: PurchaseRequestType =
+      await this.purchaseRequestRepository.insertOneFullField({
+        ...purchaseRequestBody,
+        code,
+        status: PurchaseRequestStatus.DRAFT,
+        userIdRequest: userId,
+        createdByUserId: userId,
+        updatedByUserId: userId,
+      })
+
+    const itemsDto: PurchaseRequestItemType[] = items.map((item) => {
       const dto: PurchaseRequestItemType = {
         ...item,
         _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
@@ -106,8 +115,28 @@ export class ApiPurchaseRequestService {
   }
 
   async updateOne(id: string, body: PurchaseRequestUpdateBody) {
-    // const data = await this.purchaseRequestRepository.updateOne({ id }, body)
-    // return data
+    const { items, ...purchaseRequestBody } = body
+
+    await Promise.all([
+      this.validateService.validateCostCenter(body.costCenterId),
+      this.validateService.validateVendor(body.vendorId),
+      this.validateService.validateItem(body.items.map((i) => i.itemId)),
+    ])
+
+    const rootData = await this.purchaseRequestRepository.findOneById(id)
+    if (!rootData) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+    if (![PurchaseRequestStatus.DRAFT, PurchaseRequestStatus.REJECT].includes(rootData.status)) {
+      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+    }
+
+    let status: PurchaseRequestStatus
+    if (rootData.status === PurchaseRequestStatus.DRAFT) {
+      status = PurchaseRequestStatus.DRAFT
+    } else if (rootData.status === PurchaseRequestStatus.REJECT) {
+      status = PurchaseRequestStatus.WAIT_CONFIRM
+    }
   }
 
   async deleteOne(id: string) {

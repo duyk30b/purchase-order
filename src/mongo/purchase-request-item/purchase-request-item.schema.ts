@@ -16,7 +16,7 @@ export class PurchaseRequestItem extends BaseSchema {
   itemTypeId: number
 
   @Prop()
-  deliveryTerm?: Date // thời hạn giao hàng
+  deliveryTerm: Date // thời hạn giao hàng
 
   @Prop()
   itemUnitId: number

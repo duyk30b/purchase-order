@@ -3,6 +3,7 @@
 import { Path } from "nestjs-i18n";
 export type I18nTranslations = {
     "common": {
+        "Success": string;
         "SUCCESS": string;
     };
     "error": {
@@ -14,6 +15,9 @@ export type I18nTranslations = {
         "BAD_REQUEST": string;
         "CostCenter": {
             "Error": string;
+        };
+        "PURCHASE_REQUEST": {
+            "STATUS_INVALID": string;
         };
     };
     "validation": {

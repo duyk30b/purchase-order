@@ -12,8 +12,8 @@ import {
 } from 'class-validator'
 import { objectEnum, valuesEnum } from '../../../../common/helpers'
 import {
-  SourceAddressEnum,
-  SyncStatusEnum,
+  SourceAddress,
+  SyncStatus,
 } from '../../../../mongo/purchase-request/purchase-request.schema'
 
 export class ItemUpsertBody {
@@ -35,6 +35,12 @@ export class ItemUpsertBody {
   @IsNumber()
   itemUnitId: number
 
+  @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
+  @Expose()
+  @Transform(({ value }) => (value ? new Date() : undefined))
+  @IsDate()
+  deliveryTerm: Date
+
   @ApiProperty({ example: 12 })
   @Expose()
   @IsDefined()
@@ -50,13 +56,13 @@ export class ItemUpsertBody {
 
 export class PurchaseRequestCreateBody {
   // @ApiProperty({
-  //   example: PurchaseRequestStatusEnum.DRAFT,
-  //   enum: valuesEnum(PurchaseRequestStatusEnum),
-  //   description: JSON.stringify(objectEnum(PurchaseRequestStatusEnum)),
+  //   example: PurchaseRequestStatus.DRAFT,
+  //   enum: valuesEnum(PurchaseRequestStatus),
+  //   description: JSON.stringify(objectEnum(PurchaseRequestStatus)),
   // })
   // @Expose()
-  // @IsIn(valuesEnum(PurchaseRequestStatusEnum))
-  // status: PurchaseRequestStatusEnum // client không được phép gửi lên status
+  // @IsIn(valuesEnum(PurchaseRequestStatus))
+  // status: PurchaseRequestStatus // client không được phép gửi lên status
 
   @ApiProperty({ type: ItemUpsertBody, isArray: true })
   @Expose()
@@ -65,11 +71,6 @@ export class PurchaseRequestCreateBody {
   @IsArray()
   @ValidateNested({ each: true })
   items: ItemUpsertBody[]
-
-  @ApiProperty({ example: 'RQ_OO1' })
-  @Expose()
-  @IsString()
-  code: string
 
   @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
   @Expose()
@@ -94,22 +95,22 @@ export class PurchaseRequestCreateBody {
   costCenterId: string
 
   @ApiProperty({
-    example: SourceAddressEnum.Japan,
-    enum: valuesEnum(SourceAddressEnum),
-    description: JSON.stringify(objectEnum(SourceAddressEnum)),
+    example: SourceAddress.Japan,
+    enum: valuesEnum(SourceAddress),
+    description: JSON.stringify(objectEnum(SourceAddress)),
   })
   @Expose()
-  @IsIn(valuesEnum(SourceAddressEnum))
-  sourceAddress: SourceAddressEnum // Chỉ sử dụng cho SMC
+  @IsIn(valuesEnum(SourceAddress))
+  sourceAddress: SourceAddress // Chỉ sử dụng cho SMC
 
   @ApiProperty({
-    example: SyncStatusEnum.NotSyncYet,
-    enum: valuesEnum(SyncStatusEnum),
-    description: JSON.stringify(objectEnum(SyncStatusEnum)),
+    example: SyncStatus.NotSyncYet,
+    enum: valuesEnum(SyncStatus),
+    description: JSON.stringify(objectEnum(SyncStatus)),
   })
   @Expose()
-  @IsIn(valuesEnum(SyncStatusEnum))
-  syncStatus: SyncStatusEnum // Chỉ sử dụng cho SMC
+  @IsIn(valuesEnum(SyncStatus))
+  syncStatus: SyncStatus // Chỉ sử dụng cho SMC
 
   @ApiProperty({ example: 12 })
   @Expose()
@@ -122,4 +123,4 @@ export class PurchaseRequestCreateBody {
   note: string
 }
 
-export class PurchaseRequestUpdateBody extends OmitType(PurchaseRequestCreateBody, ['code']) {}
+export class PurchaseRequestUpdateBody extends PurchaseRequestCreateBody {}

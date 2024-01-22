@@ -5,8 +5,8 @@ import { ConditionString } from '../../../../common/dto/condition-string'
 import { SortQuery } from '../../../../common/dto/query'
 import { valuesEnum } from '../../../../common/helpers'
 import {
-  PurchaseRequestStatusEnum,
-  SourceAddressEnum,
+  PurchaseRequestStatus,
+  SourceAddress,
 } from '../../../../mongo/purchase-request/purchase-request.schema'
 
 export class PurchaseRequestRelationQuery {
@@ -36,16 +36,16 @@ export class PurchaseRequestFilterQuery {
   costCenterId: string
 
   @Expose()
-  @IsIn(valuesEnum(SourceAddressEnum))
-  sourceAddress: SourceAddressEnum // Chỉ sử dụng cho SMC
+  @IsIn(valuesEnum(SourceAddress))
+  sourceAddress: SourceAddress // Chỉ sử dụng cho SMC
 
   @Expose()
   @IsMongoId()
   vendorId: string
 
   @Expose()
-  @IsIn(valuesEnum(PurchaseRequestStatusEnum))
-  status: PurchaseRequestStatusEnum
+  @IsIn(valuesEnum(PurchaseRequestStatus))
+  status: PurchaseRequestStatus
 }
 
 export class PurchaseRequestSortQuery extends SortQuery {

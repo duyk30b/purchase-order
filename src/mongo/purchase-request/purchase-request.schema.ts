@@ -3,7 +3,7 @@ import { Document } from 'mongoose'
 import { BaseSchema } from '../base.schema'
 import { PurchaseRequestItemType } from '../purchase-request-item/purchase-request-item.schema'
 
-export enum PurchaseRequestStatusEnum {
+export enum PurchaseRequestStatus {
   DRAFT = 1,
   WAIT_CONFIRM = 2,
   REJECT = 3,
@@ -12,12 +12,12 @@ export enum PurchaseRequestStatusEnum {
   CANCEL = 6,
 }
 
-export enum SourceAddressEnum {
+export enum SourceAddress {
   VietNam = 'VietNam',
   Japan = 'Japan',
 }
 
-export enum SyncStatusEnum {
+export enum SyncStatus {
   BlockSync = 0, // Không đồng bộ
   NotSyncYet = 1, // Chưa đồng bộ
   SyncComplete = 2, // Đã đồng bộ
@@ -26,7 +26,7 @@ export enum SyncStatusEnum {
 @Schema({ collection: 'purchaseRequest', timestamps: true })
 export class PurchaseRequest extends BaseSchema {
   @Prop({ type: Number })
-  status: PurchaseRequestStatusEnum
+  status: PurchaseRequestStatus
 
   @Prop()
   code: string
@@ -44,10 +44,10 @@ export class PurchaseRequest extends BaseSchema {
   costCenterId: string
 
   @Prop()
-  sourceAddress: SourceAddressEnum // Nguồn mua // Chỉ sử dụng cho SMC
+  sourceAddress: SourceAddress // Nguồn mua // Chỉ sử dụng cho SMC
 
   @Prop({ type: Number })
-  syncStatus: SyncStatusEnum // Đồng bộ với nguồn mua // Chỉ sử dụng cho SMC
+  syncStatus: SyncStatus // Đồng bộ với nguồn mua // Chỉ sử dụng cho SMC
 
   @Prop()
   currencyId: number // Loại tiền tệ
@@ -78,10 +78,10 @@ export type PurchaseRequestType = Omit<PurchaseRequest, keyof Document<PurchaseR
 
 export type PurchaseRequestInsertType = Omit<
   PurchaseRequestType,
-  'id' | '_id' | 'status' | 'purchaseRequestItemList'
+  'id' | '_id' | 'purchaseRequestItemList'
 >
 
 export type PurchaseRequestUpdateType = Omit<
   PurchaseRequestType,
-  'id' | '_id' | 'status' | 'purchaseRequestItemList' | 'code'
+  'id' | '_id' | 'purchaseRequestItemList' | 'code'
 >
