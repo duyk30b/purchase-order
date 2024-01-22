@@ -1,0 +1,146 @@
+image: gitlab/dind
+
+variables:
+  DOCKER_DRIVER: overlay
+  CONTAINER_DEV_IMAGE: $PRIVATE_REGISTRY_HOST/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_SLUG
+  CONTAINER_STAGING_IMAGE: $PRIVATE_REGISTRY_HOST/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_SLUG
+  DEMO_CONTAINER_IMAGE: $PRIVATE_REGISTRY_HOST/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_SLUG
+  PKG_CONTAINER_IMAGE: $PRIVATE_REGISTRY_HOST/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_TAG
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - deploy
+  - build_staging
+  - deploy_staging
+  - build_demo
+  - deploy_demo
+  - build_pkg
+  - clean
+
+before_script:
+  - docker login $PRIVATE_REGISTRY_HOST -u $PRIVATE_REGISTRY_USERNAME -p $PRIVATE_REGISTRY_PASSWD
+
+build_pkg:
+  stage: build_pkg
+  script:
+    - docker build --tag $PKG_CONTAINER_IMAGE -f Dockerfile.package .
+    - docker push $PKG_CONTAINER_IMAGE
+  only:
+    - tags
+
+build:
+  stage: build
+  script:
+    - docker build --tag $CONTAINER_DEV_IMAGE .
+    - docker push $CONTAINER_DEV_IMAGE
+  only:
+    - develop
+
+deploy:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  only:
+    - develop
+  script:
+    - eval `ssh-agent -s`
+
+    - bash -c 'echo "$DEVELOP_SERVER_SSH_KEY" | ssh-add -'
+    - mkdir -p ~/.ssh
+
+    - ssh-keyscan -H $DEVELOP_SERVER_IP >> ~/.ssh/known_hosts
+
+    - chmod 644 ~/.ssh/known_hosts
+
+    - >
+      ssh $DEVELOP_SERVER_USERNAME@$DEVELOP_SERVER_IP
+      "docker login ${PRIVATE_REGISTRY_HOST} -u ${PRIVATE_REGISTRY_USERNAME} -p ${PRIVATE_REGISTRY_PASSWD};
+      cd ${PATH_TO_DEVELOP_PROJECT};
+      docker pull ${CONTAINER_DEV_IMAGE};
+      docker compose down;
+      docker compose -f docker-compose.yml -f docker-compose.production.yml up -d;
+      docker image prune -f;"
+
+build_staging:
+  stage: build_staging
+  script:
+    - docker build --tag $CONTAINER_STAGING_IMAGE .
+    - docker push $CONTAINER_STAGING_IMAGE
+  only:
+    - staging
+
+deploy_staging:
+  stage: deploy_staging
+  variables:
+    GIT_STRATEGY: none
+  only:
+    - staging
+  script:
+    - eval `ssh-agent -s`
+
+    - bash -c 'echo "$SSH_PRIVATE_KEY" | ssh-add -'
+    - mkdir -p ~/.ssh
+
+    - ssh-keyscan -H $SSH_SERVER_IP >> ~/.ssh/known_hosts
+
+    - mkdir -p ~/.ssh
+
+    - chmod 644 ~/.ssh/known_hosts
+
+    - >
+      ssh $SSH_STAGING_USER@$SSH_STAGING_SERVER_IP
+      "docker login ${PRIVATE_REGISTRY_HOST} -u ${PRIVATE_REGISTRY_USERNAME} -p ${PRIVATE_REGISTRY_PASSWD};
+      cd ${PATH_TO_STAGING_PROJECT};
+      docker pull ${CONTAINER_STAGING_IMAGE};
+      docker compose down;
+      docker compose -f docker-compose.yml -f docker-compose.production.yml up -d;
+      docker image prune -f;"
+
+build_demo:
+  before_script:
+    - docker version
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - ls -la
+    - chmod +x ./setup_env_demo.sh
+    - ./setup_env_demo.sh
+  stage: build_demo
+  script:
+    - docker build --tag $DEMO_CONTAINER_IMAGE .
+    - docker push $DEMO_CONTAINER_IMAGE
+  only:
+    - master
+
+deploy_demo:
+  stage: deploy_demo
+  variables:
+    GIT_STRATEGY: none
+  only:
+    - master
+
+  script:
+    - eval `ssh-agent -s`
+
+    - bash -c 'echo "$SSH_PRIVATE_KEY" | ssh-add -'
+    - mkdir -p ~/.ssh
+
+    - ssh-keyscan -H $SSH_SERVER_IP >> ~/.ssh/known_hosts
+
+    - mkdir -p ~/.ssh
+
+    - chmod 644 ~/.ssh/known_hosts
+
+    - >
+      ssh $SSH_USER@$SSH_SERVER_IP
+      "docker login ${PRIVATE_REGISTRY_HOST} -u ${PRIVATE_REGISTRY_USERNAME} -p ${PRIVATE_REGISTRY_PASSWD}
+      cd ${PATH_TO_DEMO_PROJECT};
+      docker pull ${DEMO_CONTAINER_IMAGE};
+      docker compose down;
+      docker compose -f docker-compose.yml -f docker-compose.production.yml up -d;
+      docker image prune -f;"
+clean:
+  stage: clean
+  script:
+    - docker system prune --all -f
