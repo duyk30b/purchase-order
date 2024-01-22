@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import BigNumber from 'bignumber.js'
 import * as mongoose from 'mongoose'
 import { Document, Types } from 'mongoose'
 import { BaseSchema } from '../base.schema'
@@ -33,7 +32,7 @@ const PurchaseRequestItemSchema = SchemaFactory.createForClass(PurchaseRequestIt
 PurchaseRequestItemSchema.index({ warehouseCode: 1 }, { unique: false })
 
 PurchaseRequestItemSchema.virtual('price').get(function () {
-  return new BigNumber(this._price.toString())
+  return this._price.toString()
 })
 
 PurchaseRequestItemSchema.virtual('purchaseRequest', {
@@ -53,7 +52,7 @@ export type PurchaseRequestItemType = Omit<
   keyof Document<PurchaseRequestItem>
 > & {
   id?: string
-  price?: BigNumber
+  price?: string
   purchaseRequestId?: string
   purchaseRequest?: PurchaseRequest
 }

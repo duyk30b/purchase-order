@@ -39,9 +39,9 @@ export abstract class BaseMongoRepository<
       query = query.sort(order) as any
     }
 
-    const [docs, count] = await Promise.all([query.exec(), this.model.countDocuments(filter)])
-    const data: _SCHEMA[] = docs.map((i) => i.toObject())
-    return { skip, limit, count, data }
+    const [docs, total] = await Promise.all([query.exec(), this.model.countDocuments(filter)])
+    const data: _TYPE[] = docs.map((i) => i.toObject())
+    return { page, limit, total, data }
   }
 
   async findMany<S extends _SORT, R extends _RELATION>(options: {

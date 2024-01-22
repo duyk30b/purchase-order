@@ -16,6 +16,6 @@ import { PurchaseRequestSchema } from './purchase-request/purchase-request.schem
     ]),
   ],
   providers: [PurchaseRequestRepository, PurchaseRequestItemRepository],
-  exports: [PurchaseRequestRepository],
+  exports: [PurchaseRequestRepository, PurchaseRequestItemRepository],
 })
 export class MongoDbConnectModule {}

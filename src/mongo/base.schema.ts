@@ -10,4 +10,10 @@ export class BaseSchema extends Document {
 
   @Prop()
   updatedAt?: Date
+
+  @Prop()
+  createdByUserId: number
+
+  @Prop()
+  updatedByUserId: number
 }

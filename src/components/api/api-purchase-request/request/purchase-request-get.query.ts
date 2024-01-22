@@ -4,7 +4,7 @@ import { IsObject, ValidateNested } from 'class-validator'
 import { LimitQuery, PaginationQuery } from '../../../../common/dto/query'
 import {
   PurchaseRequestStatusEnum,
-  SourceAddress,
+  SourceAddressEnum,
 } from '../../../../mongo/purchase-request/purchase-request.schema'
 import {
   PurchaseRequestFilterQuery,
@@ -37,11 +37,11 @@ export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
     example: JSON.stringify(<PurchaseRequestFilterQuery>{
-      code: { LIKE: 'RQ' },
+      searchText: { LIKE: 'RQ' },
       requestDate: { GTE: new Date() },
       receiveDate: { LT: new Date() },
       costCenterId: '63fdde9517a7317f0e8f959a',
-      sourceAddress: SourceAddress.Japan,
+      sourceAddress: SourceAddressEnum.Japan,
       vendorId: '63fdde9517a7317f0e8f959a',
       status: PurchaseRequestStatusEnum.DRAFT,
     }),

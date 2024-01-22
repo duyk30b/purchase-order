@@ -12,9 +12,15 @@ export enum PurchaseRequestStatusEnum {
   CANCEL = 6,
 }
 
-export enum SourceAddress {
+export enum SourceAddressEnum {
   VietNam = 'VietNam',
   Japan = 'Japan',
+}
+
+export enum SyncStatusEnum {
+  BlockSync = 0, // Không đồng bộ
+  NotSyncYet = 1, // Chưa đồng bộ
+  SyncComplete = 2, // Đã đồng bộ
 }
 
 @Schema({ collection: 'purchaseRequest', timestamps: true })
@@ -38,10 +44,10 @@ export class PurchaseRequest extends BaseSchema {
   costCenterId: string
 
   @Prop()
-  sourceAddress: SourceAddress // Nguồn mua // Chỉ sử dụng cho SMC
+  sourceAddress: SourceAddressEnum // Nguồn mua // Chỉ sử dụng cho SMC
 
-  @Prop()
-  sourceSync: boolean // Đồng bộ với nguồn mua // Chỉ sử dụng cho SMC
+  @Prop({ type: Number })
+  syncStatus: SyncStatusEnum // Đồng bộ với nguồn mua // Chỉ sử dụng cho SMC
 
   @Prop()
   currencyId: number // Loại tiền tệ

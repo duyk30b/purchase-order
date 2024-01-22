@@ -6,7 +6,7 @@ import { SortQuery } from '../../../../common/dto/query'
 import { valuesEnum } from '../../../../common/helpers'
 import {
   PurchaseRequestStatusEnum,
-  SourceAddress,
+  SourceAddressEnum,
 } from '../../../../mongo/purchase-request/purchase-request.schema'
 
 export class PurchaseRequestRelationQuery {
@@ -19,7 +19,7 @@ export class PurchaseRequestFilterQuery {
   @Expose()
   @Type(() => ConditionString)
   @ValidateNested({ each: true })
-  code: ConditionString
+  searchText: ConditionString
 
   @Expose()
   @Type(() => ConditionDate)
@@ -36,8 +36,8 @@ export class PurchaseRequestFilterQuery {
   costCenterId: string
 
   @Expose()
-  @IsIn(valuesEnum(SourceAddress))
-  sourceAddress: SourceAddress // Chỉ sử dụng cho SMC
+  @IsIn(valuesEnum(SourceAddressEnum))
+  sourceAddress: SourceAddressEnum // Chỉ sử dụng cho SMC
 
   @Expose()
   @IsMongoId()
