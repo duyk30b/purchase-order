@@ -162,6 +162,13 @@ export abstract class BaseMongoRepository<
     return result as _TYPE
   }
 
+  async updateOneById<T extends Partial<_UPDATE>>(
+    id: string,
+    data: NoExtra<Partial<_UPDATE>, T>
+  ): Promise<_TYPE> {
+    return await this.updateOne({ id } as any, data)
+  }
+
   async softDeleteOne(condition: BaseCondition<_SCHEMA>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.updateOne(filter, {

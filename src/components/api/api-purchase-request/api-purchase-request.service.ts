@@ -114,7 +114,8 @@ export class ApiPurchaseRequestService {
     return purchaseRequest
   }
 
-  async updateOne(id: string, body: PurchaseRequestUpdateBody) {
+  async updateOne(options: { id: string; body: PurchaseRequestUpdateBody; userId: number }) {
+    const { id, body, userId } = options
     const { items, ...purchaseRequestBody } = body
 
     await Promise.all([
@@ -137,10 +138,128 @@ export class ApiPurchaseRequestService {
     } else if (rootData.status === PurchaseRequestStatus.REJECT) {
       status = PurchaseRequestStatus.WAIT_CONFIRM
     }
+
+    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
+      { id },
+      {
+        ...purchaseRequestBody,
+        status,
+        userIdRequest: userId,
+        updatedByUserId: userId,
+      }
+    )
+    await this.purchaseRequestItemRepository.deleteMany({
+      _purchase_request_id: id,
+    } as any)
+
+    const itemsDto: PurchaseRequestItemType[] = items.map((item) => {
+      const dto: PurchaseRequestItemType = {
+        ...item,
+        _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
+        _price: new Types.Decimal128(item.price),
+        createdByUserId: userId,
+        updatedByUserId: userId,
+      }
+      return dto
+    })
+
+    purchaseRequest.purchaseRequestItemList =
+      await this.purchaseRequestItemRepository.insertManyFullField(itemsDto)
+
+    return purchaseRequest
+  }
+
+  async waitConfirm(options: { id: string; userId: number }) {
+    const { id, userId } = options
+    const rootData = await this.purchaseRequestRepository.findOneById(id)
+    if (!rootData) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+    if (![PurchaseRequestStatus.DRAFT].includes(rootData.status)) {
+      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+    }
+    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
+      { id },
+      {
+        status: PurchaseRequestStatus.WAIT_CONFIRM,
+        updatedByUserId: userId,
+      }
+    )
+    return purchaseRequest
+  }
+
+  async confirm(options: { id: string; userId: number }) {
+    const { id, userId } = options
+    const rootData = await this.purchaseRequestRepository.findOneById(id)
+    if (!rootData) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+    if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)) {
+      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+    }
+    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
+      { id },
+      {
+        status: PurchaseRequestStatus.CONFIRM,
+        updatedByUserId: userId,
+      }
+    )
+    return purchaseRequest
+  }
+
+  async reject(options: { id: string; userId: number }) {
+    const { id, userId } = options
+    const rootData = await this.purchaseRequestRepository.findOneById(id)
+    if (!rootData) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+    if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)) {
+      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+    }
+    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
+      { id },
+      {
+        status: PurchaseRequestStatus.REJECT,
+        updatedByUserId: userId,
+      }
+    )
+    return purchaseRequest
+  }
+
+  async cancel(options: { id: string; userId: number }) {
+    const { id, userId } = options
+    const rootData = await this.purchaseRequestRepository.findOneById(id)
+    if (!rootData) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+    if (![PurchaseRequestStatus.CONFIRM].includes(rootData.status)) {
+      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+    }
+    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
+      { id },
+      {
+        status: PurchaseRequestStatus.CANCEL,
+        updatedByUserId: userId,
+      }
+    )
+    return purchaseRequest
   }
 
   async deleteOne(id: string) {
-    const data = await this.purchaseRequestRepository.updateOne({ id }, { deletedAt: new Date() })
-    return data
+    const rootData = await this.purchaseRequestRepository.findOneById(id)
+    if (!rootData) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+    if (
+      ![PurchaseRequestStatus.DRAFT, PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)
+    ) {
+      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+    }
+
+    await this.purchaseRequestRepository.deleteOne({ id } as any)
+    await this.purchaseRequestItemRepository.deleteMany({
+      _purchase_request_id: id,
+    } as any)
+    return { id, success: true }
   }
 }

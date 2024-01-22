@@ -30,7 +30,7 @@ export class PurchaseRequestRepository extends BaseMongoRepository<
     padSize?: number
     padChar?: string
   }): Promise<string> {
-    const prefix = options.prefix || 'PR'
+    const prefix = options.prefix || 'PR-'
     const padSize = options.padSize || 7
     const padChar = options.padChar || '0'
     const lastDocument = await this.purchaseRequestModel

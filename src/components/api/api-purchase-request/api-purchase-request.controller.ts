@@ -47,8 +47,32 @@ export class ApiPurchaseRequestController {
   }
 
   @Patch('update/:id')
-  async update(@Param() { id }: IdMongoParam, @Body() body: PurchaseRequestUpdateBody) {
-    return await this.apiPurchaseRequestService.updateOne(id, body)
+  async update(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam,
+    @Body() body: PurchaseRequestUpdateBody
+  ) {
+    return await this.apiPurchaseRequestService.updateOne({ id, body, userId: user.id })
+  }
+
+  @Patch('wait-confirm/:id')
+  async waitConfirm(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
+    return await this.apiPurchaseRequestService.waitConfirm({ id, userId: user.id })
+  }
+
+  @Patch('confirm/:id')
+  async confirm(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
+    return await this.apiPurchaseRequestService.confirm({ id, userId: user.id })
+  }
+
+  @Patch('reject/:id')
+  async reject(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
+    return await this.apiPurchaseRequestService.reject({ id, userId: user.id })
+  }
+
+  @Patch('cancel/:id')
+  async cancel(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
+    return await this.apiPurchaseRequestService.cancel({ id, userId: user.id })
   }
 
   @Delete('delete/:id')
