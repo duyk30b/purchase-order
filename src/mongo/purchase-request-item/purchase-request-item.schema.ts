@@ -30,7 +30,7 @@ export class PurchaseRequestItem extends BaseSchema {
 
 const PurchaseRequestItemSchema =
   SchemaFactory.createForClass(PurchaseRequestItem)
-PurchaseRequestItemSchema.index({ warehouseCode: 1 }, { unique: false })
+PurchaseRequestItemSchema.index({ itemId: 1 }, { unique: false })
 
 PurchaseRequestItemSchema.virtual('price').get(function () {
   return this._price.toString()

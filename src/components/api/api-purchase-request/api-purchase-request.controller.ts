@@ -18,6 +18,7 @@ import {
   PURCHASE_REQUEST_CREATE,
   PURCHASE_REQUEST_DELETE,
   PURCHASE_REQUEST_DETAIL,
+  PURCHASE_REQUEST_HISTORY,
   PURCHASE_REQUEST_LIST,
   PURCHASE_REQUEST_REJECT,
   PURCHASE_REQUEST_UPDATE,
@@ -60,13 +61,22 @@ export class ApiPurchaseRequestController {
     return await this.apiPurchaseRequestService.getOne(id, query)
   }
 
-  @Post('create')
+  @Post('create-draft')
+  @PermissionCode(PURCHASE_REQUEST_CREATE.code)
+  async createDraft(
+    @External() { user }: TExternal,
+    @Body() body: PurchaseRequestCreateBody
+  ) {
+    return await this.apiPurchaseRequestService.createDraft(body, user.id)
+  }
+
+  @Post('create-wait-confirm')
   @PermissionCode(PURCHASE_REQUEST_CREATE.code)
   async create(
     @External() { user }: TExternal,
     @Body() body: PurchaseRequestCreateBody
   ) {
-    return await this.apiPurchaseRequestService.createOne(body, user.id)
+    return await this.apiPurchaseRequestService.createWaitConfirm(body, user.id)
   }
 
   @Patch('update/:id')
@@ -118,8 +128,15 @@ export class ApiPurchaseRequestController {
 
   @Delete('delete/:id')
   @PermissionCode(PURCHASE_REQUEST_DELETE.code)
-  @ApiParam({ name: 'id', example: 1 })
+  @ApiParam({ name: 'id', example: '63fdde9517a7317f0e8f959a' })
   async deleteOne(@Param() { id }: IdMongoParam) {
     return await this.apiPurchaseRequestService.deleteOne(id)
+  }
+
+  @Get('history/:id')
+  @PermissionCode(PURCHASE_REQUEST_HISTORY.code)
+  @ApiParam({ name: 'id', example: '63fdde9517a7317f0e8f959a' })
+  async history(@Param() { id }: IdMongoParam) {
+    return await this.apiPurchaseRequestService.history(id)
   }
 }

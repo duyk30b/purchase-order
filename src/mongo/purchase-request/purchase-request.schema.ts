@@ -50,7 +50,7 @@ export class PurchaseRequest extends BaseSchema {
   syncStatus: SyncStatus // Đồng bộ với nguồn mua // Chỉ sử dụng cho SMC
 
   @Prop()
-  currencyId: number // Loại tiền tệ update theo nhà cung cấp
+  currencyId: number // Loại tiền tệ
 
   @Prop()
   userIdRequest: number // User yêu cầu
