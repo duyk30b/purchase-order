@@ -35,7 +35,10 @@ export type UserType = {
 export class NatsClientUserService {
   constructor(private readonly natsClient: NatsClientService) {}
 
-  async insertPermission(data: { permission: any[]; groupPermission: any[] }): Promise<any> {
+  async insertPermission(data: {
+    permission: any[]
+    groupPermission: any[]
+  }): Promise<any> {
     const response: NatsResponseInterface = await this.natsClient.send(
       NatsSubject.USER.INSERT_PERMISSION,
       data
@@ -58,9 +61,12 @@ export class NatsClientUserService {
   }
 
   async getUserDetail(userId: number) {
-    const response: NatsResponseInterface = await this.natsClient.send(NatsSubject.USER.DETAIL, {
-      id: userId,
-    })
+    const response: NatsResponseInterface = await this.natsClient.send(
+      NatsSubject.USER.DETAIL,
+      {
+        id: userId,
+      }
+    )
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }

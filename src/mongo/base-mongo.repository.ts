@@ -24,10 +24,13 @@ export abstract class BaseMongoRepository<
     condition?: BaseCondition<_SCHEMA>
     sort?: NoExtra<_SORT, S>
     relation?: NoExtra<_RELATION, R>
+    rawCondition?: boolean
   }) {
-    const { limit, page, sort, condition, relation } = options
+    const { limit, page, sort, condition, relation, rawCondition } = options
     const skip = (page - 1) * limit
-    const filter = this.getFilterOptions(condition)
+    const filter = rawCondition
+      ? condition || {}
+      : this.getFilterOptions(condition)
 
     let query = this.model.find(filter).skip(skip).limit(limit)
     if (relation) {
@@ -39,7 +42,10 @@ export abstract class BaseMongoRepository<
       query = query.sort(order) as any
     }
 
-    const [docs, total] = await Promise.all([query.exec(), this.model.countDocuments(filter)])
+    const [docs, total] = await Promise.all([
+      query.exec(),
+      this.model.countDocuments(filter),
+    ])
     const data: _TYPE[] = docs.map((i) => i.toObject())
     return { page, limit, total, data }
   }
@@ -49,9 +55,12 @@ export abstract class BaseMongoRepository<
     condition?: BaseCondition<_SCHEMA>
     sort?: NoExtra<_SORT, S>
     relation?: NoExtra<_RELATION, R>
+    rawCondition?: boolean
   }): Promise<_TYPE[]> {
-    const { condition, sort, relation, limit } = options
-    const filter = this.getFilterOptions(condition)
+    const { condition, sort, relation, limit, rawCondition } = options
+    const filter = rawCondition
+      ? condition || {}
+      : this.getFilterOptions(condition)
 
     let query = this.model.find(filter)
     if (limit) query = query.limit(limit)
@@ -87,10 +96,13 @@ export abstract class BaseMongoRepository<
     condition: BaseCondition<_TYPE>
     sort?: NoExtra<_SORT, S>
     relation?: NoExtra<_RELATION, R>
+    rawCondition?: boolean
   }): Promise<_TYPE> {
-    const { condition, sort, relation } = options
+    const { condition, sort, relation, rawCondition } = options
 
-    const filter = this.getFilterOptions(condition)
+    const filter = rawCondition
+      ? condition || {}
+      : this.getFilterOptions(condition)
 
     let query = this.model.findOne(filter)
     if (relation) {
@@ -120,14 +132,18 @@ export abstract class BaseMongoRepository<
     return result as _TYPE
   }
 
-  async insertOne<T extends Partial<_INSERT>>(data: NoExtra<Partial<_INSERT>, T>): Promise<_TYPE> {
+  async insertOne<T extends Partial<_INSERT>>(
+    data: NoExtra<Partial<_INSERT>, T>
+  ): Promise<_TYPE> {
     const model = new this.model(data)
     const doc = await model.save()
     const result = doc.toObject()
     return result as _TYPE
   }
 
-  async insertOneFullField<T extends _INSERT>(data: NoExtra<_INSERT, T>): Promise<_TYPE> {
+  async insertOneFullField<T extends _INSERT>(
+    data: NoExtra<_INSERT, T>
+  ): Promise<_TYPE> {
     const model = new this.model(data)
     const hydratedDocument = await model.save()
     const result = hydratedDocument.toObject()
@@ -142,7 +158,9 @@ export abstract class BaseMongoRepository<
     return result
   }
 
-  async insertManyFullField<T extends _INSERT>(data: NoExtra<_INSERT, T>[]): Promise<_TYPE[]> {
+  async insertManyFullField<T extends _INSERT>(
+    data: NoExtra<_INSERT, T>[]
+  ): Promise<_TYPE[]> {
     const hydratedDocument = await this.model.insertMany(data)
     const result = hydratedDocument.map((i: any) => i.toObject())
     return result
@@ -169,7 +187,7 @@ export abstract class BaseMongoRepository<
     return await this.updateOne({ id } as any, data)
   }
 
-  async softDeleteOne(condition: BaseCondition<_SCHEMA>) {
+  async softDeleteOneBy(condition: BaseCondition<_SCHEMA>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.updateOne(filter, {
       $set: {
@@ -179,13 +197,13 @@ export abstract class BaseMongoRepository<
     return result.upsertedCount
   }
 
-  async deleteOne(condition: BaseCondition<_SCHEMA>) {
+  async deleteOneBy(condition: BaseCondition<_SCHEMA>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.deleteOne(filter)
     return result.deletedCount
   }
 
-  async deleteMany(condition: BaseCondition<_SCHEMA>) {
+  async deleteManyBy(condition: BaseCondition<_SCHEMA>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.deleteMany(filter)
     return result.deletedCount

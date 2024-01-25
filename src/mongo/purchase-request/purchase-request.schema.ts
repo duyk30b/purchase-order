@@ -71,7 +71,10 @@ PurchaseRequestSchema.virtual('purchaseRequestItemList', {
 
 export { PurchaseRequestSchema }
 
-export type PurchaseRequestType = Omit<PurchaseRequest, keyof Document<PurchaseRequest>> & {
+export type PurchaseRequestType = Omit<
+  PurchaseRequest,
+  keyof Document<PurchaseRequest>
+> & {
   id?: string
   purchaseRequestItemList?: PurchaseRequestItemType[]
 }

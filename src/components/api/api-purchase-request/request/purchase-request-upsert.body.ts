@@ -7,6 +7,7 @@ import {
   IsIn,
   IsMongoId,
   IsNumber,
+  IsPositive,
   IsString,
   ValidateNested,
 } from 'class-validator'
@@ -45,6 +46,7 @@ export class ItemUpsertBody {
   @Expose()
   @IsDefined()
   @IsNumber()
+  @IsPositive()
   quantity: number
 
   @ApiProperty({ example: '12.4567' })

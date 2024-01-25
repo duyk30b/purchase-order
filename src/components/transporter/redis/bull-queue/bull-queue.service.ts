@@ -1,7 +1,10 @@
 import { InjectQueue } from '@nestjs/bull'
 import { Injectable } from '@nestjs/common'
 import { Queue } from 'bull'
-import { IItemStockMovementMessage, IPingQueueMessage } from './bull-queue.interface'
+import {
+  IItemStockMovementMessage,
+  IPingQueueMessage,
+} from './bull-queue.interface'
 import { QUEUE_EVENT } from './bull-queue.variable'
 
 @Injectable()
@@ -23,7 +26,10 @@ export class BullQueueService {
     await this.demoQueue.add(jobName, data)
   }
 
-  async addItemStockMovementCreateJob(jobName: 'CREATE', data: IItemStockMovementMessage) {
+  async addItemStockMovementCreateJob(
+    jobName: 'CREATE',
+    data: IItemStockMovementMessage
+  ) {
     await this.itemStockMovementCreateQueue.add(jobName, data)
   }
 }

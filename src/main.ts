@@ -1,11 +1,16 @@
-import { ClassSerializerInterceptor, Logger, ValidationError, ValidationPipe } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import {
+  ClassSerializerInterceptor,
+  ValidationError,
+  ValidationPipe,
+} from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
-import { KafkaOptions, NatsOptions } from '@nestjs/microservices'
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
-import { KafkaConfig } from './components/transporter/kafka/kafka.config'
-import { NatsConfig } from './components/transporter/nats/nats.config'
+import { GlobalConfig } from './config/global.config'
 import {
   ServerExceptionFilter,
   ValidationException,
@@ -14,10 +19,19 @@ import { AccessLogInterceptor } from './core/interceptor/access-log.interceptor'
 import { TransformResponseInterceptor } from './core/interceptor/transform-response.interceptor'
 
 async function bootstrap() {
-  const logger = new Logger('bootstrap')
-  const app = await NestFactory.create(AppModule)
-  app.useLogger(['log', 'error', 'warn', 'debug', 'verbose'])
-  app.enableCors()
+  const fastifyAdapter = new FastifyAdapter()
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  fastifyAdapter.register(require('@fastify/multipart'), {
+    attachFieldsToBody: true,
+    addToBody: true,
+  })
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    fastifyAdapter,
+    {
+      logger: ['error', 'warn', 'log', 'debug'],
+    }
+  )
 
   app.useGlobalInterceptors(
     new AccessLogInterceptor(),
@@ -41,7 +55,8 @@ async function bootstrap() {
         excludeExtraneousValues: false, // exclude field not in class DTO => no
         exposeUnsetFields: false, // expose field undefined in DTO => no
       },
-      exceptionFactory: (errors: ValidationError[] = []) => new ValidationException(errors),
+      exceptionFactory: (errors: ValidationError[] = []) =>
+        new ValidationException(errors),
     })
   )
 
@@ -49,30 +64,30 @@ async function bootstrap() {
   // app.connectMicroservice<KafkaOptions>(KafkaConfig, { inheritAppConfig: true })
   await app.startAllMicroservices()
 
-  const configService = app.get(ConfigService)
-  const NODE_ENV = configService.get<string>('NODE_ENV') || 'local'
-  const APP_HOST = configService.get<string>('APP_HOST') || 'localhost'
-  const APP_CONTAINER_PORT = configService.get<string>('APP_CONTAINER_PORT')
-  const HTTP_PORT = configService.get<string>('SERVER_HTTP_PORT')
-  const API_PATH = configService.get<string>('API_PATH')
+  const CF = GlobalConfig()
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  app.register(require('@fastify/cors'), { origin: CF.CORS_ORIGINS })
 
-  app.setGlobalPrefix(API_PATH)
+  app.setGlobalPrefix(CF.API_PATH)
 
-  if (NODE_ENV !== 'production') {
+  if (CF.NODE_ENV !== 'production') {
     const options = new DocumentBuilder()
       .setTitle('API docs')
       .setVersion('1.0')
-      .addBearerAuth({ type: 'http', description: 'Access token' }, 'access-token')
+      .addBearerAuth(
+        { type: 'http', description: 'Access token' },
+        'access-token'
+      )
       .build()
     const document = SwaggerModule.createDocument(app, options)
-    SwaggerModule.setup(`${API_PATH}/swagger-docs`, app, document, {
+    SwaggerModule.setup(`${CF.API_PATH}/swagger-docs`, app, document, {
       swaggerOptions: { persistAuthorization: true },
     })
   }
 
-  await app.listen(HTTP_PORT || 3001, () => {
-    logger.debug(
-      `🚀 ===== [API] Server document: http://${APP_HOST}:${APP_CONTAINER_PORT}${API_PATH}/swagger-docs =====`
+  await app.listen(CF.SERVER_HTTP_PORT, '0.0.0.0', () => {
+    console.log(
+      `🚀 ===== [API] Server document: http://${CF.APP_HOST}:${CF.APP_CONTAINER_PORT}${CF.API_PATH}/swagger-docs =====`
     )
   })
 }

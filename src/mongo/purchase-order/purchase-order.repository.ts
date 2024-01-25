@@ -12,7 +12,8 @@ export class PurchaseOrderRepository extends BaseMongoRepository<
   { [P in keyof PurchaseOrder]?: unknown }
 > {
   constructor(
-    @InjectModel('PurchaseOrderSchema') private readonly purchaseOrderModel: Model<PurchaseOrder>
+    @InjectModel('PurchaseOrderSchema')
+    private readonly purchaseOrderModel: Model<PurchaseOrder>
   ) {
     super(purchaseOrderModel)
   }

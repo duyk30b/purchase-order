@@ -9,10 +9,17 @@ import { KafkaItemStockDailyService } from './kafka-item-stock-daily.service'
 @ApiTags('Kafka ItemStockDaily')
 @ApiBearerAuth('access-token')
 export class KafkaItemStockDailyController {
-  constructor(private readonly kafkaItemStockDailyService: KafkaItemStockDailyService) {}
+  constructor(
+    private readonly kafkaItemStockDailyService: KafkaItemStockDailyService
+  ) {}
 
-  @MessagePattern(KafkaTopic.REPORT.SNAPSHOT_MIDNIGHT_ITEM_STOCK_DAILY, Transport.KAFKA)
-  async snapShootItemStockDaily(@Payload() payload: KafkaItemStockDailyRequest) {
+  @MessagePattern(
+    KafkaTopic.REPORT.SNAPSHOT_MIDNIGHT_ITEM_STOCK_DAILY,
+    Transport.KAFKA
+  )
+  async snapShootItemStockDaily(
+    @Payload() payload: KafkaItemStockDailyRequest
+  ) {
     return this.kafkaItemStockDailyService.snapShootItemStockDaily(payload)
   }
 }

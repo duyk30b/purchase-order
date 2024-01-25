@@ -1,4 +1,10 @@
-import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common'
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  NestInterceptor,
+} from '@nestjs/common'
 import { KafkaContext, NatsContext } from '@nestjs/microservices'
 import { Request } from 'express'
 import { Observable, throwError } from 'rxjs'
@@ -27,7 +33,7 @@ export class AccessLogInterceptor implements NestInterceptor {
       const urlPath = urlParse.pathname
       const urlQuery = urlParse.query
 
-      if (urlPath?.includes('purchase-order/health')) return next.handle()
+      if (urlPath?.endsWith('/health')) return next.handle()
 
       message.type = '[API]'
       message.method = method

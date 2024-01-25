@@ -1,4 +1,10 @@
-import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common'
 import { ClientKafka } from '@nestjs/microservices'
 import { Producer } from 'kafkajs'
 import { lastValueFrom } from 'rxjs'
@@ -8,7 +14,9 @@ export class KafkaClientService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(KafkaClientService.name)
   private kafkaProducer: Producer
 
-  constructor(@Inject('KAFKA_CLIENT_SERVICE') private kafkaClient: ClientKafka) {}
+  constructor(
+    @Inject('KAFKA_CLIENT_SERVICE') private kafkaClient: ClientKafka
+  ) {}
 
   async onModuleInit() {
     try {

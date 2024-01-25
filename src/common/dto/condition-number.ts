@@ -1,5 +1,11 @@
 import { Expose } from 'class-transformer'
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsNumber } from 'class-validator'
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator'
 
 export class ConditionNumber {
   @Expose()

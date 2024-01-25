@@ -1,5 +1,6 @@
 const _CHARSET =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' + '!@#$%^&*()_-[]{};\':",./<>?'
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' +
+  '!@#$%^&*()_-[]{};\':",./<>?'
 
 export const randomString = (length = 10, characters = _CHARSET): string => {
   let result = ''
@@ -20,14 +21,22 @@ const generateCharset = (privateKey: string, charset = _CHARSET): string => {
     const tIndex = charCode % tempString.length
 
     result = tempString[tIndex] + result
-    tempString = tempString.substring(tIndex + 1) + tempString.substring(0, tIndex)
+    tempString =
+      tempString.substring(tIndex + 1) + tempString.substring(0, tIndex)
   }
   return result
 }
 
-export const encrypt = (rootString: string, privateKey?: string, expiryTime?: number): string => {
+export const encrypt = (
+  rootString: string,
+  privateKey?: string,
+  expiryTime?: number
+): string => {
   if (!privateKey) privateKey = 'ABC123'
-  const rootObject = { r: rootString, e: expiryTime != null ? Date.now() + expiryTime : null }
+  const rootObject = {
+    r: rootString,
+    e: expiryTime != null ? Date.now() + expiryTime : null,
+  }
   const rootObjectJson = JSON.stringify(rootObject)
   let hash = generateCharset(privateKey)
   let result = ''
@@ -95,7 +104,11 @@ export const formatUrlEncode = (text: string) => {
   return text.replace(/[^a-zA-Z0-9_\-.*]+/g, '')
 }
 
-export const customFilter = (str: string, filter: string, skip = 2): boolean => {
+export const customFilter = (
+  str: string,
+  filter: string,
+  skip = 2
+): boolean => {
   const key = convertViToEn(filter.trim()).replace(/[^a-zA-Z0-9 ]/g, '')
   const stringConvert = convertViToEn(str.trim()).replace(/[^a-zA-Z0-9 ]/g, '')
   let pattern = ''

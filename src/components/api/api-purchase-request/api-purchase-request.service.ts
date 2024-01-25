@@ -49,7 +49,8 @@ export class ApiPurchaseRequestService {
       sort: sort || { _id: 'DESC' },
     })
 
-    const dataExtend = await this.informationService.getInformationFromPurchaseRequest(data)
+    const dataExtend =
+      await this.informationService.getInformationFromPurchaseRequest(data)
 
     return { page, limit, total, data, dataExtend }
   }
@@ -79,7 +80,8 @@ export class ApiPurchaseRequestService {
     })
     if (!data) throw new BusinessException('error.NOT_FOUND')
 
-    const dataExtend = await this.informationService.getInformationFromPurchaseRequest([data])
+    const dataExtend =
+      await this.informationService.getInformationFromPurchaseRequest([data])
     return { data, dataExtend }
   }
 
@@ -121,7 +123,11 @@ export class ApiPurchaseRequestService {
     return purchaseRequest
   }
 
-  async updateOne(options: { id: string; body: PurchaseRequestUpdateBody; userId: number }) {
+  async updateOne(options: {
+    id: string
+    body: PurchaseRequestUpdateBody
+    userId: number
+  }) {
     const { id, body, userId } = options
     const { items, ...purchaseRequestBody } = body
 
@@ -135,7 +141,11 @@ export class ApiPurchaseRequestService {
     if (!rootData) {
       throw new BusinessException('error.NOT_FOUND')
     }
-    if (![PurchaseRequestStatus.DRAFT, PurchaseRequestStatus.REJECT].includes(rootData.status)) {
+    if (
+      ![PurchaseRequestStatus.DRAFT, PurchaseRequestStatus.REJECT].includes(
+        rootData.status
+      )
+    ) {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
 
@@ -146,16 +156,17 @@ export class ApiPurchaseRequestService {
       status = PurchaseRequestStatus.WAIT_CONFIRM
     }
 
-    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
-      { id },
-      {
-        ...purchaseRequestBody,
-        status,
-        userIdRequest: userId,
-        updatedByUserId: userId,
-      }
-    )
-    await this.purchaseRequestItemRepository.deleteMany({
+    const purchaseRequest: PurchaseRequestType =
+      await this.purchaseRequestRepository.updateOne(
+        { id },
+        {
+          ...purchaseRequestBody,
+          status,
+          userIdRequest: userId,
+          updatedByUserId: userId,
+        }
+      )
+    await this.purchaseRequestItemRepository.deleteManyBy({
       _purchase_request_id: id,
     } as any)
 
@@ -185,13 +196,14 @@ export class ApiPurchaseRequestService {
     if (![PurchaseRequestStatus.DRAFT].includes(rootData.status)) {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
-    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
-      { id },
-      {
-        status: PurchaseRequestStatus.WAIT_CONFIRM,
-        updatedByUserId: userId,
-      }
-    )
+    const purchaseRequest: PurchaseRequestType =
+      await this.purchaseRequestRepository.updateOne(
+        { id },
+        {
+          status: PurchaseRequestStatus.WAIT_CONFIRM,
+          updatedByUserId: userId,
+        }
+      )
     return purchaseRequest
   }
 
@@ -204,13 +216,14 @@ export class ApiPurchaseRequestService {
     if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)) {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
-    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
-      { id },
-      {
-        status: PurchaseRequestStatus.CONFIRM,
-        updatedByUserId: userId,
-      }
-    )
+    const purchaseRequest: PurchaseRequestType =
+      await this.purchaseRequestRepository.updateOne(
+        { id },
+        {
+          status: PurchaseRequestStatus.CONFIRM,
+          updatedByUserId: userId,
+        }
+      )
     return purchaseRequest
   }
 
@@ -223,13 +236,14 @@ export class ApiPurchaseRequestService {
     if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)) {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
-    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
-      { id },
-      {
-        status: PurchaseRequestStatus.REJECT,
-        updatedByUserId: userId,
-      }
-    )
+    const purchaseRequest: PurchaseRequestType =
+      await this.purchaseRequestRepository.updateOne(
+        { id },
+        {
+          status: PurchaseRequestStatus.REJECT,
+          updatedByUserId: userId,
+        }
+      )
     return purchaseRequest
   }
 
@@ -242,13 +256,14 @@ export class ApiPurchaseRequestService {
     if (![PurchaseRequestStatus.CONFIRM].includes(rootData.status)) {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
-    const purchaseRequest: PurchaseRequestType = await this.purchaseRequestRepository.updateOne(
-      { id },
-      {
-        status: PurchaseRequestStatus.CANCEL,
-        updatedByUserId: userId,
-      }
-    )
+    const purchaseRequest: PurchaseRequestType =
+      await this.purchaseRequestRepository.updateOne(
+        { id },
+        {
+          status: PurchaseRequestStatus.CANCEL,
+          updatedByUserId: userId,
+        }
+      )
     return purchaseRequest
   }
 
@@ -258,13 +273,16 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (
-      ![PurchaseRequestStatus.DRAFT, PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)
+      ![
+        PurchaseRequestStatus.DRAFT,
+        PurchaseRequestStatus.WAIT_CONFIRM,
+      ].includes(rootData.status)
     ) {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
 
-    await this.purchaseRequestRepository.deleteOne({ id } as any)
-    await this.purchaseRequestItemRepository.deleteMany({
+    await this.purchaseRequestRepository.deleteOneBy({ id } as any)
+    await this.purchaseRequestItemRepository.deleteManyBy({
       _purchase_request_id: id,
     } as any)
     return { id, success: true }

@@ -12,13 +12,25 @@ export const KafkaConfig: KafkaOptions = {
       brokers: process.env.KAFKA_BROKERS?.split(',') || ['kafka:9092'],
       ssl: {
         rejectUnauthorized: false,
-        ca: [fs.readFileSync(path.join(__dirname, '../../../cert/kafka.crt'), 'utf-8')],
-        key: fs.readFileSync(path.join(__dirname, '../../../cert/kafka.key'), 'utf-8'),
-        cert: fs.readFileSync(path.join(__dirname, '../../../cert/kafka.pem'), 'utf-8'),
+        ca: [
+          fs.readFileSync(
+            path.join(__dirname, '../../../cert/kafka.crt'),
+            'utf-8'
+          ),
+        ],
+        key: fs.readFileSync(
+          path.join(__dirname, '../../../cert/kafka.key'),
+          'utf-8'
+        ),
+        cert: fs.readFileSync(
+          path.join(__dirname, '../../../cert/kafka.pem'),
+          'utf-8'
+        ),
       },
     },
     consumer: {
-      groupId: 'group-' + (process.env.KAFKA_INSTANCE_ID || 'purchase_order_service'),
+      groupId:
+        'group-' + (process.env.KAFKA_INSTANCE_ID || 'purchase_order_service'),
       allowAutoTopicCreation: true,
     },
     producer: {
@@ -33,9 +45,12 @@ export const KafkaConfig: KafkaOptions = {
 export const KafkaTopic = {
   REPORT: {
     PING: 'report_service.ping',
-    SNAPSHOT_MIDNIGHT_ITEM_STOCK_DAILY: 'report_service.snapshot_midnight_item_stock_daily',
-    SNAPSHOT_MIDNIGHT_ITEM_MOVEMENT: 'report_service.snapshot_midnight_item_movement',
-    SNAPSHOT_REALTIME_ITEM_MOVEMENT: 'report_service.snapshot_realtime_item_movement',
+    SNAPSHOT_MIDNIGHT_ITEM_STOCK_DAILY:
+      'report_service.snapshot_midnight_item_stock_daily',
+    SNAPSHOT_MIDNIGHT_ITEM_MOVEMENT:
+      'report_service.snapshot_midnight_item_movement',
+    SNAPSHOT_REALTIME_ITEM_MOVEMENT:
+      'report_service.snapshot_realtime_item_movement',
   },
   TICKET: {
     PING: 'ticket_service.ping',

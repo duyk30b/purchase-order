@@ -71,7 +71,11 @@ export class Timer {
     }
   }
 
-  static textToTime = (text: string, pattern: string, utcOffset?: number): Date => {
+  static textToTime = (
+    text: string,
+    pattern: string,
+    utcOffset?: number
+  ): Date => {
     const iFullYear = pattern.indexOf('YYYY')
     const iMonth = pattern.indexOf('MM')
     const iDay = pattern.indexOf('DD')
@@ -80,7 +84,8 @@ export class Timer {
     const iSecond = pattern.indexOf('ss')
     const iMs = pattern.indexOf('xxx')
 
-    const year = iFullYear !== -1 ? Number(text.slice(iFullYear, iFullYear + 4)) : 0
+    const year =
+      iFullYear !== -1 ? Number(text.slice(iFullYear, iFullYear + 4)) : 0
     const month = iMonth !== -1 ? Number(text.slice(iMonth, iMonth + 2)) : 0
     const date = iDay !== -1 ? Number(text.slice(iDay, iDay + 2)) : 0
     const hour = iHour !== -1 ? Number(text.slice(iHour, iHour + 2)) : 0

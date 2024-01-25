@@ -6,7 +6,9 @@ import { genericRetryStrategy } from 'src/common/utils/rxjs.util'
 import { KongGatewayServiceInterface } from './interface/kong-gateway.service.interface'
 
 @Injectable()
-export class KongGatewayService implements KongGatewayServiceInterface, OnApplicationBootstrap {
+export class KongGatewayService
+  implements KongGatewayServiceInterface, OnApplicationBootstrap
+{
   private host: string
   private port: string
   private upstreamName: string
@@ -38,10 +40,12 @@ export class KongGatewayService implements KongGatewayServiceInterface, OnApplic
 
   async createOrUpdateService(): Promise<any> {
     let service = await firstValueFrom(
-      this.httpClientService.get(`${this.host}:${this.port}/services/${this.upstreamName}`).pipe(
-        map((response) => response.data),
-        catchError((error) => of(error))
-      )
+      this.httpClientService
+        .get(`${this.host}:${this.port}/services/${this.upstreamName}`)
+        .pipe(
+          map((response) => response.data),
+          catchError((error) => of(error))
+        )
     )
 
     if (!service.id) {
@@ -71,10 +75,12 @@ export class KongGatewayService implements KongGatewayServiceInterface, OnApplic
 
   async createOrUpdateRoute(): Promise<any> {
     let route = await firstValueFrom(
-      this.httpClientService.get(`${this.host}:${this.port}/routes/${this.upstreamName}`).pipe(
-        map((response) => response.data),
-        catchError((error) => of(error))
-      )
+      this.httpClientService
+        .get(`${this.host}:${this.port}/routes/${this.upstreamName}`)
+        .pipe(
+          map((response) => response.data),
+          catchError((error) => of(error))
+        )
     )
     if (!route.id) {
       route = await firstValueFrom(

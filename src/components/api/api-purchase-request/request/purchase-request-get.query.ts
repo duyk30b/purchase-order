@@ -1,4 +1,8 @@
-import { ApiPropertyOptional, IntersectionType, PickType } from '@nestjs/swagger'
+import {
+  ApiPropertyOptional,
+  IntersectionType,
+  PickType,
+} from '@nestjs/swagger'
 import { Expose, Transform, plainToInstance } from 'class-transformer'
 import { IsObject, ValidateNested } from 'class-validator'
 import { LimitQuery, PaginationQuery } from '../../../../common/dto/query'
@@ -103,4 +107,7 @@ export class PurchaseRequestGetManyQuery extends IntersectionType(
   LimitQuery
 ) {}
 
-export class PurchaseRequestGetOneQuery extends PickType(PurchaseRequestGetQuery, ['relation']) {}
+export class PurchaseRequestGetOneQuery extends PickType(
+  PurchaseRequestGetQuery,
+  ['relation']
+) {}

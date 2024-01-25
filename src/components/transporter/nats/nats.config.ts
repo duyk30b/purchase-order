@@ -14,8 +14,10 @@ export const NatsService = {
   PRODUCE: process.env.NATS_PRODUCE_SERVICE || 'produce_service',
   COST_CENTER: process.env.NATS_COST_CENTER_SERVICE || 'cost_center_service',
   ITEM_STOCK_PLANNING:
-    process.env.NATS_ITEM_STOCK_PLANNING_SERVICE || 'item_stock_planning_service',
-  PURCHASE_ORDER: process.env.NATS_PURCHASE_ORDER_SERVICE || 'purchase_order_service',
+    process.env.NATS_ITEM_STOCK_PLANNING_SERVICE ||
+    'item_stock_planning_service',
+  PURCHASE_ORDER:
+    process.env.NATS_PURCHASE_ORDER_SERVICE || 'purchase_order_service',
 }
 
 export const NatsConfig: NatsOptions = {
@@ -36,7 +38,8 @@ export const NatsSubject = {
     PING: NatsService.USER + '.ping',
     DETAIL: NatsService.USER + '.detail',
     INSERT_PERMISSION: NatsService.USER + '.insert_permission',
-    DELETE_PERMISSION_NOT_ACTIVE: NatsService.USER + '.delete_permission_not_active',
+    DELETE_PERMISSION_NOT_ACTIVE:
+      NatsService.USER + '.delete_permission_not_active',
   },
   REPORT: {
     PING: NatsService.REPORT + '.ping',
@@ -53,10 +56,14 @@ export const NatsSubject = {
   },
   TICKET: {
     PING: NatsService.TICKET + '.ping',
-    GET_WAREHOUSE_IMPORT_LIST: NatsService.TICKET + '.get_warehouse_import_list',
-    GET_WAREHOUSE_EXPORT_LIST: NatsService.TICKET + '.get_warehouse_export_list',
-    GET_WAREHOUSE_TRANSFER_LIST: NatsService.TICKET + '.get_warehouse_transfer_list',
-    GET_WAREHOUSE_CHECKOUT_LIST: NatsService.TICKET + '.get_warehouse_checkout_list',
+    GET_WAREHOUSE_IMPORT_LIST:
+      NatsService.TICKET + '.get_warehouse_import_list',
+    GET_WAREHOUSE_EXPORT_LIST:
+      NatsService.TICKET + '.get_warehouse_export_list',
+    GET_WAREHOUSE_TRANSFER_LIST:
+      NatsService.TICKET + '.get_warehouse_transfer_list',
+    GET_WAREHOUSE_CHECKOUT_LIST:
+      NatsService.TICKET + '.get_warehouse_checkout_list',
   },
   ITEM: {
     PING: NatsService.ITEM + '.ping',

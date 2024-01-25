@@ -38,7 +38,10 @@ PurchaseOrderSchema.virtual('quantityAvailable').get(function () {
 
 export { PurchaseOrderSchema }
 
-export type PurchaseOrderType = Omit<PurchaseOrder, keyof Document<PurchaseOrder>> & {
+export type PurchaseOrderType = Omit<
+  PurchaseOrder,
+  keyof Document<PurchaseOrder>
+> & {
   id?: string
   quantityAvailable?: BigNumber
   // itemStock?: ItemStock

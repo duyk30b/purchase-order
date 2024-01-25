@@ -30,7 +30,8 @@ export type Impossible<K extends keyof any> = {
   [P in K]: never
 }
 
-export type NoExtra<T, U extends T = T> = U & Impossible<Exclude<keyof U, keyof T>>
+export type NoExtra<T, U extends T = T> = U &
+  Impossible<Exclude<keyof U, keyof T>>
 
 // export type NoExtraProperties<T, U extends T = T> = U extends Array<infer V>
 //   ? NoExtraProperties<V>[]

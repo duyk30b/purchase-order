@@ -15,7 +15,8 @@ const MongoDbConfig = {
   logging: process.env.NODE_ENV === 'local',
 }
 
-const { username, password, host, port, database, authSource, logging } = MongoDbConfig
+const { username, password, host, port, database, authSource, logging } =
+  MongoDbConfig
 
 export const mongoDbUri = `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=${authSource}`
 

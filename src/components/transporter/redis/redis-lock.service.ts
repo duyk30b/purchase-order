@@ -5,7 +5,9 @@ import Redlock, { Settings } from 'redlock'
 @Injectable()
 export class RedisLockService {
   private redisLock: any
-  constructor(@Inject('REDIS_CLIENT_SERVICE') private redisClient: ClientRedis) {}
+  constructor(
+    @Inject('REDIS_CLIENT_SERVICE') private redisClient: ClientRedis
+  ) {}
 
   async onModuleInit() {
     try {
@@ -14,7 +16,11 @@ export class RedisLockService {
     } catch (error) {}
   }
 
-  async acquire(keys: string[], duration: number, settings?: Partial<Settings>) {
+  async acquire(
+    keys: string[],
+    duration: number,
+    settings?: Partial<Settings>
+  ) {
     return await this.redisLock.acquire(keys, duration, settings)
   }
 }

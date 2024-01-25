@@ -28,7 +28,10 @@ export const throttle = (func: (...args: any[]) => void, delay: number) => {
   }
 }
 
-export const debounceAsync = (func: (...args: any[]) => Promise<any>, delay: number) => {
+export const debounceAsync = (
+  func: (...args: any[]) => Promise<any>,
+  delay: number
+) => {
   let state = 0
 
   return async (...args: any[]): Promise<any> => {
@@ -40,7 +43,10 @@ export const debounceAsync = (func: (...args: any[]) => Promise<any>, delay: num
   }
 }
 
-export const throttleAsync = (func: (...args: any[]) => Promise<any>, delay: number) => {
+export const throttleAsync = (
+  func: (...args: any[]) => Promise<any>,
+  delay: number
+) => {
   let state = 0
 
   return async (...args: any[]): Promise<any> => {

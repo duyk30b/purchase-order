@@ -19,6 +19,7 @@ export const formatMoney = (options: {
     numberStr = (Math.round(number / power) * power).toString()
   }
 
-  const regex = '\\d(?=(\\d{' + part + '})+' + (numberStr.includes('.') ? '\\D' : '$') + ')'
+  const regex =
+    '\\d(?=(\\d{' + part + '})+' + (numberStr.includes('.') ? '\\D' : '$') + ')'
   return numberStr.replace('.', dec).replace(new RegExp(regex, 'g'), '$&' + sec)
 }

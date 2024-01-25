@@ -8,5 +8,8 @@ export const ExcelConfig = {
 }
 
 export const isDevMode = () => {
-  return process.env.NODE_ENV.startsWith('dev') || process.env.NODE_ENV.startsWith('local')
+  return (
+    process.env.NODE_ENV.startsWith('dev') ||
+    process.env.NODE_ENV.startsWith('local')
+  )
 }

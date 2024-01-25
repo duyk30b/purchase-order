@@ -51,7 +51,11 @@ export class DTimer {
     }
   }
 
-  static textToTime = (text: string, pattern: string, utcOffset?: number): Date => {
+  static textToTime = (
+    text: string,
+    pattern: string,
+    utcOffset?: number
+  ): Date => {
     const iFullYear = pattern.indexOf('YYYY')
     const iMonth = pattern.indexOf('MM')
     const iDay = pattern.indexOf('DD')
@@ -60,7 +64,8 @@ export class DTimer {
     const iSecond = pattern.indexOf('ss')
     const iMs = pattern.indexOf('xxx')
 
-    const year = iFullYear !== -1 ? Number(text.slice(iFullYear, iFullYear + 4)) : 0
+    const year =
+      iFullYear !== -1 ? Number(text.slice(iFullYear, iFullYear + 4)) : 0
     const month = iMonth !== -1 ? Number(text.slice(iMonth, iMonth + 2)) : 0
     const date = iDay !== -1 ? Number(text.slice(iDay, iDay + 2)) : 0
     const hour = iHour !== -1 ? Number(text.slice(iHour, iHour + 2)) : 0
@@ -82,7 +87,11 @@ export class DTimer {
     return timeMove
   }
 
-  static timeToText = (time?: Date | string | number | null, pattern = 'DD/MM/YYYY', utcOffset?: number): string => {
+  static timeToText = (
+    time?: Date | string | number | null,
+    pattern = 'DD/MM/YYYY',
+    utcOffset?: number
+  ): string => {
     if (time == null || time === '') return ''
     if (typeof time !== 'object') time = new Date(time)
     if (time.toString() === 'Invalid Date') return 'Invalid Date'

@@ -28,7 +28,8 @@ export class PurchaseRequestItem extends BaseSchema {
   _price: Types.Decimal128 // Đơn giá
 }
 
-const PurchaseRequestItemSchema = SchemaFactory.createForClass(PurchaseRequestItem)
+const PurchaseRequestItemSchema =
+  SchemaFactory.createForClass(PurchaseRequestItem)
 PurchaseRequestItemSchema.index({ warehouseCode: 1 }, { unique: false })
 
 PurchaseRequestItemSchema.virtual('price').get(function () {

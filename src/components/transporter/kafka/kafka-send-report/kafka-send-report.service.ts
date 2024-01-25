@@ -38,7 +38,8 @@ export class KafkaSendReportService {
     )
     if (validate.length) {
       throw new Error(
-        'KAFKA message validate failed: ' + JSON.stringify({ data: message, validate })
+        'KAFKA message validate failed: ' +
+          JSON.stringify({ data: message, validate })
       )
     }
 

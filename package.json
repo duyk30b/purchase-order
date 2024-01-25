@@ -23,6 +23,10 @@
     "copy-assets": "cp -rv src/i18n dist"
   },
   "dependencies": {
+    "@fastify/cors": "^8.5.0",
+    "@fastify/multipart": "^8.1.0",
+    "@fastify/static": "^6.12.0",
+    "@fastify/swagger": "^8.14.0",
     "@nestcloud/boot": "^0.7.17",
     "@nestcloud/common": "^0.7.17",
     "@nestcloud/consul": "^0.7.17",

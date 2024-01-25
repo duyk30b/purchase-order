@@ -14,7 +14,10 @@ export class NatsClientAuthService {
       { permissionCode, token }
     )
     if (response.statusCode !== 200) {
-      throw new BusinessException(response.message as any, HttpStatus.UNAUTHORIZED)
+      throw new BusinessException(
+        response.message as any,
+        HttpStatus.UNAUTHORIZED
+      )
     }
     return response.data
   }

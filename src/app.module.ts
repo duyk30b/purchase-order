@@ -5,7 +5,12 @@ import { ServiceModule } from '@nestcloud/service'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
-import { HeaderResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n'
+import {
+  HeaderResolver,
+  I18nJsonLoader,
+  I18nModule,
+  QueryResolver,
+} from 'nestjs-i18n'
 import * as path from 'path'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'

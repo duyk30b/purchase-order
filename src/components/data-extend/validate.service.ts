@@ -20,9 +20,10 @@ export class ValidateService {
   ) {}
 
   async validateCostCenter(costCenterId: string) {
-    const costCenterMap = await this.natsClientCostCenterService.getCostCenterMap({
-      ids: [costCenterId],
-    })
+    const costCenterMap =
+      await this.natsClientCostCenterService.getCostCenterMap({
+        ids: [costCenterId],
+      })
     const costCenter = costCenterMap[costCenterId]
     if (!costCenter) {
       throw new BusinessException('error.CostCenter.Error')

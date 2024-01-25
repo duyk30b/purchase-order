@@ -1,5 +1,8 @@
 export const mergeObject = (...params: Record<string, any>[]) => {
-  const mergeTwoObject = (source: Record<string, any>, target: Record<string, any>) => {
+  const mergeTwoObject = (
+    source: Record<string, any>,
+    target: Record<string, any>
+  ) => {
     for (const key in target) {
       if (target[key] === undefined) continue
 

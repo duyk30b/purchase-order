@@ -16,7 +16,8 @@ export class TransformResponseInterceptor implements NestInterceptor {
     const i18n = I18nContext.current<I18nTranslations>()
     return next.handle().pipe(
       map((data) => ({
-        statusCode: context.switchToHttp().getResponse().statusCode || HttpStatus.OK,
+        statusCode:
+          context.switchToHttp().getResponse().statusCode || HttpStatus.OK,
         message: i18n.translate('common.SUCCESS'),
         data,
       }))

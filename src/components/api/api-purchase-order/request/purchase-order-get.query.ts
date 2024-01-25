@@ -1,4 +1,8 @@
-import { ApiPropertyOptional, IntersectionType, PickType } from '@nestjs/swagger'
+import {
+  ApiPropertyOptional,
+  IntersectionType,
+  PickType,
+} from '@nestjs/swagger'
 import { Expose, Transform, plainToInstance } from 'class-transformer'
 import { IsObject, ValidateNested } from 'class-validator'
 import { LimitQuery, PaginationQuery } from '../../../../common/dto/query'
@@ -27,7 +31,10 @@ export class PurchaseOrderGetQuery {
   @ValidateNested({ each: true })
   relation: PurchaseOrderRelationQuery
 
-  @ApiPropertyOptional({ type: String, example: '{"isActive":1,"debt":{"GT":1500000}}' })
+  @ApiPropertyOptional({
+    type: String,
+    example: '{"isActive":1,"debt":{"GT":1500000}}',
+  })
   @Expose()
   @Transform(({ value }) => {
     try {
@@ -74,4 +81,6 @@ export class PurchaseOrderGetManyQuery extends IntersectionType(
   LimitQuery
 ) {}
 
-export class PurchaseOrderGetOneQuery extends PickType(PurchaseOrderGetQuery, ['relation']) {}
+export class PurchaseOrderGetOneQuery extends PickType(PurchaseOrderGetQuery, [
+  'relation',
+]) {}

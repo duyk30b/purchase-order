@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger'
 import { IdMongoParam } from '../../../common/dto/param'
 import { ApiPurchaseOrderService } from './api-purchase-order.service'
@@ -14,7 +23,9 @@ import {
 @ApiBearerAuth('access-token')
 @Controller('customer')
 export class ApiPurchaseOrderController {
-  constructor(private readonly apiPurchaseOrderService: ApiPurchaseOrderService) {}
+  constructor(
+    private readonly apiPurchaseOrderService: ApiPurchaseOrderService
+  ) {}
 
   @Get('pagination')
   pagination(@Query() query: PurchaseOrderPaginationQuery) {
@@ -27,7 +38,10 @@ export class ApiPurchaseOrderController {
   }
 
   @Get('detail/:id')
-  async detail(@Param() { id }: IdMongoParam, @Query() query: PurchaseOrderGetOneQuery) {
+  async detail(
+    @Param() { id }: IdMongoParam,
+    @Query() query: PurchaseOrderGetOneQuery
+  ) {
     return await this.apiPurchaseOrderService.getOne(id, query)
   }
 
@@ -37,7 +51,10 @@ export class ApiPurchaseOrderController {
   }
 
   @Patch('update/:id')
-  async update(@Param() { id }: IdMongoParam, @Body() body: PurchaseOrderUpdateBody) {
+  async update(
+    @Param() { id }: IdMongoParam,
+    @Body() body: PurchaseOrderUpdateBody
+  ) {
     return await this.apiPurchaseOrderService.updateOne(id, body)
   }
 

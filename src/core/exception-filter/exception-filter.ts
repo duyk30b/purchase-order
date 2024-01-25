@@ -61,7 +61,9 @@ export class ServerExceptionFilter implements ExceptionFilter {
       }
       default: {
         const i18n = I18nContext.current<I18nTranslations>(host)
-        message = isDevMode() ? exception.message : i18n.translate('error.INTERNAL_SERVER_ERROR')
+        message = isDevMode()
+          ? exception.message
+          : i18n.translate('error.INTERNAL_SERVER_ERROR')
       }
     }
 
