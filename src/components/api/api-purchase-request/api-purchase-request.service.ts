@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
 import { BusinessException } from '../../../core/exception-filter/exception-filter'
 import { PurchaseRequestItemRepository } from '../../../mongo/purchase-request-item/purchase-request-item.repository'
-import { PurchaseRequestItemType } from '../../../mongo/purchase-request-item/purchase-request-item.schema'
+import { PurchaseRequestItemInsertType } from '../../../mongo/purchase-request-item/purchase-request-item.schema'
 import { PurchaseRequestRepository } from '../../../mongo/purchase-request/purchase-request.repository'
 import {
   PurchaseRequestStatus,
@@ -13,7 +13,7 @@ import { ValidateService } from '../../data-extend/validate.service'
 import {
   PurchaseRequestCreateBody,
   PurchaseRequestGetManyQuery,
-  PurchaseRequestGetOneQuery,
+  PurchaseRequestGetOneByIdQuery,
   PurchaseRequestPaginationQuery,
   PurchaseRequestUpdateBody,
 } from './request'
@@ -73,9 +73,9 @@ export class ApiPurchaseRequestService {
     })
   }
 
-  async getOne(id: string, query?: PurchaseRequestGetOneQuery) {
+  async getOne(id: string, query?: PurchaseRequestGetOneByIdQuery) {
     const data = await this.purchaseRequestRepository.findOne({
-      relation: { purchaseRequestItemList: true },
+      relation: { purchaseRequestItems: true },
       condition: { id },
     })
     if (!data) throw new BusinessException('error.NOT_FOUND')
@@ -106,8 +106,8 @@ export class ApiPurchaseRequestService {
         updatedByUserId: userId,
       })
 
-    const itemsDto: PurchaseRequestItemType[] = items.map((item) => {
-      const dto: PurchaseRequestItemType = {
+    const itemsDto: PurchaseRequestItemInsertType[] = items.map((item) => {
+      const dto: PurchaseRequestItemInsertType = {
         ...item,
         _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
         _price: new Types.Decimal128(item.price),
@@ -117,7 +117,7 @@ export class ApiPurchaseRequestService {
       return dto
     })
 
-    purchaseRequest.purchaseRequestItemList =
+    purchaseRequest.purchaseRequestItems =
       await this.purchaseRequestItemRepository.insertManyFullField(itemsDto)
 
     return purchaseRequest
@@ -142,9 +142,11 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (
-      ![PurchaseRequestStatus.DRAFT, PurchaseRequestStatus.REJECT].includes(
-        rootData.status
-      )
+      ![
+        PurchaseRequestStatus.DRAFT,
+        PurchaseRequestStatus.WAIT_CONFIRM,
+        PurchaseRequestStatus.REJECT,
+      ].includes(rootData.status)
     ) {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
@@ -152,6 +154,8 @@ export class ApiPurchaseRequestService {
     let status: PurchaseRequestStatus
     if (rootData.status === PurchaseRequestStatus.DRAFT) {
       status = PurchaseRequestStatus.DRAFT
+    } else if (rootData.status === PurchaseRequestStatus.WAIT_CONFIRM) {
+      status = PurchaseRequestStatus.WAIT_CONFIRM
     } else if (rootData.status === PurchaseRequestStatus.REJECT) {
       status = PurchaseRequestStatus.WAIT_CONFIRM
     }
@@ -170,8 +174,8 @@ export class ApiPurchaseRequestService {
       _purchase_request_id: id,
     } as any)
 
-    const itemsDto: PurchaseRequestItemType[] = items.map((item) => {
-      const dto: PurchaseRequestItemType = {
+    const itemsDto: PurchaseRequestItemInsertType[] = items.map((item) => {
+      const dto: PurchaseRequestItemInsertType = {
         ...item,
         _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
         _price: new Types.Decimal128(item.price),
@@ -181,7 +185,7 @@ export class ApiPurchaseRequestService {
       return dto
     })
 
-    purchaseRequest.purchaseRequestItemList =
+    purchaseRequest.purchaseRequestItems =
       await this.purchaseRequestItemRepository.insertManyFullField(itemsDto)
 
     return purchaseRequest

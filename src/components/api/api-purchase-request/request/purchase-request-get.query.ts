@@ -107,7 +107,9 @@ export class PurchaseRequestGetManyQuery extends IntersectionType(
   LimitQuery
 ) {}
 
-export class PurchaseRequestGetOneQuery extends PickType(
+export class PurchaseRequestGetOneQuery extends PurchaseRequestGetQuery {}
+
+export class PurchaseRequestGetOneByIdQuery extends PickType(
   PurchaseRequestGetQuery,
   ['relation']
 ) {}

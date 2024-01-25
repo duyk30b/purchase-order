@@ -12,6 +12,7 @@ import { ThrottlerException } from '@nestjs/throttler'
 import { Request, Response } from 'express'
 import { I18nContext } from 'nestjs-i18n'
 import { from } from 'rxjs'
+import * as url from 'url'
 import { isDevMode } from '../../common/constants/variable'
 import { I18nPath, I18nTranslations } from '../../generated/i18n.generated'
 
@@ -40,7 +41,7 @@ export class ServerExceptionFilter implements ExceptionFilter {
     const { stack } = exception
     const errors: any[] = (exception as any).errors || []
 
-    switch (exception.name) {
+    switch (exception['constructor'].name) {
       case ValidationException.name: {
         statusCode = HttpStatus.UNPROCESSABLE_ENTITY
         break
@@ -75,19 +76,23 @@ export class ServerExceptionFilter implements ExceptionFilter {
       const request = ctx.getRequest<Request>()
 
       const { originalUrl, method, body } = request
+      const urlParse = url.parse(originalUrl, true)
+      const urlPath = urlParse.pathname
+      const urlQuery = urlParse.query
       Logger.error(
         JSON.stringify({
           message,
           type: '[HTTP]',
           method,
-          url: originalUrl,
+          path: urlPath,
+          query: urlQuery,
           errors,
           body,
           external: (request as any).external,
         }),
         exception.name
       )
-      response.status(statusCode).json({
+      response.status(statusCode).send({
         statusCode,
         errors,
         message,

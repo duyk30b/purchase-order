@@ -50,7 +50,7 @@ export class PurchaseRequest extends BaseSchema {
   syncStatus: SyncStatus // Đồng bộ với nguồn mua // Chỉ sử dụng cho SMC
 
   @Prop()
-  currencyId: number // Loại tiền tệ
+  currencyId: number // Loại tiền tệ update theo nhà cung cấp
 
   @Prop()
   userIdRequest: number // User yêu cầu
@@ -62,8 +62,8 @@ export class PurchaseRequest extends BaseSchema {
 const PurchaseRequestSchema = SchemaFactory.createForClass(PurchaseRequest)
 PurchaseRequestSchema.index({ code: 1 }, { unique: false })
 
-PurchaseRequestSchema.virtual('purchaseRequestItemList', {
-  ref: 'PurchaseRequestItem',
+PurchaseRequestSchema.virtual('purchaseRequestItems', {
+  ref: 'PurchaseRequestItemSchema',
   localField: '_id',
   foreignField: '_purchase_request_id',
   justOne: false,
@@ -76,15 +76,20 @@ export type PurchaseRequestType = Omit<
   keyof Document<PurchaseRequest>
 > & {
   id?: string
-  purchaseRequestItemList?: PurchaseRequestItemType[]
+  purchaseRequestItems?: PurchaseRequestItemType[]
 }
 
 export type PurchaseRequestInsertType = Omit<
   PurchaseRequestType,
-  'id' | '_id' | 'purchaseRequestItemList'
+  'id' | '_id' | 'purchaseRequestItems'
 >
 
 export type PurchaseRequestUpdateType = Omit<
   PurchaseRequestType,
-  'id' | '_id' | 'purchaseRequestItemList' | 'code'
+  | 'id'
+  | '_id'
+  | 'createdAt'
+  | 'createdByUserId'
+  | 'purchaseRequestItems'
+  | 'code'
 >

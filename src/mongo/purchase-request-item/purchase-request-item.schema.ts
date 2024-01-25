@@ -15,11 +15,11 @@ export class PurchaseRequestItem extends BaseSchema {
   @Prop()
   itemTypeId: number
 
-  @Prop()
-  deliveryTerm: Date // thời hạn giao hàng
+  // @Prop()
+  // deliveryTerm: Date // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
 
-  @Prop()
-  itemUnitId: number
+  // @Prop()
+  // itemUnitId: number // Đơn vị tính => trường này phải lấy theo nhà cung cấp
 
   @Prop()
   quantity: number
@@ -37,7 +37,7 @@ PurchaseRequestItemSchema.virtual('price').get(function () {
 })
 
 PurchaseRequestItemSchema.virtual('purchaseRequest', {
-  ref: 'PurchaseRequest',
+  ref: 'PurchaseRequestSchema',
   localField: '_purchase_request_id',
   foreignField: '_id',
   justOne: true,
@@ -57,3 +57,18 @@ export type PurchaseRequestItemType = Omit<
   purchaseRequestId?: string
   purchaseRequest?: PurchaseRequest
 }
+
+export type PurchaseRequestItemInsertType = Omit<
+  PurchaseRequestItemType,
+  'id' | '_id' | 'purchaseRequestId' | 'purchaseRequest'
+>
+
+export type PurchaseRequestItemUpdateType = Omit<
+  PurchaseRequestItemType,
+  | 'id'
+  | '_id'
+  | 'createdAt'
+  | 'createdByUserId'
+  | 'purchaseRequestId'
+  | 'purchaseRequest'
+>
