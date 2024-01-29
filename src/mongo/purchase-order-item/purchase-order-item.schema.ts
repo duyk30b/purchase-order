@@ -18,6 +18,9 @@ export class PurchaseOrderItem extends BaseSchema {
   @Prop()
   itemUnitId: number // Đơn vị tính => trường này phải lấy theo nhà cung cấp
 
+  @Prop()
+  deliveryTerm: Date // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
+
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _price: Types.Decimal128 // Đơn giá
 
@@ -38,9 +41,6 @@ export class PurchaseOrderItem extends BaseSchema {
 
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _amount: Types.Decimal128 // Thành tiền (total x tax)
-
-  // @Prop()
-  // deliveryTerm: Date // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
 }
 
 const PurchaseOrderItemSchema = SchemaFactory.createForClass(PurchaseOrderItem)
