@@ -60,7 +60,7 @@ import { MongoDbConnectModule } from './mongo/mongodb-connect.module'
     MongoDbConnectModule,
 
     NatsClientModule,
-    // NatsEventModule,
+    NatsEventModule,
 
     // KafkaClientModule,
     // KafkaEventModule,

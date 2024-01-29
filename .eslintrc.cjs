@@ -6,7 +6,10 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
-  extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+  ],
   root: true,
   env: {
     node: true,
@@ -28,6 +31,10 @@ module.exports = {
       { blankLine: 'never', prev: ['import'], next: ['import'] },
       { blankLine: 'any', prev: ['export'], next: ['export'] },
     ],
-    'lines-between-class-members': [1, 'always', { exceptAfterSingleLine: true }], // Dòng trống giữa các properties trong Class
+    'lines-between-class-members': [
+      1,
+      'always',
+      { exceptAfterSingleLine: true },
+    ], // Dòng trống giữa các properties trong Class
   },
 }

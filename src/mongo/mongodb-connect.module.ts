@@ -1,6 +1,8 @@
 import { Global, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import MongodbConfigService from './mongodb.config'
+import { PurchaseOrderRepository } from './purchase-order/purchase-order.repository'
+import { PurchaseOrderSchema } from './purchase-order/purchase-order.schema'
 import { PurchaseRequestHistoryRepository } from './purchase-request-history/purchase-request-history.repository'
 import { PurchaseRequestHistorySchema } from './purchase-request-history/purchase-request-history.schema'
 import { PurchaseRequestItemRepository } from './purchase-request-item/purchase-request-item.repository'
@@ -15,6 +17,7 @@ import { PurchaseRequestSchema } from './purchase-request/purchase-request.schem
     MongooseModule.forFeature([
       { name: 'PurchaseRequestSchema', schema: PurchaseRequestSchema },
       { name: 'PurchaseRequestItemSchema', schema: PurchaseRequestItemSchema },
+      { name: 'PurchaseOrderSchema', schema: PurchaseOrderSchema },
       {
         name: 'PurchaseRequestHistorySchema',
         schema: PurchaseRequestHistorySchema,
@@ -24,11 +27,13 @@ import { PurchaseRequestSchema } from './purchase-request/purchase-request.schem
   providers: [
     PurchaseRequestRepository,
     PurchaseRequestItemRepository,
+    PurchaseOrderRepository,
     PurchaseRequestHistoryRepository,
   ],
   exports: [
     PurchaseRequestRepository,
     PurchaseRequestItemRepository,
+    PurchaseOrderRepository,
     PurchaseRequestHistoryRepository,
   ],
 })
