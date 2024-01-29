@@ -113,8 +113,8 @@ export class ApiPurchaseRequestPaginationService {
         return {}
       }
     }) as [
-      SupplierType,
-      UserType,
+      Record<string, SupplierType>,
+      Record<string, UserType>,
       Record<string, ItemType>,
       Record<string, ItemTypeType>,
       Record<string, CostCenterType>,
