@@ -10,7 +10,7 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { I18nPath, I18nTranslations } from 'src/generated/i18n.generated'
 
-export type ResponseBuilderType<T = any> = {
+export type BaseResponse<T = any> = {
   data: T
   statusCode?: HttpStatus
   message?: I18nPath

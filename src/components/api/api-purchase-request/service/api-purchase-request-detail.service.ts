@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
-import { ResponseBuilderType } from '../../../../core/interceptor/transform-response.interceptor'
+import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestRepository } from '../../../../mongo/purchase-request/purchase-request.repository'
 import { PurchaseRequestType } from '../../../../mongo/purchase-request/purchase-request.schema'
 import { SupplierType } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
@@ -37,7 +37,7 @@ export class ApiPurchaseRequestDetailService {
   async getOne(
     id: string,
     query?: PurchaseRequestGetOneByIdQuery
-  ): Promise<ResponseBuilderType> {
+  ): Promise<BaseResponse> {
     const data = await this.purchaseRequestRepository.findOne({
       relation: { purchaseRequestItems: true },
       condition: { id },

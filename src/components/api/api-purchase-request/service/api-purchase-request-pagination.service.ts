@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { uniqueArray } from '../../../../common/helpers'
-import { ResponseBuilderType } from '../../../../core/interceptor/transform-response.interceptor'
+import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestRepository } from '../../../../mongo/purchase-request/purchase-request.repository'
 import { PurchaseRequestType } from '../../../../mongo/purchase-request/purchase-request.schema'
 import { SupplierType } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
@@ -35,7 +35,7 @@ export class ApiPurchaseRequestPaginationService {
 
   async pagination(
     query: PurchaseRequestPaginationQuery
-  ): Promise<ResponseBuilderType> {
+  ): Promise<BaseResponse> {
     const { page, limit, filter, sort, relation } = query
 
     const { total, data } = await this.purchaseRequestRepository.pagination({

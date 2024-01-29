@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
 import { BusinessException } from '../../../core/exception-filter/exception-filter'
-import { ResponseBuilderType } from '../../../core/interceptor/transform-response.interceptor'
+import { BaseResponse } from '../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestHistoryRepository } from '../../../mongo/purchase-request-history/purchase-request-history.repository'
 import { PurchaseRequestItemRepository } from '../../../mongo/purchase-request-item/purchase-request-item.repository'
 import { PurchaseRequestItemInsertType } from '../../../mongo/purchase-request-item/purchase-request-item.schema'
@@ -28,9 +28,7 @@ export class ApiPurchaseRequestService {
     private readonly natsClientVendorService: NatsClientVendorService
   ) {}
 
-  async getMany(
-    query: PurchaseRequestGetManyQuery
-  ): Promise<ResponseBuilderType> {
+  async getMany(query: PurchaseRequestGetManyQuery): Promise<BaseResponse> {
     const { limit, filter, relation } = query
 
     const data = await this.purchaseRequestRepository.findMany({
@@ -53,7 +51,7 @@ export class ApiPurchaseRequestService {
   async createDraft(
     body: PurchaseRequestCreateBody,
     userId: number
-  ): Promise<ResponseBuilderType> {
+  ): Promise<BaseResponse> {
     const { items, ...purchaseRequestBody } = body
 
     // await Promise.all([
@@ -103,7 +101,7 @@ export class ApiPurchaseRequestService {
   async createWaitConfirm(
     body: PurchaseRequestCreateBody,
     userId: number
-  ): Promise<ResponseBuilderType> {
+  ): Promise<BaseResponse> {
     const { items, ...purchaseRequestBody } = body
 
     // await Promise.all([
@@ -154,7 +152,7 @@ export class ApiPurchaseRequestService {
     id: string
     body: PurchaseRequestUpdateBody
     userId: number
-  }): Promise<ResponseBuilderType> {
+  }): Promise<BaseResponse> {
     const { id, body, userId } = options
     const { items, ...purchaseRequestBody } = body
 
@@ -230,7 +228,7 @@ export class ApiPurchaseRequestService {
   async waitConfirm(options: {
     id: string
     userId: number
-  }): Promise<ResponseBuilderType> {
+  }): Promise<BaseResponse> {
     const { id, userId } = options
     const rootData = await this.purchaseRequestRepository.findOneById(id)
     if (!rootData) {
@@ -272,7 +270,7 @@ export class ApiPurchaseRequestService {
   async confirm(options: {
     id: string
     userId: number
-  }): Promise<ResponseBuilderType> {
+  }): Promise<BaseResponse> {
     const { id, userId } = options
     const rootData = await this.purchaseRequestRepository.findOneById(id)
     if (!rootData) {
@@ -301,10 +299,7 @@ export class ApiPurchaseRequestService {
     return { data: purchaseRequest }
   }
 
-  async reject(options: {
-    id: string
-    userId: number
-  }): Promise<ResponseBuilderType> {
+  async reject(options: { id: string; userId: number }): Promise<BaseResponse> {
     const { id, userId } = options
     const rootData = await this.purchaseRequestRepository.findOneById(id)
     if (!rootData) {
@@ -333,10 +328,7 @@ export class ApiPurchaseRequestService {
     return { data: purchaseRequest }
   }
 
-  async cancel(options: {
-    id: string
-    userId: number
-  }): Promise<ResponseBuilderType> {
+  async cancel(options: { id: string; userId: number }): Promise<BaseResponse> {
     const { id, userId } = options
     const rootData = await this.purchaseRequestRepository.findOneById(id)
     if (!rootData) {
@@ -360,7 +352,7 @@ export class ApiPurchaseRequestService {
     return { data: purchaseRequest }
   }
 
-  async success(id: string, userId: number): Promise<ResponseBuilderType> {
+  async success(id: string, userId: number): Promise<BaseResponse> {
     const rootData = await this.purchaseRequestRepository.findOneById(id)
     if (!rootData) {
       throw new BusinessException('error.NOT_FOUND')
@@ -391,7 +383,7 @@ export class ApiPurchaseRequestService {
     return { data: id }
   }
 
-  async deleteOne(id: string): Promise<ResponseBuilderType> {
+  async deleteOne(id: string): Promise<BaseResponse> {
     const rootData = await this.purchaseRequestRepository.findOneById(id)
     if (!rootData) {
       throw new BusinessException('error.NOT_FOUND')
@@ -412,7 +404,7 @@ export class ApiPurchaseRequestService {
     return { data: id }
   }
 
-  async history(id: string): Promise<ResponseBuilderType> {
+  async history(id: string): Promise<BaseResponse> {
     const data = await this.purchaseRequestHistoryRepository.findManyBy({
       _purchase_request_id: new Types.ObjectId(id),
     })
