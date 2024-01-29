@@ -5,7 +5,7 @@ import { PurchaseRequestItemType } from '../purchase-request-item/purchase-reque
 
 export enum PurchaseRequestStatus {
   DRAFT = 1,
-  WAIT_CONFIRM = 2,
+  WAIT_CONFIRM = 2, // đề nghị duyệt
   REJECT = 3,
   CONFIRM = 4,
   SUCCESS = 5,

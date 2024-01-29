@@ -20,38 +20,38 @@ export class ApiPurchaseOrderService {
   async pagination(query: PurchaseOrderPaginationQuery) {
     const { page, limit, filter, sort, relation } = query
 
-    return await this.purchaseOrderRepository.pagination({
-      page,
-      limit,
-      relation,
-      condition: {
-        $OR: filter.searchText
-          ? [
-              { description: { LIKE: filter.searchText } },
-              { note: { LIKE: filter.searchText } },
-            ]
-          : undefined,
-        updatedAt: filter?.updatedAt,
-      },
-      sort: sort || { _id: 'DESC' },
-    })
+    // return await this.purchaseOrderRepository.pagination({
+    //   page,
+    //   limit,
+    //   relation,
+    //   condition: {
+    //     $OR: filter.searchText
+    //       ? [
+    //           { description: { LIKE: filter.searchText } },
+    //           { note: { LIKE: filter.searchText } },
+    //         ]
+    //       : undefined,
+    //     updatedAt: filter?.updatedAt,
+    //   },
+    //   sort: sort || { _id: 'DESC' },
+    // })
   }
 
   async getMany(query: PurchaseOrderGetManyQuery) {
     const { limit, filter } = query
 
-    return await this.purchaseOrderRepository.findMany({
-      condition: {
-        $OR: filter.searchText
-          ? [
-              { description: { LIKE: filter.searchText } },
-              { note: { LIKE: filter.searchText } },
-            ]
-          : undefined,
-        updatedAt: filter?.updatedAt,
-      },
-      limit,
-    })
+    // return await this.purchaseOrderRepository.findMany({
+    //   condition: {
+    //     $OR: filter.searchText
+    //       ? [
+    //           { description: { LIKE: filter.searchText } },
+    //           { note: { LIKE: filter.searchText } },
+    //         ]
+    //       : undefined,
+    //     updatedAt: filter?.updatedAt,
+    //   },
+    //   limit,
+    // })
   }
 
   async getOne(id: string, query?: PurchaseOrderGetOneQuery) {
@@ -61,14 +61,14 @@ export class ApiPurchaseOrderService {
   }
 
   async createOne(body: PurchaseOrderCreateBody) {
-    const data = await this.purchaseOrderRepository.insertOne(body)
-    // const data = await this.purchaseOrderRepository.insertOneFullField(body)
-    return data
+    // const data = await this.purchaseOrderRepository.insertOne(body)
+    // // const data = await this.purchaseOrderRepository.insertOneFullField(body)
+    // return data
   }
 
   async updateOne(id: string, body: PurchaseOrderUpdateBody) {
-    const data = await this.purchaseOrderRepository.updateOne({ id }, body)
-    return data
+    // const data = await this.purchaseOrderRepository.updateOne({ id }, body)
+    // return data
   }
 
   async deleteOne(id: string) {

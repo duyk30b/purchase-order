@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { FilterQuery, Model, Types } from 'mongoose'
+import { Model } from 'mongoose'
 import { BaseMongoRepository } from '../base-mongo.repository'
 import { PurchaseOrder, PurchaseOrderType } from './purchase-order.schema'
 
@@ -18,21 +18,20 @@ export class PurchaseOrderRepository extends BaseMongoRepository<
     super(purchaseOrderModel)
   }
 
-  async incrementQuantity(
-    condition: FilterQuery<PurchaseOrder>,
-    options: {
-      quantityAvailable: string
-    }
-  ) {
-    const filter = this.getFilterOptions(condition)
-    return await this.purchaseOrderModel.findOneAndUpdate(
-      filter,
-      {
-        $inc: {
-          _quantity_available: new Types.Decimal128(options.quantityAvailable),
-        },
-      },
-      { new: true }
-    )
+  public async generateNextCode(options: {
+    prefix?: string
+    padSize?: number
+    padChar?: string
+  }): Promise<string> {
+    const prefix = options.prefix || 'PO-'
+    const padSize = options.padSize || 7
+    const padChar = options.padChar || '0'
+    const lastDocument = await this.purchaseOrderModel
+      .findOne({ code: { $regex: new RegExp(`^${prefix}`, 'i') } })
+      .sort({ code: -1 })
+    const lastCode = lastDocument?.toObject()?.code || ''
+    const lastNumber = +lastCode.replace(prefix, '') || 0
+    const currentNumber = (lastNumber + 1).toString().padStart(padSize, padChar)
+    return `${prefix}${currentNumber}`
   }
 }

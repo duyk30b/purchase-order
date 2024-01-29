@@ -10,14 +10,10 @@ import {
   PurchaseRequestStatus,
   PurchaseRequestType,
 } from '../../../mongo/purchase-request/purchase-request.schema'
-import { InformationService } from '../../data-extend/information.service'
-import { ValidateService } from '../../data-extend/validate.service'
 import { NatsClientVendorService } from '../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import {
   PurchaseRequestCreateBody,
   PurchaseRequestGetManyQuery,
-  PurchaseRequestGetOneByIdQuery,
-  PurchaseRequestPaginationQuery,
   PurchaseRequestUpdateBody,
 } from './request'
 
@@ -29,17 +25,16 @@ export class ApiPurchaseRequestService {
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
     private readonly purchaseRequestItemRepository: PurchaseRequestItemRepository,
     private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository,
-    private readonly informationService: InformationService,
-    private readonly validateService: ValidateService,
     private readonly natsClientVendorService: NatsClientVendorService
   ) {}
 
   async getMany(
     query: PurchaseRequestGetManyQuery
   ): Promise<ResponseBuilderType> {
-    const { limit, filter } = query
+    const { limit, filter, relation } = query
 
     const data = await this.purchaseRequestRepository.findMany({
+      relation: relation,
       condition: {
         ...(filter?.searchText ? { code: { LIKE: filter.searchText } } : {}),
         ...(filter?.code ? { code: filter.code } : {}),

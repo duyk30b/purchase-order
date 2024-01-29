@@ -18,6 +18,11 @@ import {
 } from '../../../../mongo/purchase-request/purchase-request.schema'
 
 export class ItemUpsertBody {
+  @ApiProperty({ example: 1 })
+  @Expose()
+  @IsNumber()
+  indexLine: number // Thứ tự
+
   @ApiProperty({ example: 12 })
   @Expose()
   @IsDefined()

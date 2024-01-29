@@ -10,6 +10,9 @@ export class PurchaseRequestItem extends BaseSchema {
   _purchase_request_id: Types.ObjectId
 
   @Prop()
+  indexLine: number // số line của sản phẩm trên PR
+
+  @Prop()
   itemId: number
 
   @Prop()
@@ -30,6 +33,7 @@ export class PurchaseRequestItem extends BaseSchema {
 
 const PurchaseRequestItemSchema =
   SchemaFactory.createForClass(PurchaseRequestItem)
+PurchaseRequestItemSchema.index({ _purchase_request_id: 1 }, { unique: false })
 PurchaseRequestItemSchema.index({ itemId: 1 }, { unique: false })
 
 PurchaseRequestItemSchema.virtual('price').get(function () {
