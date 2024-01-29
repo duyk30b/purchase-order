@@ -17,6 +17,7 @@ export enum SUPPLIER_STATUS {
 }
 
 export type SupplierType = {
+  id: string
   code: string
   name: string
   type: SUPPLIER_TYPE_ENUM

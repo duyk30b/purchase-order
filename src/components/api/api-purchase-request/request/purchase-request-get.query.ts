@@ -19,7 +19,9 @@ import {
 export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
-    example: JSON.stringify(<PurchaseRequestRelationQuery>{ vendor: true }),
+    example: JSON.stringify(<PurchaseRequestRelationQuery>{
+      purchaseRequestItems: true,
+    }),
   })
   @Expose()
   @Transform(({ value }) => {
@@ -47,7 +49,7 @@ export class PurchaseRequestGetQuery {
       receiveDate: { LT: new Date() },
       costCenterId: '63fdde9517a7317f0e8f959a',
       sourceAddress: SourceAddress.Japan,
-      vendorId: '63fdde9517a7317f0e8f959a',
+      supplierId: '63fdde9517a7317f0e8f959a',
       status: PurchaseRequestStatus.DRAFT,
     }),
   })

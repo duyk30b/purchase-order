@@ -32,19 +32,23 @@ import {
   PurchaseRequestPaginationQuery,
   PurchaseRequestUpdateBody,
 } from './request'
+import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
+import { ApiPurchaseRequestPaginationService } from './service/api-purchase-request-pagination.service'
 
 @ApiTags('PurchaseRequest')
 @ApiBearerAuth('access-token')
 @Controller('purchase-request')
 export class ApiPurchaseRequestController {
   constructor(
-    private readonly apiPurchaseRequestService: ApiPurchaseRequestService
+    private readonly apiPurchaseRequestService: ApiPurchaseRequestService,
+    private readonly apiPurchaseRequestDetailService: ApiPurchaseRequestDetailService,
+    private readonly apiPurchaseRequestPaginationService: ApiPurchaseRequestPaginationService
   ) {}
 
   @Get('pagination')
   @PermissionCode(PURCHASE_REQUEST_LIST.code)
   pagination(@Query() query: PurchaseRequestPaginationQuery) {
-    return this.apiPurchaseRequestService.pagination(query)
+    return this.apiPurchaseRequestPaginationService.pagination(query)
   }
 
   @Get('list')
@@ -58,7 +62,7 @@ export class ApiPurchaseRequestController {
     @Param() { id }: IdMongoParam,
     @Query() query: PurchaseRequestGetOneByIdQuery
   ) {
-    return await this.apiPurchaseRequestService.getOne(id, query)
+    return await this.apiPurchaseRequestDetailService.getOne(id, query)
   }
 
   @Post('create-draft')

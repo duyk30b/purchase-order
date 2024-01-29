@@ -77,7 +77,7 @@ export class PurchaseRequestCreateBody {
   @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
   @Expose()
   @IsMongoId()
-  vendorId: string
+  supplierId: string
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()

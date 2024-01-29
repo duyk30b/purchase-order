@@ -20,23 +20,23 @@ export class ValidateService {
   ) {}
 
   async validateCostCenter(costCenterId: string) {
-    const costCenterMap =
-      await this.natsClientCostCenterService.getCostCenterMap({
-        ids: [costCenterId],
-      })
-    const costCenter = costCenterMap[costCenterId]
-    if (!costCenter) {
-      throw new BusinessException('error.CostCenter.Error')
-    }
-    if (
-      [
-        CostCenterStatusEnum.DRAFT,
-        CostCenterStatusEnum.DELETED,
-        CostCenterStatusEnum.INACTIVE,
-      ].includes(costCenter.status)
-    ) {
-      throw new BusinessException('error.CostCenter.Error')
-    }
+    // const costCenterMap =
+    //   await this.natsClientCostCenterService.getCostCenterMap({
+    //     ids: [costCenterId],
+    //   })
+    // const costCenter = costCenterMap[costCenterId]
+    // if (!costCenter) {
+    //   throw new BusinessException('error.CostCenter.Error')
+    // }
+    // if (
+    //   [
+    //     CostCenterStatusEnum.DRAFT,
+    //     CostCenterStatusEnum.DELETED,
+    //     CostCenterStatusEnum.INACTIVE,
+    //   ].includes(costCenter.status)
+    // ) {
+    //   throw new BusinessException('error.CostCenter.Error')
+    // }
   }
 
   async validateVendor(vendorId: string) {

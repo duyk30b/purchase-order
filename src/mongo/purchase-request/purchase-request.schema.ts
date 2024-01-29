@@ -32,7 +32,7 @@ export class PurchaseRequest extends BaseSchema {
   code: string
 
   @Prop()
-  vendorId: string
+  supplierId: string
 
   @Prop()
   requestDate: Date // Ngày yêu cầu

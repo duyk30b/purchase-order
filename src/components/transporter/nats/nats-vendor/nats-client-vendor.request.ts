@@ -1,3 +1,4 @@
+import { ConditionMongoId } from '../../../../common/dto/condition-mongo-id'
 import { ConditionNumber } from '../../../../common/dto/condition-number'
 import { ConditionString } from '../../../../common/dto/condition-string'
 import { OmitClass, PickClass } from '../../../../common/helpers'
@@ -7,23 +8,23 @@ import {
 } from './nats-client-vendor.response'
 
 export class SupplierRelationRequest {
-  supplierItems: boolean
+  supplierItems?: boolean
 }
 
 export class SupplierFilterRequest {
-  id: string
-  code: ConditionString | string
-  name: ConditionString
-  searchText: string
-  type: SUPPLIER_TYPE_ENUM
-  groupType: ConditionNumber | SUPPLIER_GROUP_TYPE_SUPPLIER
+  id?: ConditionMongoId | string
+  code?: ConditionString | string
+  name?: ConditionString
+  searchText?: string
+  type?: SUPPLIER_TYPE_ENUM
+  groupType?: ConditionNumber | SUPPLIER_GROUP_TYPE_SUPPLIER
 }
 
 export class SupplierSortRequest {
-  id: 'ASC' | 'DESC'
-  code: 'ASC' | 'DESC'
-  name: 'ASC' | 'DESC'
-  type: 'ASC' | 'DESC'
+  id?: 'ASC' | 'DESC'
+  code?: 'ASC' | 'DESC'
+  name?: 'ASC' | 'DESC'
+  type?: 'ASC' | 'DESC'
 }
 
 export class SupplierGetRequest {

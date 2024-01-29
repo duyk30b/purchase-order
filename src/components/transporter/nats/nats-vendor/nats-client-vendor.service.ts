@@ -14,20 +14,7 @@ import { SupplierType } from './nats-client-vendor.response'
 export class NatsClientVendorService {
   constructor(private readonly natsClient: NatsClientService) {}
 
-  async getManySupplier(
-    request: SupplierGetManyRequest
-  ): Promise<SupplierType[]> {
-    const response: NatsResponseInterface = await this.natsClient.send(
-      NatsSubject.VENDOR.SUPPLIER_GET_MANY,
-      request
-    )
-    if (response.statusCode !== 200) {
-      throw new BusinessException(response.message as any)
-    }
-    return response.data
-  }
-
-  async getOneSupplier(request: SupplierGetOneRequest): Promise<SupplierType> {
+  async getOneSupplier(request: SupplierGetOneRequest) {
     const response: NatsResponseInterface = await this.natsClient.send(
       NatsSubject.VENDOR.SUPPLIER_GET_ONE,
       request
@@ -35,13 +22,10 @@ export class NatsClientVendorService {
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }
-    return response.data
+    return response.data as SupplierType
   }
 
-  async getOneByIdSupplier(
-    id: string,
-    options?: SupplierGetOneByIdRequest
-  ): Promise<SupplierType> {
+  async getOneByIdSupplier(id: string, options?: SupplierGetOneByIdRequest) {
     const response: NatsResponseInterface = await this.natsClient.send(
       NatsSubject.VENDOR.SUPPLIER_GET_ONE,
       <SupplierGetOneRequest>{ filter: { id }, relation: options?.relation }
@@ -49,6 +33,24 @@ export class NatsClientVendorService {
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }
-    return response.data
+    return response.data as SupplierType
+  }
+
+  async getSupplierList(request: SupplierGetManyRequest) {
+    const response: NatsResponseInterface = await this.natsClient.send(
+      NatsSubject.VENDOR.SUPPLIER_GET_MANY,
+      request
+    )
+    if (response.statusCode !== 200) {
+      throw new BusinessException(response.message as any)
+    }
+    return response.data as SupplierType[]
+  }
+
+  async getSupplierMap(request: SupplierGetManyRequest) {
+    const supplierList = await this.getSupplierList(request)
+    const supplierMap: Record<string, SupplierType> = {}
+    supplierList.forEach((i) => (supplierMap[i.id] = i))
+    return supplierMap
   }
 }

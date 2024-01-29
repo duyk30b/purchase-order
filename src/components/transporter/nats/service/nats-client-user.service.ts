@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { NatsClientService } from '../nats-client.service'
-import { NatsSubject } from '../nats.config'
+import { NatsService, NatsSubject } from '../nats.config'
 import { NatsResponseInterface } from '../nats.interface'
 
 export type UserType = {
@@ -35,10 +35,7 @@ export type UserType = {
 export class NatsClientUserService {
   constructor(private readonly natsClient: NatsClientService) {}
 
-  async insertPermission(data: {
-    permission: any[]
-    groupPermission: any[]
-  }): Promise<any> {
+  async insertPermission(data: { permission: any[]; groupPermission: any[] }) {
     const response: NatsResponseInterface = await this.natsClient.send(
       NatsSubject.USER.INSERT_PERMISSION,
       data
@@ -49,7 +46,7 @@ export class NatsClientUserService {
     return response.data
   }
 
-  async deletePermissionNotActive(): Promise<any> {
+  async deletePermissionNotActive() {
     const response: NatsResponseInterface = await this.natsClient.send(
       NatsSubject.USER.DELETE_PERMISSION_NOT_ACTIVE,
       {}
@@ -71,5 +68,23 @@ export class NatsClientUserService {
       throw new BusinessException(response.message as any)
     }
     return response.data as UserType[]
+  }
+
+  async getUserListByIds(request: { userIds: number[] }) {
+    const response = await this.natsClient.send(
+      `${NatsService.USER}.get_users_by_ids`,
+      request
+    )
+    if (response.statusCode !== 200) {
+      throw new BusinessException(response.message as any)
+    }
+    return response.data as UserType[]
+  }
+
+  async getUserMapByIds(request: { userIds: number[] }) {
+    const userList = await this.getUserListByIds(request)
+    const userMap: Record<string, UserType> = {}
+    userList.forEach((i) => (userMap[i.id] = i))
+    return userMap
   }
 }

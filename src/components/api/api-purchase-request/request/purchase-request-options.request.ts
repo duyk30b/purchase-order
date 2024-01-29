@@ -18,7 +18,7 @@ import {
 export class PurchaseRequestRelationQuery {
   @Expose()
   @IsBoolean()
-  vendor: boolean
+  purchaseRequestItems: boolean
 }
 
 export class PurchaseRequestFilterQuery {
@@ -51,7 +51,7 @@ export class PurchaseRequestFilterQuery {
 
   @Expose()
   @IsMongoId()
-  vendorId: string
+  supplierId: string
 
   @Expose()
   @IsIn(valuesEnum(PurchaseRequestStatus))

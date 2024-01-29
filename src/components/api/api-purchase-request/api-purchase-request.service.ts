@@ -34,39 +34,6 @@ export class ApiPurchaseRequestService {
     private readonly natsClientVendorService: NatsClientVendorService
   ) {}
 
-  async pagination(
-    query: PurchaseRequestPaginationQuery
-  ): Promise<ResponseBuilderType> {
-    const { page, limit, filter, sort, relation } = query
-
-    // const xx = await this.natsClientVendorService.getOneByIdSupplier(
-    //   '65b0c71c0bc3787bb11cb653'
-    // )
-    // return { data: xx }
-
-    const { total, data } = await this.purchaseRequestRepository.pagination({
-      page,
-      limit,
-      relation,
-      condition: {
-        code: filter.searchText ? { LIKE: filter.searchText } : undefined,
-        // code: filter.code,
-        requestDate: filter.requestDate,
-        receiveDate: filter.receiveDate,
-        costCenterId: filter.costCenterId,
-        sourceAddress: filter.sourceAddress,
-        vendorId: filter.vendorId,
-        status: filter.status,
-      },
-      sort: sort || { _id: 'DESC' },
-    })
-
-    const dataExtend =
-      await this.informationService.getInformationFromPurchaseRequest(data)
-
-    return { data: { data, page, limit, total, dataExtend } }
-  }
-
   async getMany(
     query: PurchaseRequestGetManyQuery
   ): Promise<ResponseBuilderType> {
@@ -74,33 +41,18 @@ export class ApiPurchaseRequestService {
 
     const data = await this.purchaseRequestRepository.findMany({
       condition: {
-        code: filter.searchText ? { LIKE: filter.searchText } : undefined,
-        // code: filter.code,
-        requestDate: filter.requestDate,
-        receiveDate: filter.receiveDate,
-        costCenterId: filter.costCenterId,
-        sourceAddress: filter.sourceAddress,
-        vendorId: filter.vendorId,
-        status: filter.status,
+        ...(filter?.searchText ? { code: { LIKE: filter.searchText } } : {}),
+        ...(filter?.code ? { code: filter.code } : {}),
+        requestDate: filter?.requestDate,
+        receiveDate: filter?.receiveDate,
+        costCenterId: filter?.costCenterId,
+        sourceAddress: filter?.sourceAddress,
+        supplierId: filter?.supplierId,
+        status: filter?.status,
       },
       limit,
     })
     return { data }
-  }
-
-  async getOne(
-    id: string,
-    query?: PurchaseRequestGetOneByIdQuery
-  ): Promise<ResponseBuilderType> {
-    const data = await this.purchaseRequestRepository.findOne({
-      relation: { purchaseRequestItems: true },
-      condition: { id },
-    })
-    if (!data) throw new BusinessException('error.NOT_FOUND')
-
-    const dataExtend =
-      await this.informationService.getInformationFromPurchaseRequest([data])
-    return { data: { data, dataExtend } }
   }
 
   async createDraft(
@@ -109,11 +61,11 @@ export class ApiPurchaseRequestService {
   ): Promise<ResponseBuilderType> {
     const { items, ...purchaseRequestBody } = body
 
-    await Promise.all([
-      this.validateService.validateCostCenter(body.costCenterId),
-      this.validateService.validateVendor(body.vendorId),
-      this.validateService.validateItem(body.items.map((i) => i.itemId)),
-    ])
+    // await Promise.all([
+    //   this.validateService.validateCostCenter(body.costCenterId),
+    //   this.validateService.validateVendor(body.vendorId),
+    //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
+    // ])
 
     const code = await this.purchaseRequestRepository.generateNextCode({})
 
@@ -159,11 +111,11 @@ export class ApiPurchaseRequestService {
   ): Promise<ResponseBuilderType> {
     const { items, ...purchaseRequestBody } = body
 
-    await Promise.all([
-      this.validateService.validateCostCenter(body.costCenterId),
-      this.validateService.validateVendor(body.vendorId),
-      this.validateService.validateItem(body.items.map((i) => i.itemId)),
-    ])
+    // await Promise.all([
+    //   this.validateService.validateCostCenter(body.costCenterId),
+    //   this.validateService.validateVendor(body.vendorId),
+    //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
+    // ])
 
     const code = await this.purchaseRequestRepository.generateNextCode({})
 
@@ -211,11 +163,11 @@ export class ApiPurchaseRequestService {
     const { id, body, userId } = options
     const { items, ...purchaseRequestBody } = body
 
-    await Promise.all([
-      this.validateService.validateCostCenter(body.costCenterId),
-      this.validateService.validateVendor(body.vendorId),
-      this.validateService.validateItem(body.items.map((i) => i.itemId)),
-    ])
+    // await Promise.all([
+    //   this.validateService.validateCostCenter(body.costCenterId),
+    //   this.validateService.validateVendor(body.vendorId),
+    //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
+    // ])
 
     const rootData = await this.purchaseRequestRepository.findOneById(id)
     if (!rootData) {
@@ -293,14 +245,14 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
     }
 
-    await Promise.all([
-      this.validateService.validateCostCenter(rootData.costCenterId),
-      this.validateService.validateVendor(rootData.vendorId),
-      this.validateService.validateItem(
-        rootData.purchaseRequestItems.map((i) => i.itemId)
-      ),
-      // TODO: validate đơn vị tính, thời hạn giao hàng có thay đổi không
-    ])
+    // await Promise.all([
+    //   this.validateService.validateCostCenter(rootData.costCenterId),
+    //   this.validateService.validateVendor(rootData.vendorId),
+    //   this.validateService.validateItem(
+    //     rootData.purchaseRequestItems.map((i) => i.itemId)
+    //   ),
+    //   // TODO: validate đơn vị tính, thời hạn giao hàng có thay đổi không
+    // ])
 
     const purchaseRequest: PurchaseRequestType =
       await this.purchaseRequestRepository.updateOne(
