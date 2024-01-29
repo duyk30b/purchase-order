@@ -22,11 +22,11 @@ export class TransformResponseInterceptor implements NestInterceptor {
     const i18n = I18nContext.current<I18nTranslations>()
     return next.handle().pipe(
       map((response) => ({
-        statusCode: response.statusCode || HttpStatus.OK,
-        message: i18n.translate(response.message || 'common.SUCCESS', {
-          args: response.args || {},
+        statusCode: response?.statusCode || HttpStatus.OK,
+        message: i18n.translate(response?.message || 'common.SUCCESS', {
+          args: response?.args || {},
         }),
-        data: response.data,
+        data: response?.data,
       }))
     )
   }
