@@ -39,7 +39,7 @@ export class ApiPurchaseRequestDetailService {
     query?: PurchaseRequestGetOneByIdQuery
   ): Promise<BaseResponse> {
     const data = await this.purchaseRequestRepository.findOne({
-      relation: { purchaseRequestItems: true },
+      relation: query?.relation,
       condition: { id },
     })
     if (!data) throw new BusinessException('error.NOT_FOUND')

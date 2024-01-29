@@ -41,7 +41,7 @@ export class ApiPurchaseRequestPaginationService {
     const { total, data } = await this.purchaseRequestRepository.pagination({
       page,
       limit,
-      relation: { purchaseRequestItems: true },
+      relation,
       condition: {
         ...(filter?.searchText ? { code: { LIKE: filter.searchText } } : {}),
         ...(filter?.code ? { code: filter.code } : {}),
