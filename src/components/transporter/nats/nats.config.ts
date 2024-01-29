@@ -84,4 +84,8 @@ export const NatsSubject = {
     PING: NatsService.ATTRIBUTE + '.ping',
     GET_TEMPLATES_BY_IDS: NatsService.ATTRIBUTE + '.get_templates_by_ids',
   },
+  PURCHASE_ORDER: {
+    GET_PURCHASED_ORDER_LIST:
+      NatsService.PURCHASE_ORDER + '.get_purchase_order_list',
+  },
 }
