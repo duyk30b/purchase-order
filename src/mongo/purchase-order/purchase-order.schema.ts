@@ -69,6 +69,7 @@ export class PurchaseOrder extends BaseSchema {
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _amount: Types.Decimal128 // Thành tiền (_total_money + _tax_money)
 
+  // ========== Thông tin giao hàng ==========
   @Prop({ type: Number })
   deliveryNumber: DeliveryNumber // giao hàng 1 lần hay nhiều lần
 
@@ -80,6 +81,15 @@ export class PurchaseOrder extends BaseSchema {
 
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _delivery_expense: Types.Decimal128 // Chi phí vận chuyển
+
+  @Prop()
+  departure: string // nơi đi
+
+  @Prop()
+  destination: string // nơi đến
+
+  @Prop()
+  pack: string // đóng gói
 }
 
 const PurchaseOrderSchema = SchemaFactory.createForClass(PurchaseOrder)

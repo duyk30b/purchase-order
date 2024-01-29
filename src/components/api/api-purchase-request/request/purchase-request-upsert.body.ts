@@ -35,17 +35,17 @@ export class ItemUpsertBody {
   @IsNumber()
   itemTypeId: number
 
-  // @ApiProperty({ example: 12 })
-  // @Expose()
-  // @IsDefined()
-  // @IsNumber()
-  // itemUnitId: number // đơn vị tính => trường này lấy theo nhà cung cấp
+  @ApiProperty({ example: 12 })
+  @Expose()
+  @IsDefined()
+  @IsNumber()
+  itemUnitId: number // đơn vị tính => trường này lấy theo nhà cung cấp
 
-  // @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
-  // @Expose()
-  // @Transform(({ value }) => (value ? new Date() : undefined))
-  // @IsDate()
-  // deliveryTerm: Date // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+  @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
+  @Expose()
+  @Transform(({ value }) => (value ? new Date() : undefined))
+  @IsDate()
+  deliveryTerm: Date // thời hạn giao hàng => trường này lấy theo nhà cung cấp
 
   @ApiProperty({ example: 12 })
   @Expose()

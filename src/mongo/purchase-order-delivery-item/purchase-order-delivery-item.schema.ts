@@ -5,18 +5,15 @@ import { BaseSchema } from '../base.schema'
 import { PurchaseOrder } from '../purchase-order/purchase-order.schema'
 
 @Schema({ collection: 'purchaseOrderItem', timestamps: true })
-export class PurchaseOrderItem extends BaseSchema {
+export class PurchaseOrderDeliveryItem extends BaseSchema {
   @Prop({ type: Types.ObjectId, required: true })
   _purchase_order_id: Types.ObjectId
 
   @Prop()
-  prIndexLine: number
-
-  @Prop()
   itemId: number
 
-  @Prop()
-  itemUnitId: number // Đơn vị tính => trường này phải lấy theo nhà cung cấp
+  // @Prop()
+  // itemUnitId: number // Đơn vị tính => trường này phải lấy theo nhà cung cấp
 
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _price: Types.Decimal128 // Đơn giá
@@ -43,35 +40,40 @@ export class PurchaseOrderItem extends BaseSchema {
   // deliveryTerm: Date // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
 }
 
-const PurchaseOrderItemSchema = SchemaFactory.createForClass(PurchaseOrderItem)
-PurchaseOrderItemSchema.index({ _purchase_order_id: 1 }, { unique: false })
-PurchaseOrderItemSchema.index({ itemId: 1 }, { unique: false })
+const PurchaseOrderDeliveryItemSchema = SchemaFactory.createForClass(
+  PurchaseOrderDeliveryItem
+)
+PurchaseOrderDeliveryItemSchema.index(
+  { _purchase_order_id: 1 },
+  { unique: false }
+)
+PurchaseOrderDeliveryItemSchema.index({ itemId: 1 }, { unique: false })
 
-PurchaseOrderItemSchema.virtual('purchaseOrder', {
+PurchaseOrderDeliveryItemSchema.virtual('purchaseOrder', {
   ref: 'PurchaseOrderSchema',
   localField: '_purchase_order_id',
   foreignField: '_id',
   justOne: true,
 })
-PurchaseOrderItemSchema.virtual('purchaseOrderId').get(function () {
+PurchaseOrderDeliveryItemSchema.virtual('purchaseOrderId').get(function () {
   return this._purchase_order_id.toHexString()
 })
 
-PurchaseOrderItemSchema.virtual('price').get(function () {
+PurchaseOrderDeliveryItemSchema.virtual('price').get(function () {
   return this._price.toString()
 })
-PurchaseOrderItemSchema.virtual('totalMoney').get(function () {
+PurchaseOrderDeliveryItemSchema.virtual('totalMoney').get(function () {
   return this._total_money.toString()
 })
-PurchaseOrderItemSchema.virtual('amount').get(function () {
+PurchaseOrderDeliveryItemSchema.virtual('amount').get(function () {
   return this._amount.toString()
 })
 
-export { PurchaseOrderItemSchema }
+export { PurchaseOrderDeliveryItemSchema }
 
-export type PurchaseOrderItemType = Omit<
-  PurchaseOrderItem,
-  keyof Document<PurchaseOrderItem>
+export type PurchaseOrderDeliveryItemType = Omit<
+  PurchaseOrderDeliveryItem,
+  keyof Document<PurchaseOrderDeliveryItem>
 > & {
   id?: string
   purchaseOrderId?: string
@@ -81,13 +83,13 @@ export type PurchaseOrderItemType = Omit<
   amount?: string
 }
 
-export type PurchaseOrderItemInsertType = Omit<
-  PurchaseOrderItemType,
+export type PurchaseOrderDeliveryItemInsertType = Omit<
+  PurchaseOrderDeliveryItemType,
   'id' | '_id' | 'purchaseOrderId' | 'purchaseOrder'
 >
 
-export type PurchaseOrderItemUpdateType = Omit<
-  PurchaseOrderItemType,
+export type PurchaseOrderDeliveryItemUpdateType = Omit<
+  PurchaseOrderDeliveryItemType,
   | 'id'
   | '_id'
   | 'createdAt'
