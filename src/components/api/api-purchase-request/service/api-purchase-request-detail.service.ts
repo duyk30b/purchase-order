@@ -50,10 +50,10 @@ export class ApiPurchaseRequestDetailService {
 
   async getDataExtends(data: PurchaseRequestType) {
     const itemIdList = uniqueArray(
-      data.purchaseRequestItems.map((i) => i.itemId)
+      (data.purchaseRequestItems || []).map((i) => i.itemId)
     )
     const itemTypeIdList = uniqueArray(
-      data.purchaseRequestItems.map((i) => i.itemTypeId)
+      (data.purchaseRequestItems || []).map((i) => i.itemTypeId)
     )
 
     const dataExtendsPromise = await Promise.allSettled([

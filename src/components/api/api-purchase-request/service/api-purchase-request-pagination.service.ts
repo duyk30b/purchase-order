@@ -61,7 +61,9 @@ export class ApiPurchaseRequestPaginationService {
   }
 
   async getDataExtends(data: PurchaseRequestType[]) {
-    const purchaseRequestItems = data.map((i) => i.purchaseRequestItems).flat()
+    const purchaseRequestItems = data
+      .map((i) => i.purchaseRequestItems || [])
+      .flat()
 
     const supplierIdList = uniqueArray(data.map((i) => i.supplierId))
     const userRequestIdList = uniqueArray(data.map((i) => i.userIdRequest))
