@@ -2,6 +2,7 @@ import { NatsOptions, Transport } from '@nestjs/microservices'
 import 'dotenv/config'
 
 export const NatsService = {
+  VENDOR: process.env.NATS_VENDOR_SERVICE || 'vendor_service',
   AUTH: process.env.NATS_AUTH_SERVICE || 'auth_service',
   USER: process.env.NATS_USER_SERVICE || 'user_service',
   WEBHOOK: process.env.NATS_WEBHOOK_SERVICE || 'webhook_service',
@@ -30,6 +31,10 @@ export const NatsConfig: NatsOptions = {
 }
 
 export const NatsSubject = {
+  VENDOR: {
+    SUPPLIER_GET_MANY: `${NatsService.VENDOR}.supplier_get_many`,
+    SUPPLIER_GET_ONE: `${NatsService.VENDOR}.supplier_get_one`,
+  },
   AUTH: {
     PING: NatsService.AUTH + '.ping',
     VALIDATE_TOKEN: NatsService.AUTH + '.validate_token',

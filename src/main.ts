@@ -4,12 +4,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
+import { NatsOptions } from '@nestjs/microservices'
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
+import { NatsConfig } from './components/transporter/nats/nats.config'
 import { GlobalConfig } from './config/global.config'
 import {
   ServerExceptionFilter,
@@ -60,7 +62,7 @@ async function bootstrap() {
     })
   )
 
-  // app.connectMicroservice<NatsOptions>(NatsConfig, { inheritAppConfig: true })
+  app.connectMicroservice<NatsOptions>(NatsConfig, { inheritAppConfig: true })
   // app.connectMicroservice<KafkaOptions>(KafkaConfig, { inheritAppConfig: true })
   await app.startAllMicroservices()
 
