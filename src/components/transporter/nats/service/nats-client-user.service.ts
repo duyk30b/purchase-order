@@ -68,7 +68,8 @@ export class NatsClientUserService {
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }
-    return response.data as UserType[]
+    const { userPermissions, costCenters, ...other } = response.data
+    return other as UserType
   }
 
   async getUserListByIds(request: { userIds: number[] }) {
