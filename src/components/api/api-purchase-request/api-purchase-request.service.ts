@@ -34,7 +34,7 @@ export class ApiPurchaseRequestService {
     const { limit, filter, relation } = query
 
     const data = await this.purchaseRequestRepository.findMany({
-      relation: relation,
+      relation: { purchaseRequestItems: true },
       condition: {
         ...(filter?.searchText ? { code: { LIKE: filter.searchText } } : {}),
         ...(filter?.code ? { code: filter.code } : {}),

@@ -25,6 +25,42 @@ export enum DeliveryNumber {
   REPEATEDLY = 2, // giao hàng nhiều lần
 }
 
+// phương thức vận chuyển
+export enum DeliveryMethod {
+  AIR = 'AIR',
+  SEA = 'SEA',
+  COURIER = 'COURIER',
+  RAILROAD = 'RAILROAD',
+  SEA_AND_AIR = 'SEA&AIR',
+}
+
+export const PaymentPeriod = {
+  1: {}, //. Sau khi nhận hàng và kiểm tra chất lượng/ Chốt công nợ vào cuối tháng nhận hàng/Thanh toán vào ngày 20 của tháng kế tiếp (cùng với đầy đủ các chứng từ mua bán hợp lệ đi kèm)
+  2: {}, //. Sau khi nhận hàng và kiểm tra chất lượng/Trong vòng 14 ngày kể từ ngày nhận hàng đầu tiên (cùng với đầy đủ các chứng từ mua bán hợp lệ đi kèm)
+  3: {}, //. Sau khi nhận hàng/ Chốt công nợ vào cuối tháng nhận hàng/Thanh toán vào ngày 20 của tháng kế tiếp(cùng với đầy đủ các chứng từ mua bán hợp lệ đi kèm)
+  4: {}, //. Sau khi nhận hàng /Trong vòng 14 ngày kể từ ngày đầu tiên nhận hàng(cùng với đầy đủ các chứng từ mua bán hợp lệ đi kèm)
+  5: {}, //. Kể từ ngày Surrender B/L phát hành/Chốt công nợ vào cuối tháng nhận hàng/Thanh toán vào ngày 20 tháng kế tiếp
+  6: {}, //. Kể từ ngày Surrender B/L phát hành/Trong vòng 14 ngày kể từ ngày đầu tiên nhận giấy giao hàng
+}
+
+@Schema() // kế hoạch thanh toán
+export class PaymentPlan {
+  @Prop()
+  expectedDate: Date // ngày dự kiến
+
+  @Prop()
+  paymentMethod: number // Phương thức thanh toán
+
+  @Prop()
+  paymentPercent: number // phần trăm thanh toán: tỉ lệ phần trăm của lần thanh toán này
+
+  @Prop({ type: mongoose.Schema.Types.Decimal128 })
+  _amount: Types.Decimal128 // Thành tiền
+
+  @Prop({ type: String, maxlength: 50 })
+  description: string
+}
+
 @Schema({ collection: 'purchaseOrder', timestamps: true })
 export class PurchaseOrder extends BaseSchema {
   @Prop({ type: Number })
@@ -76,8 +112,8 @@ export class PurchaseOrder extends BaseSchema {
   @Prop({ required: false })
   deliveryDate: Date // ngày giao hàng
 
-  @Prop()
-  deliveryMethodCode: string // phương thức vận chuyển
+  @Prop({ type: String })
+  deliveryMethod: DeliveryMethod // phương thức vận chuyển
 
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _delivery_expense: Types.Decimal128 // Chi phí vận chuyển
@@ -90,6 +126,13 @@ export class PurchaseOrder extends BaseSchema {
 
   @Prop()
   pack: string // đóng gói
+
+  // ========== Kế hoạch thanh toán ==========
+  @Prop({ type: Number })
+  paymentPeriodId: number // kỳ thanh toán
+
+  @Prop({ type: mongoose.Schema.Types.Array })
+  payments: PaymentPlan[]
 }
 
 const PurchaseOrderSchema = SchemaFactory.createForClass(PurchaseOrder)

@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import * as mongoose from 'mongoose'
 import { Document, Types } from 'mongoose'
 import { BaseSchema } from '../base.schema'
 import { PurchaseOrder } from '../purchase-order/purchase-order.schema'
@@ -18,29 +17,17 @@ export class PurchaseOrderDeliveryItem extends BaseSchema {
   @Prop()
   deliveryTerm: Date // thời hạn giao hàng
 
-  @Prop({ type: mongoose.Schema.Types.Decimal128 })
-  _price: Types.Decimal128 // Đơn giá
+  @Prop()
+  quantityBuy: number // số lượng mua
 
   @Prop()
-  quantityPrimary: number
+  quantityDelivery: number // số lượng giao
 
   @Prop()
-  quantitySecondary: number
+  warehouseIdReceiving: number // kho nhận
 
-  @Prop()
-  discount: number
-
-  @Prop({ type: mongoose.Schema.Types.Decimal128 })
-  _total_money: Types.Decimal128 // Tổng tiền (giá mua x số lượng x chiết khấu)
-
-  @Prop()
-  tax: number // thuế suất
-
-  @Prop({ type: mongoose.Schema.Types.Decimal128 })
-  _amount: Types.Decimal128 // Thành tiền (total x tax)
-
-  // @Prop()
-  // deliveryTerm: Date // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
+  @Prop({ required: false })
+  deliveryDate: Date // ngày giao kế hoạch
 }
 
 const PurchaseOrderDeliveryItemSchema = SchemaFactory.createForClass(
@@ -62,16 +49,6 @@ PurchaseOrderDeliveryItemSchema.virtual('purchaseOrderId').get(function () {
   return this._purchase_order_id.toHexString()
 })
 
-PurchaseOrderDeliveryItemSchema.virtual('price').get(function () {
-  return this._price.toString()
-})
-PurchaseOrderDeliveryItemSchema.virtual('totalMoney').get(function () {
-  return this._total_money.toString()
-})
-PurchaseOrderDeliveryItemSchema.virtual('amount').get(function () {
-  return this._amount.toString()
-})
-
 export { PurchaseOrderDeliveryItemSchema }
 
 export type PurchaseOrderDeliveryItemType = Omit<
@@ -81,9 +58,6 @@ export type PurchaseOrderDeliveryItemType = Omit<
   id?: string
   purchaseOrderId?: string
   purchaseOrder?: PurchaseOrder
-  price?: string
-  totalMoney?: string
-  amount?: string
 }
 
 export type PurchaseOrderDeliveryItemInsertType = Omit<

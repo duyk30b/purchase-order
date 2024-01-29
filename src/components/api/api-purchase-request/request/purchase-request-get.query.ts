@@ -19,9 +19,7 @@ import {
 export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
-    example: JSON.stringify(<PurchaseRequestRelationQuery>{
-      purchaseRequestItems: true,
-    }),
+    example: JSON.stringify(<PurchaseRequestRelationQuery>{}),
   })
   @Expose()
   @Transform(({ value }) => {
