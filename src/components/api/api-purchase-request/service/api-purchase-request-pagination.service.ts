@@ -78,6 +78,7 @@ export class ApiPurchaseRequestPaginationService {
       supplierIdList.length
         ? this.natsClientVendorService.getSupplierMap({
             filter: { id: { IN: supplierIdList } },
+            relation: { supplierItems: true },
           })
         : {},
       userRequestIdList.length

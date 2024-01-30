@@ -60,6 +60,7 @@ export class ApiPurchaseRequestDetailService {
       data.supplierId
         ? this.natsClientVendorService.getSupplierMap({
             filter: { id: { IN: [data.supplierId] } },
+            relation: { supplierItems: true },
           })
         : {},
       data.userIdRequest
