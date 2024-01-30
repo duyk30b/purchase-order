@@ -110,6 +110,11 @@ export class PurchaseRequestGetManyQuery extends IntersectionType(
   LimitQuery
 ) {}
 
+export class PurchaseRequestActionManyQuery extends PickType(
+  PurchaseRequestGetQuery,
+  ['filter']
+) {}
+
 export class PurchaseRequestGetOneQuery extends PurchaseRequestGetQuery {}
 
 export class PurchaseRequestGetOneByIdQuery extends PickType(

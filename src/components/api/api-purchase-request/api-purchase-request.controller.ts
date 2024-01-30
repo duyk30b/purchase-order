@@ -26,6 +26,7 @@ import {
 } from '../../../core/guard/permission-purchase-request'
 import { ApiPurchaseRequestService } from './api-purchase-request.service'
 import {
+  PurchaseRequestActionManyQuery,
   PurchaseRequestCreateBody,
   PurchaseRequestGetManyQuery,
   PurchaseRequestGetOneByIdQuery,
@@ -119,6 +120,15 @@ export class ApiPurchaseRequestController {
   ) {
     return await this.apiPurchaseRequestService.confirm({ id, userId: user.id })
   }
+
+  // @Patch('confirm-list')
+  // @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
+  // async confirmList(
+  //   @External() { user }: TExternal,
+  //   @Query() query: PurchaseRequestActionManyQuery
+  // ) {
+  //   return await this.apiPurchaseRequestService.confirm({ id, userId: user.id })
+  // }
 
   @Patch('reject/:id')
   @PermissionCode(PURCHASE_REQUEST_REJECT.code)
