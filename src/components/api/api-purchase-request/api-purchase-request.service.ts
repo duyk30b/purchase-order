@@ -148,83 +148,6 @@ export class ApiPurchaseRequestService {
     return { data: purchaseRequest }
   }
 
-  async updateOne(options: {
-    id: string
-    body: PurchaseRequestUpdateBody
-    userId: number
-  }): Promise<BaseResponse> {
-    const { id, body, userId } = options
-    const { items, ...purchaseRequestBody } = body
-
-    // await Promise.all([
-    //   this.validateService.validateCostCenter(body.costCenterId),
-    //   this.validateService.validateVendor(body.vendorId),
-    //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
-    // ])
-
-    const rootData = await this.purchaseRequestRepository.findOneById(id)
-    if (!rootData) {
-      throw new BusinessException('error.NOT_FOUND')
-    }
-    if (
-      ![
-        PurchaseRequestStatus.DRAFT,
-        PurchaseRequestStatus.WAIT_CONFIRM,
-        PurchaseRequestStatus.REJECT,
-      ].includes(rootData.status)
-    ) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
-    }
-
-    let status: PurchaseRequestStatus
-    if (rootData.status === PurchaseRequestStatus.DRAFT) {
-      status = PurchaseRequestStatus.DRAFT
-    } else if (rootData.status === PurchaseRequestStatus.WAIT_CONFIRM) {
-      status = PurchaseRequestStatus.WAIT_CONFIRM
-    } else if (rootData.status === PurchaseRequestStatus.REJECT) {
-      status = PurchaseRequestStatus.WAIT_CONFIRM
-    }
-
-    const purchaseRequest: PurchaseRequestType =
-      await this.purchaseRequestRepository.updateOne(
-        { id },
-        {
-          ...purchaseRequestBody,
-          status,
-          userIdRequest: userId,
-          updatedByUserId: userId,
-        }
-      )
-    await this.purchaseRequestItemRepository.deleteManyBy({
-      _purchase_request_id: new Types.ObjectId(id),
-    } as any)
-
-    const itemsDto: PurchaseRequestItemInsertType[] = items.map((item) => {
-      const dto: PurchaseRequestItemInsertType = {
-        ...item,
-        _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-        _price: new Types.Decimal128(item.price),
-        createdByUserId: userId,
-        updatedByUserId: userId,
-      }
-      return dto
-    })
-
-    purchaseRequest.purchaseRequestItems =
-      await this.purchaseRequestItemRepository.insertManyFullField(itemsDto)
-
-    // Lưu lịch sử
-    await this.purchaseRequestHistoryRepository.insertOneFullField({
-      _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-      userId,
-      status: { before: rootData.status, after: purchaseRequest.status },
-      content: 'Chỉnh sửa yêu cầu mua',
-      time: new Date(),
-    })
-
-    return { data: purchaseRequest }
-  }
-
   async waitConfirm(options: {
     id: string
     userId: number
@@ -399,14 +322,14 @@ export class ApiPurchaseRequestService {
 
     await this.purchaseRequestRepository.deleteOneBy({ id } as any)
     await this.purchaseRequestItemRepository.deleteManyBy({
-      _purchase_request_id: new Types.ObjectId(id),
-    } as any)
+      _purchase_request_id: { EQUAL: new Types.ObjectId(id) },
+    })
     return { data: id }
   }
 
   async history(id: string): Promise<BaseResponse> {
     const data = await this.purchaseRequestHistoryRepository.findManyBy({
-      _purchase_request_id: new Types.ObjectId(id),
+      _purchase_request_id: { EQUAL: new Types.ObjectId(id) },
     })
 
     // GET thêm dataUser

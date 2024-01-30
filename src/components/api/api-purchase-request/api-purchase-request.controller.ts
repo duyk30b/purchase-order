@@ -34,6 +34,7 @@ import {
 } from './request'
 import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
 import { ApiPurchaseRequestPaginationService } from './service/api-purchase-request-pagination.service'
+import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
 
 @ApiTags('PurchaseRequest')
 @ApiBearerAuth('access-token')
@@ -42,7 +43,8 @@ export class ApiPurchaseRequestController {
   constructor(
     private readonly apiPurchaseRequestService: ApiPurchaseRequestService,
     private readonly apiPurchaseRequestDetailService: ApiPurchaseRequestDetailService,
-    private readonly apiPurchaseRequestPaginationService: ApiPurchaseRequestPaginationService
+    private readonly apiPurchaseRequestPaginationService: ApiPurchaseRequestPaginationService,
+    private readonly apiPurchaseRequestUpdateService: ApiPurchaseRequestUpdateService
   ) {}
 
   @Get('pagination')
@@ -90,7 +92,7 @@ export class ApiPurchaseRequestController {
     @Param() { id }: IdMongoParam,
     @Body() body: PurchaseRequestUpdateBody
   ) {
-    return await this.apiPurchaseRequestService.updateOne({
+    return await this.apiPurchaseRequestUpdateService.updateOne({
       id,
       body,
       userId: user.id,
