@@ -196,7 +196,7 @@ export class ApiPurchaseRequestService {
         }
       )
     await this.purchaseRequestItemRepository.deleteManyBy({
-      _purchase_request_id: id,
+      _purchase_request_id: new Types.ObjectId(id),
     } as any)
 
     const itemsDto: PurchaseRequestItemInsertType[] = items.map((item) => {
@@ -399,7 +399,7 @@ export class ApiPurchaseRequestService {
 
     await this.purchaseRequestRepository.deleteOneBy({ id } as any)
     await this.purchaseRequestItemRepository.deleteManyBy({
-      _purchase_request_id: id,
+      _purchase_request_id: new Types.ObjectId(id),
     } as any)
     return { data: id }
   }
