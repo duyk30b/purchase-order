@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose'
 import { Document, Types } from 'mongoose'
 import { BaseSchema } from '../base.schema'
 import { PoDeliveryItemType } from '../po-delivery-item/po-delivery-item.schema'
+import { PurchaseOrderHistoryType } from '../purchase-order-history/purchase-order-history.schema'
 import { PurchaseOrderItemType } from '../purchase-order-item/purchase-order-item.schema'
 
 export enum PurchaseOrderStatus {
@@ -193,6 +194,13 @@ PurchaseOrderSchema.virtual('poDeliveryItems', {
   justOne: false,
 })
 
+PurchaseOrderSchema.virtual('purchaseOrderHistories', {
+  ref: 'PurchaseOrderHistorySchema',
+  localField: '_id',
+  foreignField: '_purchase_order_id',
+  justOne: false,
+})
+
 PurchaseOrderSchema.virtual('totalMoney').get(function () {
   return this._total_money.toString()
 })
@@ -215,6 +223,7 @@ export type PurchaseOrderType = Omit<
   id?: string
   purchaseOrderItems?: PurchaseOrderItemType[]
   poDeliveryItems?: PoDeliveryItemType[]
+  purchaseOrderHistories?: PurchaseOrderHistoryType[]
   totalMoney?: string
   taxMoney?: string
   amount?: string
@@ -223,7 +232,11 @@ export type PurchaseOrderType = Omit<
 
 export type PurchaseOrderInsertType = Omit<
   PurchaseOrderType,
-  'id' | '_id' | 'purchaseOrderItems' | 'poDeliveryItems'
+  | 'id'
+  | '_id'
+  | 'purchaseOrderItems'
+  | 'poDeliveryItems'
+  | 'purchaseOrderHistories'
 >
 
 export type PurchaseOrderUpdateType = Omit<
@@ -235,4 +248,5 @@ export type PurchaseOrderUpdateType = Omit<
   | 'createdByUserId'
   | 'purchaseOrderItems'
   | 'poDeliveryItems'
+  | 'purchaseOrderHistories'
 >

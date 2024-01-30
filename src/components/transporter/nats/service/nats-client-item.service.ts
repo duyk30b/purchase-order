@@ -99,18 +99,23 @@ export class NatsClientItemService {
     return response.data as ItemTypeType[]
   }
 
-  async getItemUnitsByIds(request: { ids: number[] }): Promise<any> {
-    if (request.ids.length === 0) return {}
+  async getItemUnitListByIds(request: { unitIds: number[] }) {
+    if (request.unitIds.length === 0) return []
     const response: NatsResponseInterface = await this.natsClient.send(
       `${NatsService.ITEM}.get_item_unit_setting_by_ids`,
-      { unitIds: request.ids }
+      { unitIds: request.unitIds }
     )
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }
-    const result: Record<string, ItemUnitType> = {}
-    response.data.forEach((i: ItemUnitType) => (result[i.id] = i))
-    return result
+    return response.data as ItemUnitType[]
+  }
+
+  async getItemUnitMapByIds(request: { unitIds: number[] }) {
+    const itemUnitList = await this.getItemUnitListByIds(request)
+    const itemUnitMap: Record<string, ItemUnitType> = {}
+    itemUnitList.forEach((i) => (itemUnitMap[i.id] = i))
+    return itemUnitMap
   }
 
   async getItemPackingsByIds(request: { ids: number[] }): Promise<any> {

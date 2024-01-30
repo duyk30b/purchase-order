@@ -14,7 +14,12 @@ export class PurchaseOrderRepository extends BaseMongoRepository<
   PurchaseOrder,
   PurchaseOrderType,
   { [P in '_id']?: 'ASC' | 'DESC' },
-  { [P in 'purchaseOrderItems' | 'poDeliveryItems']?: boolean },
+  {
+    [P in
+      | 'purchaseOrderItems'
+      | 'poDeliveryItems'
+      | 'purchaseOrderHistories']?: boolean
+  },
   PurchaseOrderInsertType,
   PurchaseOrderUpdateType
 > {

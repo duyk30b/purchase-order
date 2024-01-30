@@ -23,6 +23,7 @@ export class PurchaseOrderGetQuery {
     example: JSON.stringify(<PurchaseOrderRelationQuery>{
       poDeliveryItems: true,
       purchaseOrderItems: true,
+      purchaseOrderHistories: true,
     }),
   })
   @Expose()

@@ -19,6 +19,10 @@ export class PurchaseRequestRelationQuery {
   @Expose()
   @IsBoolean()
   purchaseRequestItems: boolean
+
+  @Expose()
+  @IsBoolean()
+  purchaseRequestHistories: boolean
 }
 
 export class PurchaseRequestFilterQuery {

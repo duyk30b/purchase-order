@@ -21,6 +21,7 @@ export class PurchaseRequestGetQuery {
     type: String,
     example: JSON.stringify(<PurchaseRequestRelationQuery>{
       purchaseRequestItems: true,
+      purchaseRequestHistories: true,
     }),
   })
   @Expose()

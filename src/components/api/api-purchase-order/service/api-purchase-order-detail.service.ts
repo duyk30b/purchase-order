@@ -7,13 +7,9 @@ import { PurchaseOrderType } from '../../../../mongo/purchase-order/purchase-ord
 import { SupplierType } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import {
-  CostCenterType,
-  NatsClientCostCenterService,
-} from '../../../transporter/nats/service/nats-client-cost-center.service'
-import {
   CurrencyType,
   ItemType,
-  ItemTypeType,
+  ItemUnitType,
   NatsClientItemService,
 } from '../../../transporter/nats/service/nats-client-item.service'
 import {
@@ -30,8 +26,7 @@ export class ApiPurchaseOrderDetailService {
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
     private readonly natsClientUserService: NatsClientUserService,
-    private readonly natsClientItemService: NatsClientItemService,
-    private readonly natsClientCostCenterService: NatsClientCostCenterService
+    private readonly natsClientItemService: NatsClientItemService
   ) {}
 
   async getOne(
@@ -49,65 +44,66 @@ export class ApiPurchaseOrderDetailService {
   }
 
   async getDataExtends(data: PurchaseOrderType) {
-    // const itemIdList = uniqueArray(
-    //   (data.purchaseOrderItems || []).map((i) => i.itemId)
-    // )
-    // const itemUnitIdList = uniqueArray(
-    //   (data.purchaseOrderItems || []).map((i) => i.itemUnitId)
-    // )
-    // const dataExtendsPromise = await Promise.allSettled([
-    //   data.supplierId
-    //     ? this.natsClientVendorService.getSupplierMap({
-    //         filter: { id: { IN: [data.supplierId] } },
-    //       })
-    //     : {},
-    //   data.currencyId
-    //     ? this.natsClientItemService.getCurrencyMapByIds({
-    //         ids: [data.currencyId],
-    //       })
-    //     : {},
-    //   data.createdByUserId
-    //     ? this.natsClientUserService.getUserMapByIds({
-    //         userIds: [data.createdByUserId],
-    //       })
-    //     : {},
-    //   itemIdList && itemIdList.length
-    //     ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
-    //     : {},
-    //   itemTypeIdList && itemTypeIdList.length
-    //     ? this.natsClientItemService.getItemTypeMapByIds({
-    //         ids: itemTypeIdList,
-    //       })
-    //     : {},
-    //   data.costCenterId
-    //     ? this.natsClientCostCenterService.getCostCenterMap({
-    //         ids: [data.costCenterId],
-    //       })
-    //     : {},
-    // ])
-    // const dataExtendsResult = dataExtendsPromise.map((i, index) => {
-    //   if (i.status === 'fulfilled') {
-    //     return i.value
-    //   } else {
-    //     this.logger.error('Get info from Nats failed: ' + index)
-    //     this.logger.error(i)
-    //     return {}
-    //   }
-    // }) as [
-    //   Record<string, SupplierType>,
-    //   Record<string, UserType>,
-    //   Record<string, ItemType>,
-    //   Record<string, ItemTypeType>,
-    //   Record<string, CostCenterType>,
-    //   Record<string, CurrencyType>,
-    // ]
-    // return {
-    //   supplierMap: dataExtendsResult[0],
-    //   userOrderMap: dataExtendsResult[1],
-    //   itemMap: dataExtendsResult[2],
-    //   itemTypeMap: dataExtendsResult[3],
-    //   costCenterMap: dataExtendsResult[4],
-    //   currencyMap: dataExtendsResult[5],
-    // }
+    const itemIdList = uniqueArray([
+      ...(data.purchaseOrderItems || []).map((i) => i.itemId),
+      ...(data.poDeliveryItems || []).map((i) => i.itemId),
+    ])
+    const itemUnitIdList = uniqueArray([
+      ...(data.purchaseOrderItems || []).map((i) => i.itemUnitId),
+      ...(data.poDeliveryItems || []).map((i) => i.itemUnitId),
+    ])
+    const userIdList = uniqueArray([
+      data.createdByUserId,
+      ...(data.purchaseOrderHistories || []).map((i) => i.userId),
+    ])
+
+    const dataExtendsPromise = await Promise.allSettled([
+      data.supplierId
+        ? this.natsClientVendorService.getSupplierMap({
+            filter: { id: { IN: [data.supplierId] } },
+            relation: { supplierItems: true },
+          })
+        : {},
+      userIdList.length
+        ? this.natsClientUserService.getUserMapByIds({
+            userIds: userIdList,
+          })
+        : {},
+      itemIdList && itemIdList.length
+        ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
+        : {},
+      itemUnitIdList && itemUnitIdList.length
+        ? this.natsClientItemService.getItemUnitMapByIds({
+            unitIds: itemUnitIdList,
+          })
+        : {},
+      data.currencyId
+        ? this.natsClientItemService.getCurrencyMapByIds({
+            ids: [data.currencyId],
+          })
+        : {},
+    ])
+    const dataExtendsResult = dataExtendsPromise.map((i, index) => {
+      if (i.status === 'fulfilled') {
+        return i.value
+      } else {
+        this.logger.error('Get info from Nats failed: ' + index)
+        this.logger.error(i)
+        return {}
+      }
+    }) as [
+      Record<string, SupplierType>,
+      Record<string, UserType>,
+      Record<string, ItemType>,
+      Record<string, ItemUnitType>,
+      Record<string, CurrencyType>,
+    ]
+    return {
+      supplierMap: dataExtendsResult[0],
+      userMap: dataExtendsResult[1],
+      itemMap: dataExtendsResult[2],
+      itemUnitMap: dataExtendsResult[3],
+      currencyMap: dataExtendsResult[4],
+    }
   }
 }

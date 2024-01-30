@@ -25,6 +25,10 @@ export class PurchaseOrderRelationQuery {
   @Expose()
   @IsBoolean()
   poDeliveryItems: boolean
+
+  @Expose()
+  @IsBoolean()
+  purchaseOrderHistories: boolean
 }
 
 export class PurchaseOrderFilterQuery {
