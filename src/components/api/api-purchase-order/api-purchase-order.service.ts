@@ -1,10 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { PurchaseOrderRepository } from '../../../mongo/purchase-order/purchase-order.repository'
-import {
-  PurchaseOrderCreateBody,
-  PurchaseOrderGetManyQuery,
-  PurchaseOrderUpdateBody,
-} from './request'
+import { PurchaseOrderGetManyQuery } from './request'
 
 @Injectable()
 export class ApiPurchaseOrderService {
@@ -29,17 +25,6 @@ export class ApiPurchaseOrderService {
     //   },
     //   limit,
     // })
-  }
-
-  async createOne(body: PurchaseOrderCreateBody) {
-    // const data = await this.purchaseOrderRepository.insertOne(body)
-    // // const data = await this.purchaseOrderRepository.insertOneFullField(body)
-    // return data
-  }
-
-  async updateOne(id: string, body: PurchaseOrderUpdateBody) {
-    // const data = await this.purchaseOrderRepository.updateOne({ id }, body)
-    // return data
   }
 
   async deleteOne(id: string) {

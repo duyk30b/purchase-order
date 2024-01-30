@@ -25,6 +25,7 @@ import {
 import { ApiPurchaseOrderCreateService } from './service/api-purchase-order-create.service'
 import { ApiPurchaseOrderDetailService } from './service/api-purchase-order-detail.service'
 import { ApiPurchaseOrderPaginationService } from './service/api-purchase-order-pagination.service'
+import { ApiPurchaseOrderUpdateService } from './service/api-purchase-order-update.service'
 
 @ApiTags('PurchaseOrder')
 @ApiBearerAuth('access-token')
@@ -34,7 +35,8 @@ export class ApiPurchaseOrderController {
     private readonly apiPurchaseOrderService: ApiPurchaseOrderService,
     private readonly apiPurchaseOrderPaginationService: ApiPurchaseOrderPaginationService,
     private readonly apiPurchaseOrderDetailService: ApiPurchaseOrderDetailService,
-    private readonly apiPurchaseOrderCreateService: ApiPurchaseOrderCreateService
+    private readonly apiPurchaseOrderCreateService: ApiPurchaseOrderCreateService,
+    private readonly apiPurchaseOrderUpdateService: ApiPurchaseOrderUpdateService
   ) {}
 
   @Get('pagination')
@@ -61,11 +63,11 @@ export class ApiPurchaseOrderController {
     @External() { user }: TExternal,
     @Body() body: PurchaseOrderCreateBody
   ) {
-    return await this.apiPurchaseOrderCreateService.createOne(
+    return await this.apiPurchaseOrderCreateService.createOne({
       body,
-      user.id,
-      PurchaseOrderStatus.DRAFT
-    )
+      userId: user.id,
+      status: PurchaseOrderStatus.DRAFT,
+    })
   }
 
   @Post('create-wait-confirm')
@@ -74,19 +76,24 @@ export class ApiPurchaseOrderController {
     @External() { user }: TExternal,
     @Body() body: PurchaseOrderCreateBody
   ) {
-    return await this.apiPurchaseOrderCreateService.createOne(
+    return await this.apiPurchaseOrderCreateService.createOne({
       body,
-      user.id,
-      PurchaseOrderStatus.WAIT_CONFIRM
-    )
+      userId: user.id,
+      status: PurchaseOrderStatus.WAIT_CONFIRM,
+    })
   }
 
   @Patch('update/:id')
   async update(
+    @External() { user }: TExternal,
     @Param() { id }: IdMongoParam,
     @Body() body: PurchaseOrderUpdateBody
   ) {
-    return await this.apiPurchaseOrderService.updateOne(id, body)
+    return await this.apiPurchaseOrderUpdateService.update({
+      id,
+      body,
+      userId: user.id,
+    })
   }
 
   @Delete('delete/:id')

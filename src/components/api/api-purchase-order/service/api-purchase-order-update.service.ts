@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
+import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
 import { PoDeliveryItemInsertType } from '../../../../mongo/po-delivery-item/po-delivery-item.schema'
@@ -12,11 +13,11 @@ import {
   PurchaseOrderStatus,
   PurchaseOrderType,
 } from '../../../../mongo/purchase-order/purchase-order.schema'
-import { PurchaseOrderCreateBody } from '../request'
+import { PurchaseOrderUpdateBody } from '../request'
 
 @Injectable()
-export class ApiPurchaseOrderCreateService {
-  private logger = new Logger(ApiPurchaseOrderCreateService.name)
+export class ApiPurchaseOrderUpdateService {
+  private logger = new Logger(ApiPurchaseOrderUpdateService.name)
 
   constructor(
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
@@ -25,12 +26,12 @@ export class ApiPurchaseOrderCreateService {
     private readonly purchaseOrderHistoryRepository: PurchaseOrderHistoryRepository
   ) {}
 
-  async createOne(options: {
-    body: PurchaseOrderCreateBody
+  async update(options: {
+    id: string
+    body: PurchaseOrderUpdateBody
     userId: number
-    status: PurchaseOrderStatus
   }): Promise<BaseResponse> {
-    const { body, userId, status } = options
+    const { id, body, userId } = options
     const { poItems, poDeliveryItems, ...purchaseOrderBody } = body
 
     // await Promise.all([
@@ -39,26 +40,56 @@ export class ApiPurchaseOrderCreateService {
     //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
     // ])
 
-    const code = await this.purchaseOrderRepository.generateNextCode({})
+    const rootData = await this.purchaseOrderRepository.findOneById(id)
+    if (!rootData) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+    if (
+      ![
+        PurchaseOrderStatus.DRAFT,
+        PurchaseOrderStatus.WAIT_CONFIRM,
+        PurchaseOrderStatus.REJECT,
+      ].includes(rootData.status)
+    ) {
+      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+    }
+
+    let status: PurchaseOrderStatus
+    if (rootData.status === PurchaseOrderStatus.DRAFT) {
+      status = PurchaseOrderStatus.DRAFT
+    } else if (rootData.status === PurchaseOrderStatus.WAIT_CONFIRM) {
+      status = PurchaseOrderStatus.WAIT_CONFIRM
+    } else if (rootData.status === PurchaseOrderStatus.REJECT) {
+      status = PurchaseOrderStatus.WAIT_CONFIRM
+    }
 
     const purchaseOrder: PurchaseOrderType =
-      await this.purchaseOrderRepository.insertOneFullField({
-        ...purchaseOrderBody,
-        code,
-        status,
-        createdByUserId: userId,
-        updatedByUserId: userId,
-        poPaymentStatus: PoPaymentStatus.UNPAID, // lưu tạm thế
-        _total_money: new Types.Decimal128(body.totalMoney),
-        _tax_money: new Types.Decimal128(body.taxMoney),
-        _amount: new Types.Decimal128(body.amount),
-        _delivery_expense: new Types.Decimal128(body.deliveryExpense),
-        poPaymentPlans: body.poPaymentPlans.map((i) => {
-          return {
-            ...i,
-            _amount: new Types.Decimal128(body.amount),
-          }
-        }),
+      await this.purchaseOrderRepository.updateOne(
+        { id },
+        {
+          ...purchaseOrderBody,
+          status,
+          updatedByUserId: userId,
+          poPaymentStatus: PoPaymentStatus.UNPAID, // lưu tạm thế
+          _total_money: new Types.Decimal128(body.totalMoney),
+          _tax_money: new Types.Decimal128(body.taxMoney),
+          _amount: new Types.Decimal128(body.amount),
+          _delivery_expense: new Types.Decimal128(body.deliveryExpense),
+          poPaymentPlans: body.poPaymentPlans.map((i) => {
+            return {
+              ...i,
+              _amount: new Types.Decimal128(body.amount),
+            }
+          }),
+        }
+      )
+
+    const deletePoItems = await this.purchaseOrderItemRepository.deleteManyBy({
+      _purchase_order_id: { EQUAL: new Types.ObjectId(id) },
+    })
+    const deletePoDeliveryItems =
+      await this.poDeliveryItemRepository.deleteManyBy({
+        _purchase_order_id: { EQUAL: new Types.ObjectId(id) },
       })
 
     const itemsDto: PurchaseOrderItemInsertType[] = poItems.map((item) => {
@@ -97,7 +128,7 @@ export class ApiPurchaseOrderCreateService {
       _purchase_order_id: new Types.ObjectId(purchaseOrder.id),
       userId,
       status: { before: null, after: purchaseOrder.status },
-      content: 'Tạo mới thành công',
+      content: 'Chỉnh sửa phiếu mua',
       time: new Date(),
     })
 
