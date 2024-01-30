@@ -1,11 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { BusinessException } from '../../../core/exception-filter/exception-filter'
 import { PurchaseOrderRepository } from '../../../mongo/purchase-order/purchase-order.repository'
 import {
   PurchaseOrderCreateBody,
   PurchaseOrderGetManyQuery,
-  PurchaseOrderGetOneQuery,
-  PurchaseOrderPaginationQuery,
   PurchaseOrderUpdateBody,
 } from './request'
 
@@ -16,26 +13,6 @@ export class ApiPurchaseOrderService {
   constructor(
     private readonly purchaseOrderRepository: PurchaseOrderRepository
   ) {}
-
-  async pagination(query: PurchaseOrderPaginationQuery) {
-    const { page, limit, filter, sort, relation } = query
-
-    // return await this.purchaseOrderRepository.pagination({
-    //   page,
-    //   limit,
-    //   relation,
-    //   condition: {
-    //     $OR: filter.searchText
-    //       ? [
-    //           { description: { LIKE: filter.searchText } },
-    //           { note: { LIKE: filter.searchText } },
-    //         ]
-    //       : undefined,
-    //     updatedAt: filter?.updatedAt,
-    //   },
-    //   sort: sort || { _id: 'DESC' },
-    // })
-  }
 
   async getMany(query: PurchaseOrderGetManyQuery) {
     const { limit, filter } = query
@@ -52,12 +29,6 @@ export class ApiPurchaseOrderService {
     //   },
     //   limit,
     // })
-  }
-
-  async getOne(id: string, query?: PurchaseOrderGetOneQuery) {
-    const data = await this.purchaseOrderRepository.findOneBy({ id })
-    if (!data) throw new BusinessException('error.NOT_FOUND')
-    return data
   }
 
   async createOne(body: PurchaseOrderCreateBody) {

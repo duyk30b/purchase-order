@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common'
 import { ApiPurchaseOrderController } from './api-purchase-order.controller'
 import { ApiPurchaseOrderService } from './api-purchase-order.service'
+import { ApiPurchaseOrderDetailService } from './service/api-purchase-order-detail.service'
+import { ApiPurchaseOrderPaginationService } from './service/api-purchase-order-pagination.service'
 
 @Module({
   imports: [],
   controllers: [ApiPurchaseOrderController],
-  providers: [ApiPurchaseOrderService],
+  providers: [
+    ApiPurchaseOrderService,
+    ApiPurchaseOrderPaginationService,
+    ApiPurchaseOrderDetailService,
+  ],
 })
 export class ApiPurchaseOrderModule {}

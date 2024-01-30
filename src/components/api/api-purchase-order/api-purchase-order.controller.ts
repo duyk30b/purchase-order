@@ -18,18 +18,22 @@ import {
   PurchaseOrderPaginationQuery,
   PurchaseOrderUpdateBody,
 } from './request'
+import { ApiPurchaseOrderDetailService } from './service/api-purchase-order-detail.service'
+import { ApiPurchaseOrderPaginationService } from './service/api-purchase-order-pagination.service'
 
 @ApiTags('PurchaseOrder')
 @ApiBearerAuth('access-token')
 @Controller('customer')
 export class ApiPurchaseOrderController {
   constructor(
-    private readonly apiPurchaseOrderService: ApiPurchaseOrderService
+    private readonly apiPurchaseOrderService: ApiPurchaseOrderService,
+    private readonly apiPurchaseOrderPaginationService: ApiPurchaseOrderPaginationService,
+    private readonly apiPurchaseOrderDetailService: ApiPurchaseOrderDetailService
   ) {}
 
   @Get('pagination')
   pagination(@Query() query: PurchaseOrderPaginationQuery) {
-    return this.apiPurchaseOrderService.pagination(query)
+    return this.apiPurchaseOrderPaginationService.pagination(query)
   }
 
   @Get('list')
@@ -42,7 +46,7 @@ export class ApiPurchaseOrderController {
     @Param() { id }: IdMongoParam,
     @Query() query: PurchaseOrderGetOneQuery
   ) {
-    return await this.apiPurchaseOrderService.getOne(id, query)
+    return await this.apiPurchaseOrderDetailService.getOne(id, query)
   }
 
   @Post('create')

@@ -44,6 +44,12 @@ export const PaymentPeriod = {
   6: {}, //. Kể từ ngày Surrender B/L phát hành/Trong vòng 14 ngày kể từ ngày đầu tiên nhận giấy giao hàng
 }
 
+export enum PoPaymentStatus {
+  UNPAID = 1, // Chưa thanh toán
+  PARTIAL = 2, // Thanh toán một phần
+  PAYOFF = 3, // Thanh toán hết
+}
+
 @Schema() // kế hoạch thanh toán
 export class PoPaymentPlan {
   @Prop()
@@ -91,6 +97,9 @@ export class PoNote {
 export class PurchaseOrder extends BaseSchema {
   @Prop({ type: Number })
   status: PurchaseOrderStatus
+
+  @Prop({ type: Number })
+  poPaymentStatus: PoPaymentStatus
 
   @Prop()
   code: string

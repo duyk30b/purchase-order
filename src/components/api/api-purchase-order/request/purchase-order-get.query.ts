@@ -7,13 +7,24 @@ import { Expose, Transform, plainToInstance } from 'class-transformer'
 import { IsObject, ValidateNested } from 'class-validator'
 import { LimitQuery, PaginationQuery } from '../../../../common/dto/query'
 import {
+  PoPaymentStatus,
+  PurchaseOrderKind,
+  PurchaseOrderStatus,
+} from '../../../../mongo/purchase-order/purchase-order.schema'
+import {
   PurchaseOrderFilterQuery,
   PurchaseOrderRelationQuery,
   PurchaseOrderSortQuery,
 } from './purchase-order-options.request'
 
 export class PurchaseOrderGetQuery {
-  @ApiPropertyOptional({ type: String, example: '{}' })
+  @ApiPropertyOptional({
+    type: String,
+    example: JSON.stringify(<PurchaseOrderRelationQuery>{
+      poDeliveryItems: true,
+      purchaseOrderItems: true,
+    }),
+  })
   @Expose()
   @Transform(({ value }) => {
     try {
@@ -33,7 +44,18 @@ export class PurchaseOrderGetQuery {
 
   @ApiPropertyOptional({
     type: String,
-    example: '{"isActive":1,"debt":{"GT":1500000}}',
+    example: JSON.stringify(<PurchaseOrderFilterQuery>{
+      searchText: 'AAA',
+      code: 'PO',
+      purchaseRequestCode: { LIKE: 'PR-' },
+      orderDate: { BETWEEN: [new Date(), new Date()] },
+      deliveryDate: { GTE: new Date() },
+      supplierId: '63fdde9517a7317f0e8f959a',
+      purchaseOrderKind: PurchaseOrderKind.DOMESTIC,
+      createdByUserId: 3,
+      poPaymentStatus: PoPaymentStatus.PARTIAL,
+      status: PurchaseOrderStatus.CONFIRM,
+    }),
   })
   @Expose()
   @Transform(({ value }) => {
@@ -52,7 +74,16 @@ export class PurchaseOrderGetQuery {
   @ValidateNested({ each: true })
   filter?: PurchaseOrderFilterQuery
 
-  @ApiPropertyOptional({ type: String, example: '{"id":"ASC"}' })
+  @ApiPropertyOptional({
+    type: String,
+    example: JSON.stringify(<PurchaseOrderSortQuery>{
+      id: 'ASC',
+      purchaseRequestCode: 'DESC',
+      supplierId: 'ASC',
+      orderDate: 'DESC',
+      deliveryDate: 'ASC',
+    }),
+  })
   @Expose()
   @Transform(({ value }) => {
     try {
@@ -84,3 +115,8 @@ export class PurchaseOrderGetManyQuery extends IntersectionType(
 export class PurchaseOrderGetOneQuery extends PickType(PurchaseOrderGetQuery, [
   'relation',
 ]) {}
+
+export class PurchaseOrderGetOneByIdQuery extends PickType(
+  PurchaseOrderGetQuery,
+  ['relation']
+) {}
