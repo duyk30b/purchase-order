@@ -10,7 +10,7 @@ export class PurchaseOrderItem extends BaseSchema {
   _purchase_order_id: Types.ObjectId
 
   @Prop()
-  prIndexLine: number
+  prLine: number // số dòng trên phiếu yêu cầu
 
   @Prop()
   itemId: number

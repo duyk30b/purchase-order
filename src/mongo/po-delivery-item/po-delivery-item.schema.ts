@@ -3,8 +3,8 @@ import { Document, Types } from 'mongoose'
 import { BaseSchema } from '../base.schema'
 import { PurchaseOrder } from '../purchase-order/purchase-order.schema'
 
-@Schema({ collection: 'purchaseOrderItem', timestamps: true })
-export class PurchaseOrderDeliveryItem extends BaseSchema {
+@Schema({ collection: 'poDeliveryItem', timestamps: true })
+export class PoDeliveryItem extends BaseSchema {
   @Prop({ type: Types.ObjectId, required: true })
   _purchase_order_id: Types.ObjectId
 
@@ -14,7 +14,7 @@ export class PurchaseOrderDeliveryItem extends BaseSchema {
   @Prop()
   itemUnitId: number // Đơn vị tính
 
-  @Prop()
+  @Prop({ required: false })
   deliveryTerm: Date // thời hạn giao hàng
 
   @Prop()
@@ -30,43 +30,38 @@ export class PurchaseOrderDeliveryItem extends BaseSchema {
   deliveryDate: Date // ngày giao kế hoạch
 }
 
-const PurchaseOrderDeliveryItemSchema = SchemaFactory.createForClass(
-  PurchaseOrderDeliveryItem
-)
-PurchaseOrderDeliveryItemSchema.index(
-  { _purchase_order_id: 1 },
-  { unique: false }
-)
-PurchaseOrderDeliveryItemSchema.index({ itemId: 1 }, { unique: false })
+const PoDeliveryItemSchema = SchemaFactory.createForClass(PoDeliveryItem)
+PoDeliveryItemSchema.index({ _purchase_order_id: 1 }, { unique: false })
+PoDeliveryItemSchema.index({ itemId: 1 }, { unique: false })
 
-PurchaseOrderDeliveryItemSchema.virtual('purchaseOrder', {
+PoDeliveryItemSchema.virtual('purchaseOrder', {
   ref: 'PurchaseOrderSchema',
   localField: '_purchase_order_id',
   foreignField: '_id',
   justOne: true,
 })
-PurchaseOrderDeliveryItemSchema.virtual('purchaseOrderId').get(function () {
+PoDeliveryItemSchema.virtual('purchaseOrderId').get(function () {
   return this._purchase_order_id.toHexString()
 })
 
-export { PurchaseOrderDeliveryItemSchema }
+export { PoDeliveryItemSchema }
 
-export type PurchaseOrderDeliveryItemType = Omit<
-  PurchaseOrderDeliveryItem,
-  keyof Document<PurchaseOrderDeliveryItem>
+export type PoDeliveryItemType = Omit<
+  PoDeliveryItem,
+  keyof Document<PoDeliveryItem>
 > & {
   id?: string
   purchaseOrderId?: string
   purchaseOrder?: PurchaseOrder
 }
 
-export type PurchaseOrderDeliveryItemInsertType = Omit<
-  PurchaseOrderDeliveryItemType,
+export type PoDeliveryItemInsertType = Omit<
+  PoDeliveryItemType,
   'id' | '_id' | 'purchaseOrderId' | 'purchaseOrder'
 >
 
-export type PurchaseOrderDeliveryItemUpdateType = Omit<
-  PurchaseOrderDeliveryItemType,
+export type PoDeliveryItemUpdateType = Omit<
+  PoDeliveryItemType,
   | 'id'
   | '_id'
   | 'createdAt'

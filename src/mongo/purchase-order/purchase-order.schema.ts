@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import * as mongoose from 'mongoose'
 import { Document, Types } from 'mongoose'
 import { BaseSchema } from '../base.schema'
+import { PoDeliveryItemType } from '../po-delivery-item/po-delivery-item.schema'
 import { PurchaseOrderItemType } from '../purchase-order-item/purchase-order-item.schema'
 
 export enum PurchaseOrderStatus {
@@ -15,12 +16,12 @@ export enum PurchaseOrderStatus {
   CANCEL = 8,
 }
 
-export enum OrderType {
+export enum PurchaseOrderKind {
   IMPORT = 1, // Nhập khẩu
   DOMESTIC = 2, // Nội địa
 }
 
-export enum DeliveryNumber {
+export enum DeliveryKind {
   ONE_TIME = 1, // giao hàng một lần
   REPEATEDLY = 2, // giao hàng nhiều lần
 }
@@ -44,7 +45,7 @@ export const PaymentPeriod = {
 }
 
 @Schema() // kế hoạch thanh toán
-export class PaymentPlan {
+export class PoPaymentPlan {
   @Prop()
   expectedDate: Date // ngày dự kiến
 
@@ -59,6 +60,31 @@ export class PaymentPlan {
 
   @Prop({ type: String, maxlength: 50 })
   description: string
+}
+
+export class PoAttachFile {
+  @Prop()
+  fileName: string
+
+  @Prop()
+  link: string
+
+  @Prop()
+  size: number
+
+  @Prop()
+  description: string
+}
+
+export class PoNote {
+  @Prop()
+  date: Date
+
+  @Prop()
+  userId: number
+
+  @Prop()
+  content: string
 }
 
 @Schema({ collection: 'purchaseOrder', timestamps: true })
@@ -79,7 +105,7 @@ export class PurchaseOrder extends BaseSchema {
   orderDate: Date // ngày đặt hàng
 
   @Prop({ type: Number })
-  purchaseOrderType: OrderType // loại đơn hàng
+  purchaseOrderKind: PurchaseOrderKind // loại đơn hàng
 
   @Prop()
   incotermsId: string // International Commercial Terms (Incoterms) – Điều khoản thương mại quốc tế
@@ -107,7 +133,7 @@ export class PurchaseOrder extends BaseSchema {
 
   // ========== Thông tin giao hàng ==========
   @Prop({ type: Number })
-  deliveryNumber: DeliveryNumber // giao hàng 1 lần hay nhiều lần
+  deliveryKind: DeliveryKind // giao hàng 1 lần hay nhiều lần
 
   @Prop({ required: false })
   deliveryDate: Date // ngày giao hàng
@@ -132,7 +158,13 @@ export class PurchaseOrder extends BaseSchema {
   paymentPeriodId: number // kỳ thanh toán
 
   @Prop({ type: mongoose.Schema.Types.Array })
-  payments: PaymentPlan[]
+  poPaymentPlans: PoPaymentPlan[]
+
+  @Prop({ type: mongoose.Schema.Types.Array })
+  poAttachFiles: PoAttachFile[]
+
+  @Prop({ type: mongoose.Schema.Types.Array })
+  poNotes: PoNote[]
 }
 
 const PurchaseOrderSchema = SchemaFactory.createForClass(PurchaseOrder)
@@ -140,6 +172,13 @@ PurchaseOrderSchema.index({ code: 1 }, { unique: false })
 
 PurchaseOrderSchema.virtual('purchaseOrderItems', {
   ref: 'PurchaseOrderItemSchema',
+  localField: '_id',
+  foreignField: '_purchase_order_id',
+  justOne: false,
+})
+
+PurchaseOrderSchema.virtual('poDeliveryItems', {
+  ref: 'PoDeliveryItemSchema',
   localField: '_id',
   foreignField: '_purchase_order_id',
   justOne: false,
@@ -154,6 +193,9 @@ PurchaseOrderSchema.virtual('taxMoney').get(function () {
 PurchaseOrderSchema.virtual('amount').get(function () {
   return this._amount.toString()
 })
+PurchaseOrderSchema.virtual('deliveryExpense').get(function () {
+  return this._delivery_expense.toString()
+})
 
 export { PurchaseOrderSchema }
 
@@ -163,17 +205,25 @@ export type PurchaseOrderType = Omit<
 > & {
   id?: string
   purchaseOrderItems?: PurchaseOrderItemType[]
+  poDeliveryItems?: PoDeliveryItemType[]
   totalMoney?: string
   taxMoney?: string
   amount?: string
+  deliveryExpense?: string
 }
 
 export type PurchaseOrderInsertType = Omit<
   PurchaseOrderType,
-  'id' | '_id' | 'purchaseOrderItems'
+  'id' | '_id' | 'purchaseOrderItems' | 'poDeliveryItems'
 >
 
 export type PurchaseOrderUpdateType = Omit<
   PurchaseOrderType,
-  'id' | '_id' | 'createdAt' | 'createdByUserId' | 'purchaseOrderItems' | 'code'
+  | 'id'
+  | '_id'
+  | 'code'
+  | 'createdAt'
+  | 'createdByUserId'
+  | 'purchaseOrderItems'
+  | 'poDeliveryItems'
 >
