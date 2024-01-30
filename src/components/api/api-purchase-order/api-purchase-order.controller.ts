@@ -13,12 +13,14 @@ import { IdMongoParam } from '../../../common/dto/param'
 import { External, TExternal } from '../../../core/decorator/request-external'
 import { PermissionCode } from '../../../core/guard/authorization.guard'
 import {
+  PURCHASE_ORDER_CANCEL,
   PURCHASE_ORDER_CONFIRM,
   PURCHASE_ORDER_CREATE,
   PURCHASE_ORDER_DELETE,
   PURCHASE_ORDER_DETAIL,
   PURCHASE_ORDER_LIST,
   PURCHASE_ORDER_REJECT,
+  PURCHASE_ORDER_SUCCESS,
   PURCHASE_ORDER_UPDATE,
   PURCHASE_ORDER_WAIT_CONFIRM,
 } from '../../../core/guard/permission-purchase-order'
@@ -31,12 +33,14 @@ import {
   PurchaseOrderPaginationQuery,
   PurchaseOrderUpdateBody,
 } from './request'
+import { ApiPurchaseOrderCancelService } from './service/api-purchase-order-cancel.service'
 import { ApiPurchaseOrderConfirmService } from './service/api-purchase-order-confirm.service'
 import { ApiPurchaseOrderCreateService } from './service/api-purchase-order-create.service'
 import { ApiPurchaseOrderDeleteService } from './service/api-purchase-order-delete.service'
 import { ApiPurchaseOrderDetailService } from './service/api-purchase-order-detail.service'
 import { ApiPurchaseOrderPaginationService } from './service/api-purchase-order-pagination.service'
 import { ApiPurchaseOrderRejectService } from './service/api-purchase-order-reject.service'
+import { ApiPurchaseOrderSuccessService } from './service/api-purchase-order-success.service'
 import { ApiPurchaseOrderUpdateService } from './service/api-purchase-order-update.service'
 import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order-wait-confirm.service'
 
@@ -53,7 +57,9 @@ export class ApiPurchaseOrderController {
     private readonly apiPurchaseOrderDeleteService: ApiPurchaseOrderDeleteService,
     private readonly apiPurchaseOrderWaitConfirmService: ApiPurchaseOrderWaitConfirmService,
     private readonly apiPurchaseOrderRejectService: ApiPurchaseOrderRejectService,
-    private readonly apiPurchaseOrderConfirmService: ApiPurchaseOrderConfirmService
+    private readonly apiPurchaseOrderConfirmService: ApiPurchaseOrderConfirmService,
+    private readonly apiPurchaseOrderCancelService: ApiPurchaseOrderCancelService,
+    private readonly apiPurchaseOrderSuccessService: ApiPurchaseOrderSuccessService
   ) {}
 
   @Get('pagination')
@@ -151,6 +157,27 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_REJECT.code)
   async reject(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
     return await this.apiPurchaseOrderRejectService.reject({
+      id,
+      userId: user.id,
+    })
+  }
+
+  @Patch('cancel/:id')
+  @PermissionCode(PURCHASE_ORDER_CANCEL.code)
+  async cancel(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
+    return await this.apiPurchaseOrderCancelService.cancel({
+      id,
+      userId: user.id,
+    })
+  }
+
+  @Patch('success/:id')
+  @PermissionCode(PURCHASE_ORDER_SUCCESS.code)
+  async success(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam
+  ) {
+    return await this.apiPurchaseOrderSuccessService.success({
       id,
       userId: user.id,
     })
