@@ -55,6 +55,10 @@ export class ApiPurchaseRequestDetailService {
     const itemTypeIdList = uniqueArray(
       (data.purchaseRequestItems || []).map((i) => i.itemTypeId)
     )
+    const userIdList = uniqueArray([
+      data.userIdRequest,
+      ...(data.purchaseRequestHistories || []).map((i) => i.userId),
+    ])
 
     const dataExtendsPromise = await Promise.allSettled([
       data.supplierId
@@ -63,9 +67,9 @@ export class ApiPurchaseRequestDetailService {
             relation: { supplierItems: true },
           })
         : {},
-      data.userIdRequest
+      userIdList.length
         ? this.natsClientUserService.getUserMapByIds({
-            userIds: [data.userIdRequest],
+            userIds: userIdList,
           })
         : {},
       itemIdList && itemIdList.length
@@ -107,7 +111,7 @@ export class ApiPurchaseRequestDetailService {
 
     return {
       supplierMap: dataExtendsResult[0],
-      userRequestMap: dataExtendsResult[1],
+      userMap: dataExtendsResult[1],
       itemMap: dataExtendsResult[2],
       itemTypeMap: dataExtendsResult[3],
       costCenterMap: dataExtendsResult[4],
