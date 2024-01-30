@@ -4,7 +4,7 @@ import { BusinessException } from '../../../../core/exception-filter/exception-f
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
 import { PoDeliveryItemInsertType } from '../../../../mongo/po-delivery-item/po-delivery-item.schema'
-import { PurchaseOrderHistoryRepository } from '../../../../mongo/purchase-order-history/purchase-request-history.repository'
+import { PurchaseOrderHistoryRepository } from '../../../../mongo/purchase-order-history/purchase-order-history.repository'
 import { PurchaseOrderItemRepository } from '../../../../mongo/purchase-order-item/purchase-order-item.repository'
 import { PurchaseOrderItemInsertType } from '../../../../mongo/purchase-order-item/purchase-order-item.schema'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
