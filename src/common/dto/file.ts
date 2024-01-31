@@ -17,6 +17,6 @@ export class FileDto {
   originalname: string
   encoding: string
   mimetype: string
-  buffer: Buffer
+  buffer: any
   size: number
 }

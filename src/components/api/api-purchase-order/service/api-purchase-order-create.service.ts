@@ -9,10 +9,12 @@ import { PurchaseOrderItemRepository } from '../../../../mongo/purchase-order-it
 import { PurchaseOrderItemInsertType } from '../../../../mongo/purchase-order-item/purchase-order-item.schema'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
 import {
+  PoAttachFile,
   PoPaymentStatus,
   PurchaseOrderStatus,
   PurchaseOrderType,
 } from '../../../../mongo/purchase-order/purchase-order.schema'
+import { FileService } from '../../../transporter/axios/file.service'
 import { PurchaseOrderCreateBody } from '../request'
 
 @Injectable()
@@ -23,7 +25,8 @@ export class ApiPurchaseOrderCreateService {
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
     private readonly purchaseOrderItemRepository: PurchaseOrderItemRepository,
     private readonly poDeliveryItemRepository: PoDeliveryItemRepository,
-    private readonly purchaseOrderHistoryRepository: PurchaseOrderHistoryRepository
+    private readonly purchaseOrderHistoryRepository: PurchaseOrderHistoryRepository,
+    private readonly fileService: FileService
   ) {}
 
   async createOne(options: {
@@ -40,6 +43,26 @@ export class ApiPurchaseOrderCreateService {
     //   this.validateService.validateVendor(body.vendorId),
     //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
     // ])
+
+    let poAttachFiles: PoAttachFile[] = []
+    if (options.files.length) {
+      const filesUpload = options.files.map((f) => ({
+        filename: f.originalname,
+        buffer: f.buffer,
+      }))
+
+      const fileIds = await this.fileService.uploadFiles(filesUpload)
+      const filesResponse = await this.fileService.getFilesByIds(fileIds)
+
+      poAttachFiles = filesResponse.map((i, index) => {
+        return {
+          fileName: i.fileNameRaw,
+          link: i.fileUrl,
+          size: options.files[index].size,
+          description: '',
+        }
+      })
+    }
 
     const code = await this.purchaseOrderRepository.generateNextCode({})
 
@@ -61,7 +84,7 @@ export class ApiPurchaseOrderCreateService {
             _amount: new Types.Decimal128(body.amount),
           }
         }),
-        poAttachFiles: [],
+        poAttachFiles,
       })
 
     const poItemsDto: PurchaseOrderItemInsertType[] = poItems.map((item) => {

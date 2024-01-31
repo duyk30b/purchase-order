@@ -21,6 +21,7 @@ import { CronJobModule } from './components/cron-job/cron-job.module'
 import { EventListenerModule } from './components/event-listener/event-listener.module'
 import { KafkaEventModule } from './components/kafka-event/kafka-event.module'
 import { NatsEventModule } from './components/nats-event/nats-event.module'
+import { AxiosModule } from './components/transporter/axios/axios.module'
 import { KafkaClientModule } from './components/transporter/kafka/kafka-client.module'
 import { NatsClientModule } from './components/transporter/nats/nats-client.module'
 import { BullQueueModule } from './components/transporter/redis/bull-queue/bull-queue.module'
@@ -72,7 +73,7 @@ import { MongoDbConnectModule } from './mongo/mongodb-connect.module'
 
     // EventListenerModule,
     // CronJobModule,
-
+    AxiosModule,
     ApiModule,
   ],
   controllers: [AppController],

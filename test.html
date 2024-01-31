@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+        const startDownload = async (url) => {
+            const accessToken = document.getElementById('textarea-token').value
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+            const resJson = await response.json()
+            const rawArr = resJson.data.xlsx.data
+            const filename = resJson.data.filename
+
+            const buffer = new Uint8Array(rawArr)
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+            const blobURL = window.URL.createObjectURL(blob)
+            const tempLink = document.createElement('a')
+            tempLink.style.display = 'none'
+            tempLink.href = blobURL
+            tempLink.setAttribute('download', `${filename}.xlsx`)
+            // Safari thinks _blank anchor are pop ups. 
+            // We only want to set _blank target if the browser does not support the HTML5 download attribute.
+            // This allows you to download files in desktop safari if pop up blocking is enabled.
+            if (typeof tempLink.download === 'undefined') {
+                tempLink.setAttribute('target', '_blank')
+            }
+
+            document.body.appendChild(tempLink)
+            tempLink.click()
+            document.body.removeChild(tempLink)
+            setTimeout(() => {
+                // For Firefox it is necessary to delay revoking the ObjectURL
+                window.URL.revokeObjectURL(blobURL)
+            }, 100)
+        }
+
+        const showImage = async () => {
+            const url = document.getElementById('imageUrl').value
+            const accessToken = document.getElementById('textarea-token').value
+            const image = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                },
+            })
+            const imageBlob = await image.blob()
+            const imageURL = URL.createObjectURL(imageBlob)
+            const newWindow = window.open(imageURL, '_blank', 'noopener,noreferrer')
+            if (newWindow) newWindow.opener = null
+            window.open(url, '_blank', 'noopener,noreferrer')
+        }
+    </script>
+</head>
+
+<body>
+    <h4>AccessToken</h4>
+    <textarea id="textarea-token" rows="5"
+        cols="60">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA2NzAxODQwLCJleHAiOjE3MjQ3MDE4NDB9.EO3LGBZKIQTkRpjwoSde-623zQEz1Jc05hhcL-DgN6o</textarea><br /><br />
+
+    <h4>Show Image</h4>
+    <input id="imageUrl" value="http://10.1.14.46:34011/api/v1/files/65ba312e29c3531349bf894c" style="width: 500px;">
+    <br />
+    <br />
+    <button onclick="showImage()">Show Image</button>
+</body>
+
+</html>
