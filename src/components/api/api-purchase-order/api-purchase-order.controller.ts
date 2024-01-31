@@ -7,11 +7,13 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger'
+import { FileDto } from '../../../common/dto/file'
 import { IdMongoParam } from '../../../common/dto/param'
 import { External, TExternal } from '../../../core/decorator/request-external'
 import { PermissionCode } from '../../../core/guard/authorization.guard'
@@ -71,7 +73,8 @@ export class ApiPurchaseOrderController {
   @ApiConsumes('multipart/form-data')
   @Post('single-file')
   @UseInterceptors(FastifyFileInterceptor('photo_url', {}))
-  single(@UploadedFile() file: any, @Body() body: SingleFileDto) {
+  uploadSingleFile(@UploadedFile() file: any, @Body() body: SingleFileDto) {
+    console.log('🚀 ~ ApiPurchaseOrderController ~ body:', body)
     console.log('🚀 ~ ApiPurchaseOrderController ~ file:', file)
     return { ...body }
   }
@@ -79,7 +82,11 @@ export class ApiPurchaseOrderController {
   @ApiConsumes('multipart/form-data')
   @Post('multiple-file')
   @UseInterceptors(FastifyFilesInterceptor('photo_url', 10, {}))
-  multiple(@UploadedFiles() files: any[], @Body() body: MultipleFileDto) {
+  uploadMultipleFile(
+    @UploadedFiles() files: any[],
+    @Body() body: MultipleFileDto
+  ) {
+    console.log('🚀 ~ ApiPurchaseOrderController ~ body:', body)
     console.log('🚀 ~ ApiPurchaseOrderController ~ file:', files)
     return { ...body }
   }
@@ -106,11 +113,15 @@ export class ApiPurchaseOrderController {
 
   @Post('create-draft')
   @PermissionCode(PURCHASE_ORDER_CREATE.code)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FastifyFilesInterceptor('files', 10, {}))
   async createDraft(
     @External() { user }: TExternal,
+    @UploadedFiles() files: FileDto[],
     @Body() body: PurchaseOrderCreateBody
   ) {
     return await this.apiPurchaseOrderCreateService.createOne({
+      files,
       body,
       userId: user.id,
       status: PurchaseOrderStatus.DRAFT,
@@ -119,12 +130,16 @@ export class ApiPurchaseOrderController {
 
   @Post('create-wait-confirm')
   @PermissionCode(PURCHASE_ORDER_CREATE.code)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FastifyFilesInterceptor('files', 10, {}))
   async createWaitConfirm(
     @External() { user }: TExternal,
+    @UploadedFiles() files: FileDto[],
     @Body() body: PurchaseOrderCreateBody
   ) {
     return await this.apiPurchaseOrderCreateService.createOne({
       body,
+      files,
       userId: user.id,
       status: PurchaseOrderStatus.WAIT_CONFIRM,
     })
@@ -132,14 +147,18 @@ export class ApiPurchaseOrderController {
 
   @Patch('update/:id')
   @PermissionCode(PURCHASE_ORDER_UPDATE.code)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FastifyFilesInterceptor('files', 10, {}))
   async update(
     @External() { user }: TExternal,
     @Param() { id }: IdMongoParam,
+    @UploadedFiles() files: FileDto[],
     @Body() body: PurchaseOrderUpdateBody
   ) {
     return await this.apiPurchaseOrderUpdateService.update({
       id,
       body,
+      files,
       userId: user.id,
     })
   }

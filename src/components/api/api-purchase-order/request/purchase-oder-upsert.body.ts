@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Expose, Transform, Type } from 'class-transformer'
+import { Expose, Transform, Type, plainToInstance } from 'class-transformer'
 import {
   IsArray,
   IsBoolean,
@@ -11,6 +11,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator'
+import { MultipleFileUpload } from '../../../../common/dto/file'
 import { objectEnum, valuesEnum } from '../../../../common/helpers'
 import {
   DeliveryKind,
@@ -48,27 +49,6 @@ export class PoPaymentPlanBody {
   @IsString()
   description: string
 }
-export class PoAttachFileBody {
-  @ApiProperty({ example: 'PR-0000001' })
-  @Expose()
-  @IsString()
-  fileName: string
-
-  @ApiProperty({ example: 'PR-0000001' })
-  @Expose()
-  @IsString()
-  link: string
-
-  @ApiProperty({ example: 3000 })
-  @Expose()
-  @IsNumber()
-  size: number
-
-  @ApiProperty({ example: 'PR-0000001' })
-  @Expose()
-  @IsString()
-  description: string
-}
 export class PoNoteBody {
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
@@ -87,7 +67,7 @@ export class PoNoteBody {
   content: string
 }
 
-export class PurchaseOrderCreateBody {
+export class PurchaseOrderCreateBody extends MultipleFileUpload {
   // @ApiProperty({
   //   example: PurchaseOrderStatus.DRAFT,
   //   enum: valuesEnum(PurchaseOrderStatus),
@@ -106,41 +86,113 @@ export class PurchaseOrderCreateBody {
   // @IsIn(valuesEnum(PoPaymentStatus))
   // poPaymentStatus: PoPaymentStatus // client không được phép gửi lên status
 
-  @ApiProperty({ type: PoItemUpsertBody, isArray: true })
+  @ApiProperty({
+    type: String,
+    example: JSON.stringify(<PoItemUpsertBody[]>[
+      {
+        prLine: 1,
+        purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
+        itemId: 12,
+        itemUnitId: 12,
+        deliveryTerm: new Date('2024-01-19T06:50:24.977Z'),
+        quantityPrimary: 12,
+        quantitySecondary: 12,
+        discount: 12,
+        price: '12.4567',
+        totalMoney: '12.4567',
+        tax: 12,
+        amount: '12.4567',
+      },
+    ]),
+  })
   @Expose()
-  @Type(() => PoItemUpsertBody)
+  @Transform(({ value }) => {
+    try {
+      const plain = JSON.parse(value || '[]')
+      return plainToInstance(PoItemUpsertBody, plain)
+    } catch (error: any) {
+      return error.message
+    }
+  })
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   poItems: PoItemUpsertBody[]
 
-  @ApiProperty({ type: PoItemDeliveryUpsertBody, isArray: true })
+  @ApiProperty({
+    type: String,
+    example: JSON.stringify(<PoItemDeliveryUpsertBody[]>[
+      {
+        purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
+        itemId: 12,
+        itemUnitId: 12, // đơn vị tính => trường này lấy theo nhà cung cấp
+        deliveryTerm: new Date('2024-01-19T06:50:24.977Z'), // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+        quantityBuy: 12,
+        quantityDelivery: 12,
+        warehouseIdReceiving: 12,
+        deliveryDate: new Date('2024-01-19T06:50:24.977Z'), // ngày giao kế hoạch
+      },
+    ]),
+  })
   @Expose()
-  @Type(() => PoItemDeliveryUpsertBody)
+  @Transform(({ value }) => {
+    try {
+      const plain = JSON.parse(value || '[]')
+      return plainToInstance(PoItemDeliveryUpsertBody, plain)
+    } catch (error: any) {
+      return error.message
+    }
+  })
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   poDeliveryItems: PoItemDeliveryUpsertBody[]
 
-  @ApiProperty({ type: PoPaymentPlanBody, isArray: true })
+  @ApiProperty({
+    type: String,
+    example: JSON.stringify(<PoPaymentPlanBody[]>[
+      {
+        expectedDate: new Date('2024-01-19T06:50:24.977Z'),
+        paymentMethod: 12,
+        paymentPercent: 12, // đơn vị tính => trường này lấy theo nhà cung cấp
+        amount: '12',
+        description: 'xxx', // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+      },
+    ]),
+  })
   @Expose()
-  @Type(() => PoPaymentPlanBody)
+  @Transform(({ value }) => {
+    try {
+      const plain = JSON.parse(value || '[]')
+      return plainToInstance(PoPaymentPlanBody, plain)
+    } catch (error: any) {
+      return error.message
+    }
+  })
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   poPaymentPlans: PoPaymentPlanBody[]
 
-  @ApiProperty({ type: PoAttachFileBody, isArray: true })
+  @ApiProperty({
+    type: String,
+    example: JSON.stringify(<PoNoteBody[]>[
+      {
+        date: new Date('2024-01-19T06:50:24.977Z'),
+        userId: 12,
+        content: 'xxx', // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+      },
+    ]),
+  })
   @Expose()
-  @Type(() => PoAttachFileBody)
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  poAttachFiles: PoAttachFileBody[]
-
-  @ApiProperty({ type: PoNoteBody, isArray: true })
-  @Expose()
-  @Type(() => PoNoteBody)
+  @Transform(({ value }) => {
+    try {
+      const plain = JSON.parse(value || '[]')
+      return plainToInstance(PoNoteBody, plain)
+    } catch (error: any) {
+      return error.message
+    }
+  })
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
@@ -168,6 +220,7 @@ export class PurchaseOrderCreateBody {
     description: JSON.stringify(objectEnum(PurchaseOrderKind)),
   })
   @Expose()
+  @Type(() => Number)
   @IsIn(valuesEnum(PurchaseOrderKind))
   purchaseOrderKind: PurchaseOrderKind // loại đơn hàng
 
@@ -178,6 +231,7 @@ export class PurchaseOrderCreateBody {
 
   @ApiProperty({ example: 12 })
   @Expose()
+  @Type(() => Number)
   @IsNumber()
   manufacturingCountryId: number // Nước sản xuất
 
@@ -188,11 +242,13 @@ export class PurchaseOrderCreateBody {
 
   @ApiProperty({ example: true })
   @Expose()
+  @Transform(({ value }) => ['true', true, '1', 1].includes(value))
   @IsBoolean()
   priceIncludesTax: true // giá đã bao gồm thuế
 
   @ApiProperty({ example: 12 })
   @Expose()
+  @Type(() => Number)
   @IsNumber()
   currencyId: number // Loại tiền tệ
 
@@ -219,6 +275,7 @@ export class PurchaseOrderCreateBody {
     description: JSON.stringify(objectEnum(DeliveryKind)),
   })
   @Expose()
+  @Type(() => Number)
   @IsIn(valuesEnum(DeliveryKind))
   deliveryKind: DeliveryKind // phương thức vận chuyển
 
@@ -260,6 +317,7 @@ export class PurchaseOrderCreateBody {
 
   @ApiProperty({ example: 12 })
   @Expose()
+  @Type(() => Number)
   @IsNumber()
   paymentPeriodId: number // kỳ thanh toán
 }

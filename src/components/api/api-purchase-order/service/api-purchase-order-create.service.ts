@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
+import { FileDto } from '../../../../common/dto/file'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
 import { PoDeliveryItemInsertType } from '../../../../mongo/po-delivery-item/po-delivery-item.schema'
@@ -27,11 +28,12 @@ export class ApiPurchaseOrderCreateService {
 
   async createOne(options: {
     body: PurchaseOrderCreateBody
+    files: FileDto[]
     userId: number
     status: PurchaseOrderStatus
   }): Promise<BaseResponse> {
     const { body, userId, status } = options
-    const { poItems, poDeliveryItems, ...purchaseOrderBody } = body
+    const { files, poItems, poDeliveryItems, ...purchaseOrderBody } = body
 
     // await Promise.all([
     //   this.validateService.validateCostCenter(body.costCenterId),
@@ -59,6 +61,7 @@ export class ApiPurchaseOrderCreateService {
             _amount: new Types.Decimal128(body.amount),
           }
         }),
+        poAttachFiles: [],
       })
 
     const poItemsDto: PurchaseOrderItemInsertType[] = poItems.map((item) => {

@@ -22,7 +22,7 @@ export class AccessLogInterceptor implements NestInterceptor {
     const funcName = context.getHandler().name
     const [req, res] = context.getArgs()
 
-    const showData = false
+    const showData = true
     const message: Record<string, any> = {}
 
     if (context.getType() === 'http') {

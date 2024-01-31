@@ -95,7 +95,7 @@ export class ServerExceptionFilter implements ExceptionFilter {
           path: urlPath,
           query: urlQuery,
           errors,
-          // body,
+          body,
           external: (request as any).external,
         }),
         exception.name

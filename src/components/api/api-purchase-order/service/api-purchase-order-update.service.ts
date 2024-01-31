@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
+import { FileDto } from '../../../../common/dto/file'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
@@ -29,10 +30,11 @@ export class ApiPurchaseOrderUpdateService {
   async update(options: {
     id: string
     body: PurchaseOrderUpdateBody
+    files: FileDto[]
     userId: number
   }): Promise<BaseResponse> {
     const { id, body, userId } = options
-    const { poItems, poDeliveryItems, ...purchaseOrderBody } = body
+    const { files, poItems, poDeliveryItems, ...purchaseOrderBody } = body
 
     // await Promise.all([
     //   this.validateService.validateCostCenter(body.costCenterId),
@@ -75,6 +77,7 @@ export class ApiPurchaseOrderUpdateService {
           _tax_money: new Types.Decimal128(body.taxMoney),
           _amount: new Types.Decimal128(body.amount),
           _delivery_expense: new Types.Decimal128(body.deliveryExpense),
+          poAttachFiles: [],
           poPaymentPlans: body.poPaymentPlans.map((i) => {
             return {
               ...i,
