@@ -7,8 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger'
 import { IdMongoParam } from '../../../common/dto/param'
 import { External, TExternal } from '../../../core/decorator/request-external'
 import { PermissionCode } from '../../../core/guard/authorization.guard'
@@ -24,6 +27,8 @@ import {
   PURCHASE_ORDER_UPDATE,
   PURCHASE_ORDER_WAIT_CONFIRM,
 } from '../../../core/guard/permission-purchase-order'
+import { FastifyFileInterceptor } from '../../../core/interceptor/fastify-file-interceptor'
+import { FastifyFilesInterceptor } from '../../../core/interceptor/fastify-files-interceptor'
 import { PurchaseOrderStatus } from '../../../mongo/purchase-order/purchase-order.schema'
 import { ApiPurchaseOrderService } from './api-purchase-order.service'
 import {
@@ -33,6 +38,7 @@ import {
   PurchaseOrderPaginationQuery,
   PurchaseOrderUpdateBody,
 } from './request'
+import { MultipleFileDto, SingleFileDto } from './request/multiple-files-dto'
 import { ApiPurchaseOrderCancelService } from './service/api-purchase-order-cancel.service'
 import { ApiPurchaseOrderConfirmService } from './service/api-purchase-order-confirm.service'
 import { ApiPurchaseOrderCreateService } from './service/api-purchase-order-create.service'
@@ -61,6 +67,22 @@ export class ApiPurchaseOrderController {
     private readonly apiPurchaseOrderCancelService: ApiPurchaseOrderCancelService,
     private readonly apiPurchaseOrderSuccessService: ApiPurchaseOrderSuccessService
   ) {}
+
+  @ApiConsumes('multipart/form-data')
+  @Post('single-file')
+  @UseInterceptors(FastifyFileInterceptor('photo_url', {}))
+  single(@UploadedFile() file: any, @Body() body: SingleFileDto) {
+    console.log('🚀 ~ ApiPurchaseOrderController ~ file:', file)
+    return { ...body }
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @Post('multiple-file')
+  @UseInterceptors(FastifyFilesInterceptor('photo_url', 10, {}))
+  multiple(@UploadedFiles() files: any[], @Body() body: MultipleFileDto) {
+    console.log('🚀 ~ ApiPurchaseOrderController ~ file:', files)
+    return { ...body }
+  }
 
   @Get('pagination')
   @PermissionCode(PURCHASE_ORDER_LIST.code)
