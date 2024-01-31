@@ -4,7 +4,6 @@ import { BusinessException } from '../../../../core/exception-filter/exception-f
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
 import { PurchaseOrderType } from '../../../../mongo/purchase-order/purchase-order.schema'
-import { SupplierType } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import {
   CurrencyType,
@@ -44,13 +43,24 @@ export class ApiPurchaseOrderDetailService {
   }
 
   async getDataExtends(data: PurchaseOrderType) {
+    const supplierMap = await this.natsClientVendorService.getSupplierMap({
+      filter: { id: { IN: [data.supplierId] } },
+      relation: { supplierItems: true },
+    })
+
     const itemIdList = uniqueArray([
       ...(data.purchaseOrderItems || []).map((i) => i.itemId),
       ...(data.poDeliveryItems || []).map((i) => i.itemId),
+      ...(supplierMap[data.supplierId].supplierItems || []).map(
+        (i) => i.itemId
+      ),
     ])
     const itemUnitIdList = uniqueArray([
       ...(data.purchaseOrderItems || []).map((i) => i.itemUnitId),
       ...(data.poDeliveryItems || []).map((i) => i.itemUnitId),
+      ...(supplierMap[data.supplierId].supplierItems || []).map(
+        (i) => i.itemUnitId
+      ),
     ])
     const userIdList = uniqueArray([
       data.createdByUserId,
@@ -58,12 +68,6 @@ export class ApiPurchaseOrderDetailService {
     ])
 
     const dataExtendsPromise = await Promise.allSettled([
-      data.supplierId
-        ? this.natsClientVendorService.getSupplierMap({
-            filter: { id: { IN: [data.supplierId] } },
-            relation: { supplierItems: true },
-          })
-        : {},
       userIdList.length
         ? this.natsClientUserService.getUserMapByIds({
             userIds: userIdList,
@@ -92,18 +96,20 @@ export class ApiPurchaseOrderDetailService {
         return {}
       }
     }) as [
-      Record<string, SupplierType>,
       Record<string, UserType>,
       Record<string, ItemType>,
       Record<string, ItemUnitType>,
       Record<string, CurrencyType>,
     ]
+
+    const [userMap, itemMap, itemUnitMap, currencyMap] = dataExtendsResult
+
     return {
-      supplierMap: dataExtendsResult[0],
-      userMap: dataExtendsResult[1],
-      itemMap: dataExtendsResult[2],
-      itemUnitMap: dataExtendsResult[3],
-      currencyMap: dataExtendsResult[4],
+      supplierMap,
+      userMap,
+      itemMap,
+      itemUnitMap,
+      currencyMap,
     }
   }
 }

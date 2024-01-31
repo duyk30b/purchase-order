@@ -96,6 +96,9 @@ export class ApiPurchaseOrderUpdateService {
       const dto: PurchaseOrderItemInsertType = {
         ...item,
         _purchase_order_id: new Types.ObjectId(purchaseOrder.id),
+        _purchase_request_item_id: new Types.ObjectId(
+          item.purchaseRequestItemId
+        ),
         _price: new Types.Decimal128(item.price),
         _total_money: new Types.Decimal128(item.totalMoney),
         _amount: new Types.Decimal128(item.amount),
@@ -110,9 +113,13 @@ export class ApiPurchaseOrderUpdateService {
 
     const itemDeliveriesDto: PoDeliveryItemInsertType[] = poDeliveryItems.map(
       (item) => {
+        const poItem = purchaseOrder.purchaseOrderItems.find((pi) => {
+          return pi.purchaseRequestItemId === item.purchaseRequestItemId
+        })
         const dto: PoDeliveryItemInsertType = {
           ...item,
           _purchase_order_id: new Types.ObjectId(purchaseOrder.id),
+          _purchase_order_item_id: new Types.ObjectId(poItem.id),
           createdByUserId: userId,
           updatedByUserId: userId,
         }

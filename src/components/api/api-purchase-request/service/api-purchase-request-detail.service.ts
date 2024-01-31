@@ -14,6 +14,7 @@ import {
   CurrencyType,
   ItemType,
   ItemTypeType,
+  ItemUnitType,
   NatsClientItemService,
 } from '../../../transporter/nats/service/nats-client-item.service'
 import {
@@ -49,24 +50,32 @@ export class ApiPurchaseRequestDetailService {
   }
 
   async getDataExtends(data: PurchaseRequestType) {
-    const itemIdList = uniqueArray(
-      (data.purchaseRequestItems || []).map((i) => i.itemId)
-    )
+    const supplierMap = await this.natsClientVendorService.getSupplierMap({
+      filter: { id: { IN: [data.supplierId] } },
+      relation: { supplierItems: true },
+    })
+
+    const itemIdList = uniqueArray([
+      ...(data.purchaseRequestItems || []).map((i) => i.itemId),
+      ...(supplierMap[data.supplierId].supplierItems || []).map(
+        (i) => i.itemId
+      ),
+    ])
     const itemTypeIdList = uniqueArray(
       (data.purchaseRequestItems || []).map((i) => i.itemTypeId)
     )
+    const itemUnitIdList = uniqueArray([
+      ...(data.purchaseRequestItems || []).map((i) => i.itemUnitId),
+      ...(supplierMap[data.supplierId].supplierItems || []).map(
+        (i) => i.itemUnitId
+      ),
+    ])
     const userIdList = uniqueArray([
       data.userIdRequest,
       ...(data.purchaseRequestHistories || []).map((i) => i.userId),
     ])
 
     const dataExtendsPromise = await Promise.allSettled([
-      data.supplierId
-        ? this.natsClientVendorService.getSupplierMap({
-            filter: { id: { IN: [data.supplierId] } },
-            relation: { supplierItems: true },
-          })
-        : {},
       userIdList.length
         ? this.natsClientUserService.getUserMapByIds({
             userIds: userIdList,
@@ -78,6 +87,11 @@ export class ApiPurchaseRequestDetailService {
       itemTypeIdList && itemTypeIdList.length
         ? this.natsClientItemService.getItemTypeMapByIds({
             ids: itemTypeIdList,
+          })
+        : {},
+      itemUnitIdList && itemUnitIdList.length
+        ? this.natsClientItemService.getItemUnitMapByIds({
+            unitIds: itemUnitIdList,
           })
         : {},
       data.costCenterId
@@ -101,21 +115,31 @@ export class ApiPurchaseRequestDetailService {
         return {}
       }
     }) as [
-      Record<string, SupplierType>,
       Record<string, UserType>,
       Record<string, ItemType>,
       Record<string, ItemTypeType>,
+      Record<string, ItemUnitType>,
       Record<string, CostCenterType>,
       Record<string, CurrencyType>,
     ]
 
+    const [
+      userMap,
+      itemMap,
+      itemTypeMap,
+      itemUnitMap,
+      costCenterMap,
+      currencyMap,
+    ] = dataExtendsResult
+
     return {
-      supplierMap: dataExtendsResult[0],
-      userMap: dataExtendsResult[1],
-      itemMap: dataExtendsResult[2],
-      itemTypeMap: dataExtendsResult[3],
-      costCenterMap: dataExtendsResult[4],
-      currencyMap: dataExtendsResult[5],
+      supplierMap,
+      userMap,
+      itemMap,
+      itemTypeMap,
+      itemUnitMap,
+      costCenterMap,
+      currencyMap,
     }
   }
 }

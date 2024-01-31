@@ -16,6 +16,15 @@ export enum SUPPLIER_STATUS {
   ACTIVE = 1,
 }
 
+export type SupplierItemType = {
+  supplierId: string
+  itemId: number
+  itemUnitId: number
+  deliveryTerm: number
+  price: string
+  description: string
+}
+
 export type SupplierType = {
   id: string
   code: string
@@ -33,4 +42,5 @@ export type SupplierType = {
   fax: string
   avatars: string[]
   status: SUPPLIER_STATUS
+  supplierItems?: SupplierItemType[]
 }

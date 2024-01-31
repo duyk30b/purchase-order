@@ -9,6 +9,9 @@ export class PurchaseOrderItem extends BaseSchema {
   @Prop({ type: Types.ObjectId, required: true })
   _purchase_order_id: Types.ObjectId
 
+  @Prop({ type: Types.ObjectId, required: true })
+  _purchase_request_item_id: Types.ObjectId
+
   @Prop()
   prLine: number // số dòng trên phiếu yêu cầu
 
@@ -57,6 +60,10 @@ PurchaseOrderItemSchema.virtual('purchaseOrderId').get(function () {
   return this._purchase_order_id.toHexString()
 })
 
+PurchaseOrderItemSchema.virtual('purchaseRequestItemId').get(function () {
+  return this._purchase_request_item_id.toHexString()
+})
+
 PurchaseOrderItemSchema.virtual('price').get(function () {
   return this._price.toString()
 })
@@ -76,6 +83,7 @@ export type PurchaseOrderItemType = Omit<
   id?: string
   purchaseOrderId?: string
   purchaseOrder?: PurchaseOrder
+  purchaseRequestItemId?: string
   price?: string
   totalMoney?: string
   amount?: string

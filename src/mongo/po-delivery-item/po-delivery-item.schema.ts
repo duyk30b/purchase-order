@@ -8,6 +8,9 @@ export class PoDeliveryItem extends BaseSchema {
   @Prop({ type: Types.ObjectId, required: true })
   _purchase_order_id: Types.ObjectId
 
+  @Prop({ type: Types.ObjectId, required: true })
+  _purchase_order_item_id: Types.ObjectId
+
   @Prop()
   itemId: number
 
@@ -43,6 +46,9 @@ PoDeliveryItemSchema.virtual('purchaseOrder', {
 PoDeliveryItemSchema.virtual('purchaseOrderId').get(function () {
   return this._purchase_order_id.toHexString()
 })
+PoDeliveryItemSchema.virtual('purchaseOrderItemId').get(function () {
+  return this._purchase_order_item_id.toHexString()
+})
 
 export { PoDeliveryItemSchema }
 
@@ -53,6 +59,7 @@ export type PoDeliveryItemType = Omit<
   id?: string
   purchaseOrderId?: string
   purchaseOrder?: PurchaseOrder
+  purchaseOrderItemId?: string
 }
 
 export type PoDeliveryItemInsertType = Omit<
