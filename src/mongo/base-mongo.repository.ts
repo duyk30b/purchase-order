@@ -166,6 +166,19 @@ export abstract class BaseMongoRepository<
     return result
   }
 
+  async updateMany<T extends Partial<_UPDATE>>(
+    condition: BaseCondition<_SCHEMA>,
+    data: NoExtra<Partial<_UPDATE>, T>
+  ) {
+    const filter = this.getFilterOptions(condition)
+    const result = await this.model.updateMany(
+      filter,
+      data as unknown as UpdateQuery<_SCHEMA>,
+      { upsert: false }
+    )
+    return result.modifiedCount
+  }
+
   async updateOne<T extends Partial<_UPDATE>>(
     condition: BaseCondition<_SCHEMA>,
     data: NoExtra<Partial<_UPDATE>, T>

@@ -29,6 +29,11 @@ export class PurchaseRequestFilterQuery {
   @Expose()
   @Type(() => ConditionString)
   @ValidateNested({ each: true })
+  id: ConditionString
+
+  @Expose()
+  @Type(() => ConditionString)
+  @ValidateNested({ each: true })
   code: ConditionString
 
   @Expose()

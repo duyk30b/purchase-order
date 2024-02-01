@@ -69,6 +69,7 @@ export class ApiPurchaseRequestCreateService {
         ...item,
         _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
         _price: new Types.Decimal128(item.price),
+        _amount: new Types.Decimal128(item.amount),
         createdByUserId: userId,
         updatedByUserId: userId,
       }

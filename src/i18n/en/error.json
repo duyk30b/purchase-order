@@ -5,6 +5,7 @@
   "FORBIDDEN": "Access denied",
   "NOT_ACCEPTABLE": "Do not accept updates",
   "BAD_REQUEST": "Invalid request",
+  "FILTER_EMPTY": "FILTER_EMPTY",
   "CostCenter": {
     "NotFound": "CostCenter.NotFound"
   },

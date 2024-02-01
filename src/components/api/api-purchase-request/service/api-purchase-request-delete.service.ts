@@ -35,4 +35,36 @@ export class ApiPurchaseRequestDeleteService {
     })
     return { data: id, message: 'msg.MSG_016' }
   }
+
+  async deleteList(ids: string[]): Promise<BaseResponse> {
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      throw BusinessException.error({
+        message: 'error.FILTER_EMPTY',
+        error: [{ ids }],
+      })
+    }
+    const rootList = await this.purchaseRequestRepository.findManyByIds(ids)
+    if (!rootList.length) {
+      throw new BusinessException('error.NOT_FOUND')
+    }
+
+    rootList.forEach((i) => {
+      if (
+        ![
+          PurchaseRequestStatus.DRAFT,
+          PurchaseRequestStatus.WAIT_CONFIRM,
+        ].includes(i.status)
+      ) {
+        throw new BusinessException('msg.MSG_010')
+      }
+    })
+
+    const idsObject = ids.map((id) => new Types.ObjectId(id))
+    await this.purchaseRequestRepository.deleteManyBy({ id: { IN: idsObject } })
+    await this.purchaseRequestItemRepository.deleteManyBy({
+      _purchase_request_id: { IN: idsObject },
+    })
+
+    return { data: ids, message: 'msg.MSG_016' }
+  }
 }

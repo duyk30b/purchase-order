@@ -43,8 +43,7 @@ export class ItemUpsertBody {
 
   @ApiProperty({ example: 15 })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
-  @IsDate()
+  @IsNumber()
   deliveryTerm: number // thời hạn giao hàng => trường này lấy theo nhà cung cấp
 
   @ApiProperty({ example: 12 })
@@ -59,6 +58,12 @@ export class ItemUpsertBody {
   @IsDefined()
   @IsString()
   price: string // giá sản phẩm
+
+  @ApiProperty({ example: '12.4567' })
+  @Expose()
+  @IsDefined()
+  @IsString()
+  amount: string // giá sản phẩm
 }
 
 export class PurchaseRequestCreateBody {

@@ -29,6 +29,9 @@ export class PurchaseRequestItem extends BaseSchema {
 
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _price: Types.Decimal128 // Đơn giá
+
+  @Prop({ type: mongoose.Schema.Types.Decimal128 })
+  _amount: Types.Decimal128 // Tổng tiền
 }
 
 const PurchaseRequestItemSchema =
@@ -37,6 +40,9 @@ PurchaseRequestItemSchema.index({ _purchase_request_id: 1 }, { unique: false })
 PurchaseRequestItemSchema.index({ itemId: 1 }, { unique: false })
 
 PurchaseRequestItemSchema.virtual('price').get(function () {
+  return this._price.toString()
+})
+PurchaseRequestItemSchema.virtual('amount').get(function () {
   return this._price.toString()
 })
 

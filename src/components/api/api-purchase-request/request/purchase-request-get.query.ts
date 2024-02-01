@@ -44,6 +44,7 @@ export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
     example: JSON.stringify(<PurchaseRequestFilterQuery>{
+      id: { IN: ['63fdde9517a7317f0e8f959a', '63fdde9517a7317f0e8f959b'] },
       searchText: '001',
       code: { LIKE: 'RQ' },
       requestDate: { GTE: new Date() },

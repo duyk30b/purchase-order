@@ -13,6 +13,7 @@ export type I18nTranslations = {
         "FORBIDDEN": string;
         "NOT_ACCEPTABLE": string;
         "BAD_REQUEST": string;
+        "FILTER_EMPTY": string;
         "CostCenter": {
             "NotFound": string;
         };
