@@ -34,11 +34,13 @@ import {
   PurchaseRequestPaginationQuery,
   PurchaseRequestUpdateBody,
 } from './request'
+import { ApiPurchaseRequestCancelService } from './service/api-purchase-request-cancel.service'
 import { ApiPurchaseRequestConfirmService } from './service/api-purchase-request-confirm.service'
 import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
 import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-delete.service'
 import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
 import { ApiPurchaseRequestListService } from './service/api-purchase-request-list.service'
+import { ApiPurchaseRequestRejectService } from './service/api-purchase-request-reject.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
 import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-request-wait-confirm.service'
 
@@ -54,7 +56,9 @@ export class ApiPurchaseRequestController {
     private readonly apiPurchaseRequestUpdateService: ApiPurchaseRequestUpdateService,
     private readonly apiPurchaseRequestDeleteService: ApiPurchaseRequestDeleteService,
     private readonly apiPurchaseRequestWaitConfirmService: ApiPurchaseRequestWaitConfirmService,
-    private readonly apiPurchaseRequestConfirmService: ApiPurchaseRequestConfirmService
+    private readonly apiPurchaseRequestConfirmService: ApiPurchaseRequestConfirmService,
+    private readonly apiPurchaseRequestRejectService: ApiPurchaseRequestRejectService,
+    private readonly apiPurchaseRequestCancelService: ApiPurchaseRequestCancelService
   ) {}
 
   @Get('pagination')
@@ -157,13 +161,45 @@ export class ApiPurchaseRequestController {
   @Patch('reject/:id')
   @PermissionCode(PURCHASE_REQUEST_REJECT.code)
   async reject(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.reject({ id, userId: user.id })
+    return await this.apiPurchaseRequestRejectService.reject({
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('reject-list')
+  @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
+  async rejectList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseRequestActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.IN
+    return await this.apiPurchaseRequestRejectService.reject({
+      ids,
+      userId: user.id,
+    })
   }
 
   @Patch('cancel/:id')
   @PermissionCode(PURCHASE_REQUEST_CANCEL.code)
   async cancel(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.cancel({ id, userId: user.id })
+    return await this.apiPurchaseRequestCancelService.cancel({
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('cancel-list')
+  @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
+  async cancelList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseRequestActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.IN
+    return await this.apiPurchaseRequestCancelService.cancel({
+      ids,
+      userId: user.id,
+    })
   }
 
   @Delete('delete/:id')

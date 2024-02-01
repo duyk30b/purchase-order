@@ -43,7 +43,10 @@ export class ApiPurchaseRequestConfirmService {
         error: [{ ids }],
       })
     }
-    const rootList = await this.purchaseRequestRepository.findManyByIds(ids)
+    const rootList = await this.purchaseRequestRepository.findMany({
+      relation: { purchaseRequestItems: true },
+      condition: { id: { IN: ids } },
+    })
     if (!rootList.length) {
       throw new BusinessException('error.NOT_FOUND')
     }

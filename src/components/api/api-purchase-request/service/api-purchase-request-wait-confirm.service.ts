@@ -36,7 +36,10 @@ export class ApiPurchaseRequestWaitConfirmService {
     userId: number
   }): Promise<BaseResponse> {
     const { id, userId } = options
-    const rootData = await this.purchaseRequestRepository.findOneById(id)
+    const rootData = await this.purchaseRequestRepository.findOne({
+      relation: { purchaseRequestItems: true },
+      condition: { id },
+    })
     if (!rootData) {
       throw new BusinessException('error.PurchaseRequest.NotFound')
     }

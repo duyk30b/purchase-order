@@ -7,4 +7,5 @@ export const PurchaseRequestHistoryContent = {
   REJECT: 'Từ chối yêu cầu mua',
   CONFIRM: 'Xác nhận yêu cầu mua',
   SUCCESS: 'Yêu cầu mua hoàn thành',
+  CANCEL: 'Hủy yêu cầu mua',
 }

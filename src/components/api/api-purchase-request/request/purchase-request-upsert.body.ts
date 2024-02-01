@@ -84,7 +84,7 @@ export class PurchaseRequestCreateBody {
   @ValidateNested({ each: true })
   items: ItemUpsertBody[]
 
-  @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
+  @ApiProperty({ example: '65bb485141d769c0cdd622d9' })
   @Expose()
   @IsMongoId()
   supplierId: string
@@ -101,7 +101,7 @@ export class PurchaseRequestCreateBody {
   @IsDate()
   receiveDate: Date
 
-  @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
+  @ApiProperty({ example: '65a359aed1209643735ec7d5' })
   @Expose()
   @IsMongoId()
   costCenterId: string
