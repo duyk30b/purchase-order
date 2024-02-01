@@ -6,6 +6,7 @@ import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-
 import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
 import { ApiPurchaseRequestListService } from './service/api-purchase-request-list.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
+import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-request-wait-confirm.service'
 
 @Module({
   imports: [],
@@ -17,6 +18,7 @@ import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-
     ApiPurchaseRequestCreateService,
     ApiPurchaseRequestUpdateService,
     ApiPurchaseRequestDeleteService,
+    ApiPurchaseRequestWaitConfirmService,
   ],
 })
 export class ApiPurchaseRequestModule {}

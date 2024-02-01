@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
+import { PurchaseRequestHistoryContent } from '../../../../mongo/purchase-request-history/purchase-request-history.constant'
 import { PurchaseRequestHistoryRepository } from '../../../../mongo/purchase-request-history/purchase-request-history.repository'
-import { PurchaseRequestItemRepository } from '../../../../mongo/purchase-request-item/purchase-request-item.repository'
 import { PurchaseRequestRepository } from '../../../../mongo/purchase-request/purchase-request.repository'
 import {
   PurchaseRequestStatus,
@@ -19,7 +19,6 @@ import {
   CostCenterType,
   NatsClientCostCenterService,
 } from '../../../transporter/nats/service/nats-client-cost-center.service'
-import { NatsClientItemService } from '../../../transporter/nats/service/nats-client-item.service'
 
 @Injectable()
 export class ApiPurchaseRequestWaitConfirmService {
@@ -27,10 +26,8 @@ export class ApiPurchaseRequestWaitConfirmService {
 
   constructor(
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
-    private readonly purchaseRequestItemRepository: PurchaseRequestItemRepository,
     private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
-    private readonly natsClientItemService: NatsClientItemService,
     private readonly natsClientCostCenterService: NatsClientCostCenterService
   ) {}
 
@@ -47,14 +44,7 @@ export class ApiPurchaseRequestWaitConfirmService {
       throw new BusinessException('msg.MSG_010')
     }
 
-    // await Promise.all([
-    //   this.validateService.validateCostCenter(rootData.costCenterId),
-    //   this.validateService.validateVendor(rootData.vendorId),
-    //   this.validateService.validateItem(
-    //     rootData.purchaseRequestItems.map((i) => i.itemId)
-    //   ),
-    //   // TODO: validate đơn vị tính, thời hạn giao hàng có thay đổi không
-    // ])
+    await this.validate(rootData)
 
     const purchaseRequest: PurchaseRequestType =
       await this.purchaseRequestRepository.updateOne(
@@ -70,14 +60,14 @@ export class ApiPurchaseRequestWaitConfirmService {
       _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
       userId,
       status: { before: rootData.status, after: purchaseRequest.status },
-      content: 'Đề nghị duyệt yêu cầu mua',
+      content: PurchaseRequestHistoryContent.WAIT_CONFIRM,
       time: new Date(),
     })
-    return { data: purchaseRequest }
+    return { data: purchaseRequest, message: 'msg.MSG_044' }
   }
 
-  async validate(data: PurchaseRequestType) {
-    const { costCenterId, supplierId } = data
+  async validate(purchaseRequest: PurchaseRequestType) {
+    const { costCenterId, supplierId } = purchaseRequest
     const dataExtendsPromise = await Promise.allSettled([
       costCenterId
         ? this.natsClientCostCenterService.getCostCenterMap({
@@ -86,7 +76,7 @@ export class ApiPurchaseRequestWaitConfirmService {
         : {},
       supplierId
         ? this.natsClientVendorService.getSupplierMap({
-            filter: { id: { IN: [data.supplierId] } },
+            filter: { id: { IN: [supplierId] } },
             relation: { supplierItems: true },
           })
         : {},
@@ -124,5 +114,28 @@ export class ApiPurchaseRequestWaitConfirmService {
     if ([SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
       throw new BusinessException('msg.MSG_045')
     }
+
+    purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
+      const supplierItem = (supplier.supplierItems || []).find((si) => {
+        purchaseRequestItem.id === si.id
+      })
+      if (!supplierItem) {
+        throw new BusinessException('error.SupplierItem.NotFound')
+      }
+      // Đơn vị tính thay đổi thì báo lỗi
+      if (purchaseRequestItem.itemUnitId !== supplierItem.itemUnitId) {
+        throw BusinessException.error({
+          message: 'msg.MSG_035',
+          error: [{ purchaseRequestItem, supplierItem }],
+        })
+      }
+      // Thời hạn giao hàng thay đổi cũng báo lỗi
+      if (purchaseRequestItem.deliveryTerm !== supplierItem.deliveryTerm) {
+        throw BusinessException.error({
+          message: 'msg.MSG_035',
+          error: [{ purchaseRequestItem, supplierItem }],
+        })
+      }
+    })
   }
 }

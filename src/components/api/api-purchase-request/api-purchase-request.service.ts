@@ -9,7 +9,6 @@ import {
   PurchaseRequestStatus,
   PurchaseRequestType,
 } from '../../../mongo/purchase-request/purchase-request.schema'
-import { NatsClientVendorService } from '../../transporter/nats/nats-vendor/nats-client-vendor.service'
 
 @Injectable()
 export class ApiPurchaseRequestService {
@@ -18,51 +17,8 @@ export class ApiPurchaseRequestService {
   constructor(
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
     private readonly purchaseRequestItemRepository: PurchaseRequestItemRepository,
-    private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository,
-    private readonly natsClientVendorService: NatsClientVendorService
+    private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository
   ) {}
-
-  async waitConfirm(options: {
-    id: string
-    userId: number
-  }): Promise<BaseResponse> {
-    const { id, userId } = options
-    const rootData = await this.purchaseRequestRepository.findOneById(id)
-    if (!rootData) {
-      throw new BusinessException('error.NOT_FOUND')
-    }
-    if (![PurchaseRequestStatus.DRAFT].includes(rootData.status)) {
-      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
-    }
-
-    // await Promise.all([
-    //   this.validateService.validateCostCenter(rootData.costCenterId),
-    //   this.validateService.validateVendor(rootData.vendorId),
-    //   this.validateService.validateItem(
-    //     rootData.purchaseRequestItems.map((i) => i.itemId)
-    //   ),
-    //   // TODO: validate đơn vị tính, thời hạn giao hàng có thay đổi không
-    // ])
-
-    const purchaseRequest: PurchaseRequestType =
-      await this.purchaseRequestRepository.updateOne(
-        { id },
-        {
-          status: PurchaseRequestStatus.WAIT_CONFIRM,
-          updatedByUserId: userId,
-        }
-      )
-
-    // Lưu lịch sử
-    await this.purchaseRequestHistoryRepository.insertOneFullField({
-      _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-      userId,
-      status: { before: rootData.status, after: purchaseRequest.status },
-      content: 'Đề nghị duyệt yêu cầu mua',
-      time: new Date(),
-    })
-    return { data: purchaseRequest }
-  }
 
   async confirm(options: {
     id: string

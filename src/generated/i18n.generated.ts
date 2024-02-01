@@ -19,6 +19,9 @@ export type I18nTranslations = {
         "Supplier": {
             "NotFound": string;
         };
+        "SupplierItem": {
+            "NotFound": string;
+        };
         "PurchaseRequest": {
             "NotFound": string;
             "StatusInvalid": string;

@@ -41,15 +41,15 @@ export class BusinessException extends Error {
 
   static error(options: {
     message: I18nPath
-    error: any[]
-    i18args: Record<string, any>
+    error?: any[]
+    i18args?: Record<string, any>
   }) {
     const exception = new BusinessException(
       options.message,
       HttpStatus.BAD_REQUEST,
       options.i18args
     )
-    exception.errors = options.error
+    exception.errors = options.error || []
     return exception
   }
 }

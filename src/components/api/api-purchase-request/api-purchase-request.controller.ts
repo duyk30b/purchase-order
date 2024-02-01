@@ -38,6 +38,7 @@ import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-
 import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
 import { ApiPurchaseRequestListService } from './service/api-purchase-request-list.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
+import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-request-wait-confirm.service'
 
 @ApiTags('PurchaseRequest')
 @ApiBearerAuth('access-token')
@@ -49,7 +50,8 @@ export class ApiPurchaseRequestController {
     private readonly apiPurchaseRequestDetailService: ApiPurchaseRequestDetailService,
     private readonly apiPurchaseRequestCreateService: ApiPurchaseRequestCreateService,
     private readonly apiPurchaseRequestUpdateService: ApiPurchaseRequestUpdateService,
-    private readonly apiPurchaseRequestDeleteService: ApiPurchaseRequestDeleteService
+    private readonly apiPurchaseRequestDeleteService: ApiPurchaseRequestDeleteService,
+    private readonly apiPurchaseRequestWaitConfirmService: ApiPurchaseRequestWaitConfirmService
   ) {}
 
   @Get('pagination')
@@ -118,7 +120,7 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Param() { id }: IdMongoParam
   ) {
-    return await this.apiPurchaseRequestService.waitConfirm({
+    return await this.apiPurchaseRequestWaitConfirmService.waitConfirm({
       id,
       userId: user.id,
     })

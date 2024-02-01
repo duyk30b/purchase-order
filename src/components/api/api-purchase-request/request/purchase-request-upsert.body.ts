@@ -41,11 +41,11 @@ export class ItemUpsertBody {
   @IsNumber()
   itemUnitId: number // đơn vị tính => trường này lấy theo nhà cung cấp
 
-  @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
+  @ApiProperty({ example: 15 })
   @Expose()
   @Transform(({ value }) => (value ? new Date() : undefined))
   @IsDate()
-  deliveryTerm: Date // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+  deliveryTerm: number // thời hạn giao hàng => trường này lấy theo nhà cung cấp
 
   @ApiProperty({ example: 12 })
   @Expose()
