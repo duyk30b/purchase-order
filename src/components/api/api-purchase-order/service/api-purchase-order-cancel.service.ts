@@ -35,7 +35,7 @@ export class ApiPurchaseOrderCancelService {
         PurchaseOrderStatus.DELIVERING,
       ].includes(rootData.status)
     ) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
 
     // await Promise.all([

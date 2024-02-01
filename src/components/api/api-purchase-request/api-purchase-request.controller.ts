@@ -24,17 +24,19 @@ import {
   PURCHASE_REQUEST_UPDATE,
   PURCHASE_REQUEST_WAIT_CONFIRM,
 } from '../../../core/guard/permission-purchase-request'
+import { PurchaseRequestStatus } from '../../../mongo/purchase-request/purchase-request.schema'
 import { ApiPurchaseRequestService } from './api-purchase-request.service'
 import {
-  PurchaseRequestActionManyQuery,
   PurchaseRequestCreateBody,
   PurchaseRequestGetManyQuery,
   PurchaseRequestGetOneByIdQuery,
   PurchaseRequestPaginationQuery,
   PurchaseRequestUpdateBody,
 } from './request'
+import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
+import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-delete.service'
 import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
-import { ApiPurchaseRequestPaginationService } from './service/api-purchase-request-pagination.service'
+import { ApiPurchaseRequestListService } from './service/api-purchase-request-list.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
 
 @ApiTags('PurchaseRequest')
@@ -43,20 +45,22 @@ import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-
 export class ApiPurchaseRequestController {
   constructor(
     private readonly apiPurchaseRequestService: ApiPurchaseRequestService,
+    private readonly apiPurchaseRequestListService: ApiPurchaseRequestListService,
     private readonly apiPurchaseRequestDetailService: ApiPurchaseRequestDetailService,
-    private readonly apiPurchaseRequestPaginationService: ApiPurchaseRequestPaginationService,
-    private readonly apiPurchaseRequestUpdateService: ApiPurchaseRequestUpdateService
+    private readonly apiPurchaseRequestCreateService: ApiPurchaseRequestCreateService,
+    private readonly apiPurchaseRequestUpdateService: ApiPurchaseRequestUpdateService,
+    private readonly apiPurchaseRequestDeleteService: ApiPurchaseRequestDeleteService
   ) {}
 
   @Get('pagination')
   @PermissionCode(PURCHASE_REQUEST_LIST.code)
   pagination(@Query() query: PurchaseRequestPaginationQuery) {
-    return this.apiPurchaseRequestPaginationService.pagination(query)
+    return this.apiPurchaseRequestListService.pagination(query)
   }
 
   @Get('list')
   list(@Query() query: PurchaseRequestGetManyQuery) {
-    return this.apiPurchaseRequestService.getMany(query)
+    return this.apiPurchaseRequestListService.getMany(query)
   }
 
   @Get('detail/:id')
@@ -74,7 +78,11 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Body() body: PurchaseRequestCreateBody
   ) {
-    return await this.apiPurchaseRequestService.createDraft(body, user.id)
+    return await this.apiPurchaseRequestCreateService.createOne({
+      body,
+      userId: user.id,
+      status: PurchaseRequestStatus.DRAFT,
+    })
   }
 
   @Post('create-wait-confirm')
@@ -83,7 +91,11 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Body() body: PurchaseRequestCreateBody
   ) {
-    return await this.apiPurchaseRequestService.createWaitConfirm(body, user.id)
+    return await this.apiPurchaseRequestCreateService.createOne({
+      body,
+      userId: user.id,
+      status: PurchaseRequestStatus.WAIT_CONFIRM,
+    })
   }
 
   @Patch('update/:id')
@@ -146,7 +158,7 @@ export class ApiPurchaseRequestController {
   @PermissionCode(PURCHASE_REQUEST_DELETE.code)
   @ApiParam({ name: 'id', example: '63fdde9517a7317f0e8f959a' })
   async deleteOne(@Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.deleteOne(id)
+    return await this.apiPurchaseRequestDeleteService.deleteOne(id)
   }
 
   @Get('history/:id')

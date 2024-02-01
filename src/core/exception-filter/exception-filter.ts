@@ -26,16 +26,31 @@ export class ValidationException extends Error {
 
 export class BusinessException extends Error {
   public statusCode: HttpStatus
-  public args?: Record<string, any>
+  public i18args?: Record<string, any>
+  public errors: any[]
 
   constructor(
     message: I18nPath,
     statusCode = HttpStatus.BAD_REQUEST,
-    args = {} // biến khai báo cho i18n
+    i18args = {} // biến khai báo cho i18n
   ) {
     super(message)
     this.statusCode = statusCode
-    this.args = args
+    this.i18args = i18args
+  }
+
+  static error(options: {
+    message: I18nPath
+    error: any[]
+    i18args: Record<string, any>
+  }) {
+    const exception = new BusinessException(
+      options.message,
+      HttpStatus.BAD_REQUEST,
+      options.i18args
+    )
+    exception.errors = options.error
+    return exception
   }
 }
 
@@ -55,7 +70,7 @@ export class ServerExceptionFilter implements ExceptionFilter {
       case BusinessException.name: {
         const i18n = I18nContext.current<I18nTranslations>(host)
         message = i18n.translate(exception.message as any, {
-          args: (exception as BusinessException)?.args,
+          args: (exception as BusinessException)?.i18args,
         })
         statusCode = (exception as BusinessException).statusCode
         break

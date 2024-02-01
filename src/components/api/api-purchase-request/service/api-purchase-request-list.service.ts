@@ -19,11 +19,14 @@ import {
   NatsClientUserService,
   UserType,
 } from '../../../transporter/nats/service/nats-client-user.service'
-import { PurchaseRequestPaginationQuery } from '../request'
+import {
+  PurchaseRequestGetManyQuery,
+  PurchaseRequestPaginationQuery,
+} from '../request'
 
 @Injectable()
-export class ApiPurchaseRequestPaginationService {
-  private logger = new Logger(ApiPurchaseRequestPaginationService.name)
+export class ApiPurchaseRequestListService {
+  private logger = new Logger(ApiPurchaseRequestListService.name)
 
   constructor(
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
@@ -58,6 +61,27 @@ export class ApiPurchaseRequestPaginationService {
     const meta = await this.getDataExtends(data)
 
     return { data: { data, page, limit, total, meta } }
+  }
+
+  async getMany(query: PurchaseRequestGetManyQuery): Promise<BaseResponse> {
+    const { limit, filter, relation } = query
+
+    const data = await this.purchaseRequestRepository.findMany({
+      relation,
+      condition: {
+        ...(filter?.searchText ? { code: { LIKE: filter.searchText } } : {}),
+        ...(filter?.code ? { code: filter.code } : {}),
+        requestDate: filter?.requestDate,
+        receiveDate: filter?.receiveDate,
+        costCenterId: filter?.costCenterId,
+        sourceAddress: filter?.sourceAddress,
+        supplierId: filter?.supplierId,
+        status: filter?.status,
+      },
+      limit,
+    })
+    const meta = await this.getDataExtends(data)
+    return { data: { data, meta } }
   }
 
   async getDataExtends(data: PurchaseRequestType[]) {

@@ -27,11 +27,11 @@ import {
   ItemType,
   NatsClientItemService,
 } from '../../../transporter/nats/service/nats-client-item.service'
-import { PurchaseRequestUpdateBody } from '../request'
+import { PurchaseRequestCreateBody } from '../request'
 
 @Injectable()
-export class ApiPurchaseRequestUpdateService {
-  private logger = new Logger(ApiPurchaseRequestUpdateService.name)
+export class ApiPurchaseRequestCreateService {
+  private logger = new Logger(ApiPurchaseRequestCreateService.name)
 
   constructor(
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
@@ -42,53 +42,27 @@ export class ApiPurchaseRequestUpdateService {
     private readonly natsClientCostCenterService: NatsClientCostCenterService
   ) {}
 
-  async updateOne(options: {
-    id: string
-    body: PurchaseRequestUpdateBody
+  async createOne(options: {
+    body: PurchaseRequestCreateBody
     userId: number
+    status: PurchaseRequestStatus
   }): Promise<BaseResponse> {
-    const { id, body, userId } = options
+    const { body, userId, status } = options
     const { items, ...purchaseRequestBody } = body
 
     await this.validate(body)
 
-    const rootData = await this.purchaseRequestRepository.findOneById(id)
-    if (!rootData) {
-      throw new BusinessException('error.PurchaseRequest.NotFound')
-    }
-    if (
-      ![
-        PurchaseRequestStatus.DRAFT,
-        PurchaseRequestStatus.WAIT_CONFIRM,
-        PurchaseRequestStatus.REJECT,
-      ].includes(rootData.status)
-    ) {
-      throw new BusinessException('msg.MSG_100')
-    }
-
-    let status: PurchaseRequestStatus
-    if (rootData.status === PurchaseRequestStatus.DRAFT) {
-      status = PurchaseRequestStatus.DRAFT
-    } else if (rootData.status === PurchaseRequestStatus.WAIT_CONFIRM) {
-      status = PurchaseRequestStatus.WAIT_CONFIRM
-    } else if (rootData.status === PurchaseRequestStatus.REJECT) {
-      status = PurchaseRequestStatus.WAIT_CONFIRM
-    }
+    const code = await this.purchaseRequestRepository.generateNextCode({})
 
     const purchaseRequest: PurchaseRequestType =
-      await this.purchaseRequestRepository.updateOne(
-        { id },
-        {
-          ...purchaseRequestBody,
-          status,
-          userIdRequest: userId,
-          updatedByUserId: userId,
-        }
-      )
-
-    const deleteResult = await this.purchaseRequestItemRepository.deleteManyBy({
-      _purchase_request_id: { EQUAL: new Types.ObjectId(id) },
-    })
+      await this.purchaseRequestRepository.insertOneFullField({
+        ...purchaseRequestBody,
+        code,
+        status,
+        userIdRequest: userId,
+        createdByUserId: userId,
+        updatedByUserId: userId,
+      })
 
     const itemsDto: PurchaseRequestItemInsertType[] = items.map((item) => {
       const dto: PurchaseRequestItemInsertType = {
@@ -106,21 +80,21 @@ export class ApiPurchaseRequestUpdateService {
 
     // Lưu lịch sử
     const historyContent =
-      purchaseRequest.status === PurchaseRequestStatus.DRAFT
-        ? PurchaseRequestHistoryContent.EDIT_DRAFT
-        : PurchaseRequestHistoryContent.EDIT_WAIT_CONFIRM
+      status === PurchaseRequestStatus.DRAFT
+        ? PurchaseRequestHistoryContent.CREATE_DRAFT
+        : PurchaseRequestHistoryContent.CREATE_WAIT_CONFIRM
     await this.purchaseRequestHistoryRepository.insertOneFullField({
       _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
       userId,
-      status: { before: rootData.status, after: purchaseRequest.status },
+      status: { before: null, after: purchaseRequest.status },
       content: historyContent,
       time: new Date(),
     })
 
-    return { data: purchaseRequest }
+    return { data: purchaseRequest, message: 'msg.MSG_008' }
   }
 
-  async validate(data: PurchaseRequestUpdateBody) {
+  async validate(data: PurchaseRequestCreateBody) {
     const { costCenterId, supplierId } = data
     const itemIdList = uniqueArray((data.items || []).map((i) => i.itemId))
 

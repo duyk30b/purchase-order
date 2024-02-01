@@ -7,6 +7,7 @@
     "MSG_006": "Số lượng cất phải bằng số lượng thực nhập",
     "MSG_007": "Tạo yêu cầu thành công",
     "MSG_008": "Thời gian xuất báo cáo không được vượt quá ngày hiện tại",
+    "MSG_010": "Mã khởi tạo đã tồn tại trong hệ thống",
     "MSG_011": "Mã khởi tạo đã tồn tại trong hệ thống",
     "MSG_012": "Thông báo tạo mới thành công",
     "MSG_013": "Không có dữ liệu phù hợp",

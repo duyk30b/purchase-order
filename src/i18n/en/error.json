@@ -6,9 +6,13 @@
   "NOT_ACCEPTABLE": "Do not accept updates",
   "BAD_REQUEST": "Invalid request",
   "CostCenter": {
-    "Error": "Error"
+    "NotFound": "CostCenter.NotFound"
   },
-  "PURCHASE_REQUEST": {
-    "STATUS_INVALID": "Status Invalid "
+  "Supplier": {
+    "NotFound": "Supplier.NotFound"
+  },
+  "PurchaseRequest": {
+    "NotFound": "PurchaseRequest.NotFound",
+    "StatusInvalid": "PurchaseRequest.StatusInvalid "
   }
 }

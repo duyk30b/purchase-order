@@ -4,18 +4,12 @@ import { BusinessException } from '../../../core/exception-filter/exception-filt
 import { BaseResponse } from '../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestHistoryRepository } from '../../../mongo/purchase-request-history/purchase-request-history.repository'
 import { PurchaseRequestItemRepository } from '../../../mongo/purchase-request-item/purchase-request-item.repository'
-import { PurchaseRequestItemInsertType } from '../../../mongo/purchase-request-item/purchase-request-item.schema'
 import { PurchaseRequestRepository } from '../../../mongo/purchase-request/purchase-request.repository'
 import {
   PurchaseRequestStatus,
   PurchaseRequestType,
 } from '../../../mongo/purchase-request/purchase-request.schema'
 import { NatsClientVendorService } from '../../transporter/nats/nats-vendor/nats-client-vendor.service'
-import {
-  PurchaseRequestCreateBody,
-  PurchaseRequestGetManyQuery,
-  PurchaseRequestUpdateBody,
-} from './request'
 
 @Injectable()
 export class ApiPurchaseRequestService {
@@ -28,126 +22,6 @@ export class ApiPurchaseRequestService {
     private readonly natsClientVendorService: NatsClientVendorService
   ) {}
 
-  async getMany(query: PurchaseRequestGetManyQuery): Promise<BaseResponse> {
-    const { limit, filter, relation } = query
-
-    const data = await this.purchaseRequestRepository.findMany({
-      relation,
-      condition: {
-        ...(filter?.searchText ? { code: { LIKE: filter.searchText } } : {}),
-        ...(filter?.code ? { code: filter.code } : {}),
-        requestDate: filter?.requestDate,
-        receiveDate: filter?.receiveDate,
-        costCenterId: filter?.costCenterId,
-        sourceAddress: filter?.sourceAddress,
-        supplierId: filter?.supplierId,
-        status: filter?.status,
-      },
-      limit,
-    })
-    return { data }
-  }
-
-  async createDraft(
-    body: PurchaseRequestCreateBody,
-    userId: number
-  ): Promise<BaseResponse> {
-    const { items, ...purchaseRequestBody } = body
-
-    // await Promise.all([
-    //   this.validateService.validateCostCenter(body.costCenterId),
-    //   this.validateService.validateVendor(body.vendorId),
-    //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
-    // ])
-
-    const code = await this.purchaseRequestRepository.generateNextCode({})
-
-    const purchaseRequest: PurchaseRequestType =
-      await this.purchaseRequestRepository.insertOneFullField({
-        ...purchaseRequestBody,
-        code,
-        status: PurchaseRequestStatus.DRAFT,
-        userIdRequest: userId,
-        createdByUserId: userId,
-        updatedByUserId: userId,
-      })
-
-    const itemsDto: PurchaseRequestItemInsertType[] = items.map((item) => {
-      const dto: PurchaseRequestItemInsertType = {
-        ...item,
-        _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-        _price: new Types.Decimal128(item.price),
-        createdByUserId: userId,
-        updatedByUserId: userId,
-      }
-      return dto
-    })
-
-    purchaseRequest.purchaseRequestItems =
-      await this.purchaseRequestItemRepository.insertManyFullField(itemsDto)
-
-    // Lưu lịch sử
-    await this.purchaseRequestHistoryRepository.insertOneFullField({
-      _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-      userId,
-      status: { before: null, after: purchaseRequest.status },
-      content: 'Tạo mới thành công',
-      time: new Date(),
-    })
-
-    return { data: purchaseRequest }
-  }
-
-  async createWaitConfirm(
-    body: PurchaseRequestCreateBody,
-    userId: number
-  ): Promise<BaseResponse> {
-    const { items, ...purchaseRequestBody } = body
-
-    // await Promise.all([
-    //   this.validateService.validateCostCenter(body.costCenterId),
-    //   this.validateService.validateVendor(body.vendorId),
-    //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
-    // ])
-
-    const code = await this.purchaseRequestRepository.generateNextCode({})
-
-    const purchaseRequest: PurchaseRequestType =
-      await this.purchaseRequestRepository.insertOneFullField({
-        ...purchaseRequestBody,
-        code,
-        status: PurchaseRequestStatus.WAIT_CONFIRM,
-        userIdRequest: userId,
-        createdByUserId: userId,
-        updatedByUserId: userId,
-      })
-
-    const itemsDto: PurchaseRequestItemInsertType[] = items.map((item) => {
-      const dto: PurchaseRequestItemInsertType = {
-        ...item,
-        _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-        _price: new Types.Decimal128(item.price),
-        createdByUserId: userId,
-        updatedByUserId: userId,
-      }
-      return dto
-    })
-
-    purchaseRequest.purchaseRequestItems =
-      await this.purchaseRequestItemRepository.insertManyFullField(itemsDto)
-
-    // Lưu lịch sử
-    await this.purchaseRequestHistoryRepository.insertOneFullField({
-      _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-      userId,
-      status: { before: null, after: purchaseRequest.status },
-      content: 'Tạo mới yêu cầu mua',
-      time: new Date(),
-    })
-
-    return { data: purchaseRequest }
-  }
-
   async waitConfirm(options: {
     id: string
     userId: number
@@ -158,7 +32,7 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (![PurchaseRequestStatus.DRAFT].includes(rootData.status)) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
 
     // await Promise.all([
@@ -200,7 +74,7 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
     const purchaseRequest: PurchaseRequestType =
       await this.purchaseRequestRepository.updateOne(
@@ -229,7 +103,7 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(rootData.status)) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
     const purchaseRequest: PurchaseRequestType =
       await this.purchaseRequestRepository.updateOne(
@@ -258,7 +132,7 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (![PurchaseRequestStatus.CONFIRM].includes(rootData.status)) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
 
     // TODO
@@ -281,7 +155,7 @@ export class ApiPurchaseRequestService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (![PurchaseRequestStatus.CONFIRM].includes(rootData.status)) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
 
     // TODO: Check logic hoàn thành
@@ -317,7 +191,7 @@ export class ApiPurchaseRequestService {
         PurchaseRequestStatus.WAIT_CONFIRM,
       ].includes(rootData.status)
     ) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
 
     await this.purchaseRequestRepository.deleteOneBy({ id } as any)

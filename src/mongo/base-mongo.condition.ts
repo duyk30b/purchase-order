@@ -89,10 +89,10 @@ export class BaseMongoCondition<T> {
         })
 
         if (Object.keys(ruleColumn).length === 0) {
-          filter[column] = { $exists: true, $ne: null }
-          return
+          filter[column] = target
+        } else {
+          filter[column] = ruleColumn
         }
-        filter[column] = ruleColumn
       }
     })
     return filter

@@ -76,7 +76,7 @@ export class ApiPurchaseOrderUpdateService {
         PurchaseOrderStatus.REJECT,
       ].includes(rootData.status)
     ) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
 
     let status: PurchaseOrderStatus

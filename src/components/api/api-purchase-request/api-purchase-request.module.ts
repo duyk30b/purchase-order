@@ -1,19 +1,22 @@
 import { Module } from '@nestjs/common'
-import { DataExtendModule } from '../../data-extend/data-extend.module'
 import { ApiPurchaseRequestController } from './api-purchase-request.controller'
 import { ApiPurchaseRequestService } from './api-purchase-request.service'
+import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
+import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-delete.service'
 import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
-import { ApiPurchaseRequestPaginationService } from './service/api-purchase-request-pagination.service'
+import { ApiPurchaseRequestListService } from './service/api-purchase-request-list.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
 
 @Module({
-  imports: [DataExtendModule],
+  imports: [],
   controllers: [ApiPurchaseRequestController],
   providers: [
     ApiPurchaseRequestService,
-    ApiPurchaseRequestPaginationService,
+    ApiPurchaseRequestListService,
     ApiPurchaseRequestDetailService,
+    ApiPurchaseRequestCreateService,
     ApiPurchaseRequestUpdateService,
+    ApiPurchaseRequestDeleteService,
   ],
 })
 export class ApiPurchaseRequestModule {}

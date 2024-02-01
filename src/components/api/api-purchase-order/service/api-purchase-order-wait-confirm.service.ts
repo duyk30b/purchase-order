@@ -32,7 +32,7 @@ export class ApiPurchaseOrderWaitConfirmService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (![PurchaseOrderStatus.DRAFT].includes(rootData.status)) {
-      throw new BusinessException('error.PURCHASE_REQUEST.STATUS_INVALID')
+      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
     }
 
     // await Promise.all([

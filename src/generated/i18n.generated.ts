@@ -14,10 +14,14 @@ export type I18nTranslations = {
         "NOT_ACCEPTABLE": string;
         "BAD_REQUEST": string;
         "CostCenter": {
-            "Error": string;
+            "NotFound": string;
         };
-        "PURCHASE_REQUEST": {
-            "STATUS_INVALID": string;
+        "Supplier": {
+            "NotFound": string;
+        };
+        "PurchaseRequest": {
+            "NotFound": string;
+            "StatusInvalid": string;
         };
     };
     "validation": {
@@ -139,6 +143,7 @@ export type I18nTranslations = {
         "MSG_006": string;
         "MSG_007": string;
         "MSG_008": string;
+        "MSG_010": string;
         "MSG_011": string;
         "MSG_012": string;
         "MSG_013": string;

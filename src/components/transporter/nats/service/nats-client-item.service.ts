@@ -4,12 +4,28 @@ import { NatsClientService } from '../nats-client.service'
 import { NatsService, NatsSubject } from '../nats.config'
 import { NatsResponseInterface } from '../nats.interface'
 
+export enum ItemStatusEnum {
+  DRAFT,
+  WAITING_CONFIRM,
+  CONFIRMED,
+  REJECTED,
+}
+
+export enum ItemActiveStatusEnum {
+  INACTIVE = 0,
+  ACTIVE = 1,
+}
+
 export type ItemType = {
   id: number
   code?: string
   nameVn?: string
   nameJp?: string
   nameEn?: string
+  itemCostCenters?: any[]
+  country: any
+  status: ItemStatusEnum
+  activeStatus: ItemActiveStatusEnum
 }
 
 export type ItemTypeType = {
@@ -51,7 +67,7 @@ export class NatsClientItemService {
     return response.data as ItemType[]
   }
 
-  async getItemsByIds(request: { itemIds: number[] }) {
+  async getItemListByIds(request: { itemIds: number[] }) {
     const response: NatsResponseInterface = await this.natsClient.send(
       `${NatsService.ITEM}.get_items_by_ids`,
       request
@@ -63,7 +79,7 @@ export class NatsClientItemService {
   }
 
   async getItemMapByIds(request: { itemIds: number[] }) {
-    const itemList = await this.getItemsByIds(request)
+    const itemList = await this.getItemListByIds(request)
     const itemMap: Record<string, ItemType> = {}
     itemList.forEach((i) => (itemMap[i.id] = i))
     return itemMap
