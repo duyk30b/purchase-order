@@ -109,7 +109,7 @@ export class PurchaseOrderPaginationQuery extends IntersectionType(
 ) {}
 
 export class PurchaseOrderGetManyQuery extends IntersectionType(
-  PickType(PurchaseOrderGetQuery, ['filter', 'relation']),
+  PickType(PurchaseOrderGetQuery, ['filter', 'relation', 'sort']),
   LimitQuery
 ) {}
 

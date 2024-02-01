@@ -10,23 +10,6 @@ export class ApiPurchaseOrderService {
     private readonly purchaseOrderRepository: PurchaseOrderRepository
   ) {}
 
-  async getMany(query: PurchaseOrderGetManyQuery) {
-    const { limit, filter } = query
-
-    // return await this.purchaseOrderRepository.findMany({
-    //   condition: {
-    //     $OR: filter.searchText
-    //       ? [
-    //           { description: { LIKE: filter.searchText } },
-    //           { note: { LIKE: filter.searchText } },
-    //         ]
-    //       : undefined,
-    //     updatedAt: filter?.updatedAt,
-    //   },
-    //   limit,
-    // })
-  }
-
   async deleteOne(id: string) {
     const data = await this.purchaseOrderRepository.updateOne(
       { id },

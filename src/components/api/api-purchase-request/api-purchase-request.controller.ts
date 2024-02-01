@@ -68,6 +68,7 @@ export class ApiPurchaseRequestController {
   }
 
   @Get('list')
+  @PermissionCode(PURCHASE_REQUEST_LIST.code)
   list(@Query() query: PurchaseRequestGetManyQuery) {
     return this.apiPurchaseRequestListService.getMany(query)
   }

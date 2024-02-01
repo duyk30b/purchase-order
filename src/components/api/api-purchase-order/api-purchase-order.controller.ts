@@ -7,8 +7,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
-  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
@@ -29,7 +27,6 @@ import {
   PURCHASE_ORDER_UPDATE,
   PURCHASE_ORDER_WAIT_CONFIRM,
 } from '../../../core/guard/permission-purchase-order'
-import { FastifyFileInterceptor } from '../../../core/interceptor/fastify-file-interceptor'
 import { FastifyFilesInterceptor } from '../../../core/interceptor/fastify-files-interceptor'
 import { PurchaseOrderStatus } from '../../../mongo/purchase-order/purchase-order.schema'
 import { ApiPurchaseOrderService } from './api-purchase-order.service'
@@ -40,13 +37,12 @@ import {
   PurchaseOrderPaginationQuery,
   PurchaseOrderUpdateBody,
 } from './request'
-import { MultipleFileDto, SingleFileDto } from './request/multiple-files-dto'
 import { ApiPurchaseOrderCancelService } from './service/api-purchase-order-cancel.service'
 import { ApiPurchaseOrderConfirmService } from './service/api-purchase-order-confirm.service'
 import { ApiPurchaseOrderCreateService } from './service/api-purchase-order-create.service'
 import { ApiPurchaseOrderDeleteService } from './service/api-purchase-order-delete.service'
 import { ApiPurchaseOrderDetailService } from './service/api-purchase-order-detail.service'
-import { ApiPurchaseOrderPaginationService } from './service/api-purchase-order-pagination.service'
+import { ApiPurchaseOrderListService } from './service/api-purchase-order-list.service'
 import { ApiPurchaseOrderRejectService } from './service/api-purchase-order-reject.service'
 import { ApiPurchaseOrderSuccessService } from './service/api-purchase-order-success.service'
 import { ApiPurchaseOrderUpdateService } from './service/api-purchase-order-update.service'
@@ -58,7 +54,7 @@ import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order
 export class ApiPurchaseOrderController {
   constructor(
     private readonly apiPurchaseOrderService: ApiPurchaseOrderService,
-    private readonly apiPurchaseOrderPaginationService: ApiPurchaseOrderPaginationService,
+    private readonly apiPurchaseOrderListService: ApiPurchaseOrderListService,
     private readonly apiPurchaseOrderDetailService: ApiPurchaseOrderDetailService,
     private readonly apiPurchaseOrderCreateService: ApiPurchaseOrderCreateService,
     private readonly apiPurchaseOrderUpdateService: ApiPurchaseOrderUpdateService,
@@ -70,36 +66,37 @@ export class ApiPurchaseOrderController {
     private readonly apiPurchaseOrderSuccessService: ApiPurchaseOrderSuccessService
   ) {}
 
-  @ApiConsumes('multipart/form-data')
-  @Post('single-file')
-  @UseInterceptors(FastifyFileInterceptor('photo_url', {}))
-  uploadSingleFile(@UploadedFile() file: any, @Body() body: SingleFileDto) {
-    console.log('🚀 ~ ApiPurchaseOrderController ~ body:', body)
-    console.log('🚀 ~ ApiPurchaseOrderController ~ file:', file)
-    return { ...body }
-  }
+  // @ApiConsumes('multipart/form-data')
+  // @Post('single-file')
+  // @UseInterceptors(FastifyFileInterceptor('photo_url', {}))
+  // uploadSingleFile(@UploadedFile() file: any, @Body() body: SingleFileDto) {
+  //   console.log('🚀 ~ ApiPurchaseOrderController ~ body:', body)
+  //   console.log('🚀 ~ ApiPurchaseOrderController ~ file:', file)
+  //   return { ...body }
+  // }
 
-  @ApiConsumes('multipart/form-data')
-  @Post('multiple-file')
-  @UseInterceptors(FastifyFilesInterceptor('photo_url', 10, {}))
-  uploadMultipleFile(
-    @UploadedFiles() files: any[],
-    @Body() body: MultipleFileDto
-  ) {
-    console.log('🚀 ~ ApiPurchaseOrderController ~ body:', body)
-    console.log('🚀 ~ ApiPurchaseOrderController ~ file:', files)
-    return { ...body }
-  }
+  // @ApiConsumes('multipart/form-data')
+  // @Post('multiple-file')
+  // @UseInterceptors(FastifyFilesInterceptor('photo_url', 10, {}))
+  // uploadMultipleFile(
+  //   @UploadedFiles() files: any[],
+  //   @Body() body: MultipleFileDto
+  // ) {
+  //   console.log('🚀 ~ ApiPurchaseOrderController ~ body:', body)
+  //   console.log('🚀 ~ ApiPurchaseOrderController ~ file:', files)
+  //   return { ...body }
+  // }
 
   @Get('pagination')
   @PermissionCode(PURCHASE_ORDER_LIST.code)
   pagination(@Query() query: PurchaseOrderPaginationQuery) {
-    return this.apiPurchaseOrderPaginationService.pagination(query)
+    return this.apiPurchaseOrderListService.pagination(query)
   }
 
   @Get('list')
+  @PermissionCode(PURCHASE_ORDER_LIST.code)
   list(@Query() query: PurchaseOrderGetManyQuery) {
-    return this.apiPurchaseOrderService.getMany(query)
+    return this.apiPurchaseOrderListService.getMany(query)
   }
 
   @Get('detail/:id')

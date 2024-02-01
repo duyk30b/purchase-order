@@ -9,11 +9,14 @@ import {
   NatsClientUserService,
   UserType,
 } from '../../../transporter/nats/service/nats-client-user.service'
-import { PurchaseOrderPaginationQuery } from '../request'
+import {
+  PurchaseOrderGetManyQuery,
+  PurchaseOrderPaginationQuery,
+} from '../request'
 
 @Injectable()
-export class ApiPurchaseOrderPaginationService {
-  private logger = new Logger(ApiPurchaseOrderPaginationService.name)
+export class ApiPurchaseOrderListService {
+  private logger = new Logger(ApiPurchaseOrderListService.name)
 
   constructor(
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
@@ -37,7 +40,6 @@ export class ApiPurchaseOrderPaginationService {
               ],
             }
           : {}),
-        ...(filter?.code ? { code: filter.code } : {}),
         code: filter?.code,
         purchaseRequestCode: filter?.purchaseRequestCode,
         orderDate: filter?.orderDate,
@@ -56,6 +58,39 @@ export class ApiPurchaseOrderPaginationService {
     return { data: { data, page, limit, total, meta } }
   }
 
+  async getMany(query: PurchaseOrderGetManyQuery) {
+    const { limit, filter, relation, sort } = query
+
+    const data = await this.purchaseOrderRepository.findMany({
+      relation,
+      limit,
+      condition: {
+        ...(filter?.searchText
+          ? {
+              $OR: [
+                { code: { LIKE: filter.searchText } },
+                { purchaseRequestCode: { LIKE: filter.searchText } },
+              ],
+            }
+          : {}),
+        code: filter?.code,
+        purchaseRequestCode: filter?.purchaseRequestCode,
+        orderDate: filter?.orderDate,
+        deliveryDate: filter?.deliveryDate,
+        supplierId: filter?.supplierId,
+        purchaseOrderKind: filter?.purchaseOrderKind,
+        createdByUserId: filter?.createdByUserId,
+        poPaymentStatus: filter?.poPaymentStatus,
+        status: filter?.status,
+      },
+      sort: sort || { _id: 'DESC' },
+    })
+
+    const meta = await this.getDataExtends(data)
+
+    return { data: { data, meta } }
+  }
+
   async getDataExtends(data: PurchaseOrderType[]) {
     const supplierIdList = uniqueArray(data.map((i) => i.supplierId))
     const userCreateIdList = uniqueArray(data.map((i) => i.createdByUserId))
@@ -63,6 +98,7 @@ export class ApiPurchaseOrderPaginationService {
     const dataExtendsPromise = await Promise.allSettled([
       supplierIdList.length
         ? this.natsClientVendorService.getSupplierMap({
+            relation: { supplierItems: true },
             filter: { id: { IN: supplierIdList } },
           })
         : {},
@@ -85,7 +121,7 @@ export class ApiPurchaseOrderPaginationService {
 
     return {
       supplierMap: dataExtendsResult[0],
-      userRequestMap: dataExtendsResult[1],
+      userMap: dataExtendsResult[1],
     }
   }
 }

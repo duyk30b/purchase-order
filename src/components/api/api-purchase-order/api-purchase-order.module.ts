@@ -6,7 +6,7 @@ import { ApiPurchaseOrderConfirmService } from './service/api-purchase-order-con
 import { ApiPurchaseOrderCreateService } from './service/api-purchase-order-create.service'
 import { ApiPurchaseOrderDeleteService } from './service/api-purchase-order-delete.service'
 import { ApiPurchaseOrderDetailService } from './service/api-purchase-order-detail.service'
-import { ApiPurchaseOrderPaginationService } from './service/api-purchase-order-pagination.service'
+import { ApiPurchaseOrderListService } from './service/api-purchase-order-list.service'
 import { ApiPurchaseOrderRejectService } from './service/api-purchase-order-reject.service'
 import { ApiPurchaseOrderSuccessService } from './service/api-purchase-order-success.service'
 import { ApiPurchaseOrderUpdateService } from './service/api-purchase-order-update.service'
@@ -17,7 +17,7 @@ import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order
   controllers: [ApiPurchaseOrderController],
   providers: [
     ApiPurchaseOrderService,
-    ApiPurchaseOrderPaginationService,
+    ApiPurchaseOrderListService,
     ApiPurchaseOrderDetailService,
     ApiPurchaseOrderCreateService,
     ApiPurchaseOrderUpdateService,
