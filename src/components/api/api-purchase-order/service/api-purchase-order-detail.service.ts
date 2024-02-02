@@ -11,6 +11,7 @@ import {
   CurrencyType,
   ItemType,
   ItemUnitType,
+  ManufCountryType,
   NatsClientItemService,
 } from '../../../transporter/nats/service/nats-client-item.service'
 import {
@@ -94,6 +95,11 @@ export class ApiPurchaseOrderDetailService {
             filter: { id: { IN: [data.incotermId] } },
           })
         : {},
+      data.manufacturingCountryId
+        ? this.natsClientItemService.getManufacturingCountryMapByIds({
+            ids: [data.manufacturingCountryId],
+          })
+        : {},
     ])
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
       if (i.status === 'fulfilled') {
@@ -109,10 +115,17 @@ export class ApiPurchaseOrderDetailService {
       Record<string, ItemUnitType>,
       Record<string, CurrencyType>,
       Record<string, IncotermType>,
+      Record<string, ManufCountryType>,
     ]
 
-    const [userMap, itemMap, itemUnitMap, currencyMap, incotermMap] =
-      dataExtendsResult
+    const [
+      userMap,
+      itemMap,
+      itemUnitMap,
+      currencyMap,
+      incotermMap,
+      manufacturingCountryMap,
+    ] = dataExtendsResult
 
     return {
       supplierMap,
@@ -121,6 +134,7 @@ export class ApiPurchaseOrderDetailService {
       itemUnitMap,
       currencyMap,
       incotermMap,
+      manufacturingCountryMap,
     }
   }
 }

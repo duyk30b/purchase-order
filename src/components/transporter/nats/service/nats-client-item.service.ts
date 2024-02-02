@@ -52,6 +52,12 @@ export type CurrencyType = {
   name?: string
 }
 
+export type ManufCountryType = {
+  id: number
+  code?: string
+  name?: string
+}
+
 @Injectable()
 export class NatsClientItemService {
   constructor(private readonly natsClient: NatsClientService) {}
@@ -165,5 +171,24 @@ export class NatsClientItemService {
     const currencyMap: Record<string, CurrencyType> = {}
     currencyList.forEach((i) => (currencyMap[i.id] = i))
     return currencyMap
+  }
+
+  async getManufCountryListByIds(request: { ids: number[] }) {
+    if (request.ids.length === 0) return []
+    const response: NatsResponseInterface = await this.natsClient.send(
+      `${NatsService.ITEM}.get_manufacturing_country_by_ids`,
+      { manufacturingCountryIds: request.ids }
+    )
+    if (response.statusCode !== 200) {
+      throw new BusinessException(response.message as any)
+    }
+    return response.data as ManufCountryType[]
+  }
+
+  async getManufacturingCountryMapByIds(request: { ids: number[] }) {
+    const manufCountryList = await this.getManufCountryListByIds(request)
+    const manufCountryMap: Record<string, ManufCountryType> = {}
+    manufCountryList.forEach((i) => (manufCountryMap[i.id] = i))
+    return manufCountryMap
   }
 }
