@@ -46,7 +46,7 @@ export class FileService {
 
     const response = await lastValueFrom(start)
     const responseData = response.data as {
-      status: number
+      statusCode: number
       message: string
       data: string[] // List IdMongoDb of File
     }
@@ -70,7 +70,7 @@ export class FileService {
 
     const response = await lastValueFrom(start)
     const responseData = response.data as {
-      status: number
+      statusCode: number
       message: string
       data: { id: string; fileNameRaw: string; fileUrl: string }[]
     }

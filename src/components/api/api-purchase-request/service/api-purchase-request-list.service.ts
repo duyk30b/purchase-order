@@ -150,7 +150,7 @@ export class ApiPurchaseRequestListService {
 
     return {
       supplierMap: dataExtendsResult[0],
-      userRequestMap: dataExtendsResult[1],
+      userMap: dataExtendsResult[1],
       itemMap: dataExtendsResult[2],
       itemTypeMap: dataExtendsResult[3],
       costCenterMap: dataExtendsResult[4],
