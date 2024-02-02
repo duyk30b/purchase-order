@@ -30,6 +30,7 @@ import {
 import { FastifyFilesInterceptor } from '../../../core/interceptor/fastify-files-interceptor'
 import { PurchaseOrderStatus } from '../../../mongo/purchase-order/purchase-order.schema'
 import {
+  PurchaseOrderActionManyQuery,
   PurchaseOrderCreateBody,
   PurchaseOrderGetManyQuery,
   PurchaseOrderGetOneQuery,
@@ -184,7 +185,20 @@ export class ApiPurchaseOrderController {
     @Param() { id }: IdMongoParam
   ) {
     return await this.apiPurchaseOrderConfirmService.confirm({
-      id,
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('confirm-list')
+  @PermissionCode(PURCHASE_ORDER_CANCEL.code)
+  async confirmList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseOrderActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.IN
+    return await this.apiPurchaseOrderConfirmService.confirm({
+      ids,
       userId: user.id,
     })
   }
@@ -202,7 +216,20 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_CANCEL.code)
   async cancel(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
     return await this.apiPurchaseOrderCancelService.cancel({
-      id,
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('cancel-list')
+  @PermissionCode(PURCHASE_ORDER_CANCEL.code)
+  async cancelList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseOrderActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.IN
+    return await this.apiPurchaseOrderCancelService.cancel({
+      ids,
       userId: user.id,
     })
   }

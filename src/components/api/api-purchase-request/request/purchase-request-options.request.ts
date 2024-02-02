@@ -7,6 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { ConditionDate } from '../../../../common/dto/condition-date'
+import { ConditionMongoId } from '../../../../common/dto/condition-mongo-id'
 import { ConditionString } from '../../../../common/dto/condition-string'
 import { SortQuery } from '../../../../common/dto/query'
 import { valuesEnum } from '../../../../common/helpers'
@@ -27,9 +28,9 @@ export class PurchaseRequestRelationQuery {
 
 export class PurchaseRequestFilterQuery {
   @Expose()
-  @Type(() => ConditionString)
+  @Type(() => ConditionMongoId)
   @ValidateNested({ each: true })
-  id: ConditionString
+  id: ConditionMongoId
 
   @Expose()
   @Type(() => ConditionString)

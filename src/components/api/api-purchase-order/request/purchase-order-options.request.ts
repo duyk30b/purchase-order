@@ -8,6 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { ConditionDate } from '../../../../common/dto/condition-date'
+import { ConditionMongoId } from '../../../../common/dto/condition-mongo-id'
 import { ConditionString } from '../../../../common/dto/condition-string'
 import { SortQuery } from '../../../../common/dto/query'
 import { valuesEnum } from '../../../../common/helpers'
@@ -32,6 +33,11 @@ export class PurchaseOrderRelationQuery {
 }
 
 export class PurchaseOrderFilterQuery {
+  @Expose()
+  @Type(() => ConditionMongoId)
+  @ValidateNested({ each: true })
+  id: ConditionMongoId
+
   @Expose()
   @IsString()
   searchText: string
