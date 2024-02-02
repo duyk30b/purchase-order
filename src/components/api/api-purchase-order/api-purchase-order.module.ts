@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { ApiPurchaseOrderController } from './api-purchase-order.controller'
-import { ApiPurchaseOrderService } from './api-purchase-order.service'
 import { ApiPurchaseOrderCancelService } from './service/api-purchase-order-cancel.service'
 import { ApiPurchaseOrderConfirmService } from './service/api-purchase-order-confirm.service'
 import { ApiPurchaseOrderCreateService } from './service/api-purchase-order-create.service'
@@ -16,7 +15,6 @@ import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order
   imports: [],
   controllers: [ApiPurchaseOrderController],
   providers: [
-    ApiPurchaseOrderService,
     ApiPurchaseOrderListService,
     ApiPurchaseOrderDetailService,
     ApiPurchaseOrderCreateService,

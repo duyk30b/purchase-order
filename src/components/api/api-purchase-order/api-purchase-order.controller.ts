@@ -29,7 +29,6 @@ import {
 } from '../../../core/guard/permission-purchase-order'
 import { FastifyFilesInterceptor } from '../../../core/interceptor/fastify-files-interceptor'
 import { PurchaseOrderStatus } from '../../../mongo/purchase-order/purchase-order.schema'
-import { ApiPurchaseOrderService } from './api-purchase-order.service'
 import {
   PurchaseOrderCreateBody,
   PurchaseOrderGetManyQuery,
@@ -53,7 +52,6 @@ import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order
 @Controller('purchase-order')
 export class ApiPurchaseOrderController {
   constructor(
-    private readonly apiPurchaseOrderService: ApiPurchaseOrderService,
     private readonly apiPurchaseOrderListService: ApiPurchaseOrderListService,
     private readonly apiPurchaseOrderDetailService: ApiPurchaseOrderDetailService,
     private readonly apiPurchaseOrderCreateService: ApiPurchaseOrderCreateService,
