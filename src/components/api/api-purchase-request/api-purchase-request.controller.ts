@@ -38,8 +38,7 @@ import { ApiPurchaseRequestCancelService } from './service/api-purchase-request-
 import { ApiPurchaseRequestConfirmService } from './service/api-purchase-request-confirm.service'
 import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
 import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-delete.service'
-import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
-import { ApiPurchaseRequestListService } from './service/api-purchase-request-list.service'
+import { ApiPurchaseRequestGetService } from './service/api-purchase-request-get.service'
 import { ApiPurchaseRequestRejectService } from './service/api-purchase-request-reject.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
 import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-request-wait-confirm.service'
@@ -50,8 +49,7 @@ import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-req
 export class ApiPurchaseRequestController {
   constructor(
     private readonly apiPurchaseRequestService: ApiPurchaseRequestService,
-    private readonly apiPurchaseRequestListService: ApiPurchaseRequestListService,
-    private readonly apiPurchaseRequestDetailService: ApiPurchaseRequestDetailService,
+    private readonly apiPurchaseRequestGetService: ApiPurchaseRequestGetService,
     private readonly apiPurchaseRequestCreateService: ApiPurchaseRequestCreateService,
     private readonly apiPurchaseRequestUpdateService: ApiPurchaseRequestUpdateService,
     private readonly apiPurchaseRequestDeleteService: ApiPurchaseRequestDeleteService,
@@ -64,13 +62,13 @@ export class ApiPurchaseRequestController {
   @Get('pagination')
   @PermissionCode(PURCHASE_REQUEST_LIST.code)
   pagination(@Query() query: PurchaseRequestPaginationQuery) {
-    return this.apiPurchaseRequestListService.pagination(query)
+    return this.apiPurchaseRequestGetService.pagination(query)
   }
 
   @Get('list')
   @PermissionCode(PURCHASE_REQUEST_LIST.code)
   list(@Query() query: PurchaseRequestGetManyQuery) {
-    return this.apiPurchaseRequestListService.getMany(query)
+    return this.apiPurchaseRequestGetService.getMany(query)
   }
 
   @Get('detail/:id')
@@ -79,7 +77,7 @@ export class ApiPurchaseRequestController {
     @Param() { id }: IdMongoParam,
     @Query() query: PurchaseRequestGetOneByIdQuery
   ) {
-    return await this.apiPurchaseRequestDetailService.getOne(id, query)
+    return await this.apiPurchaseRequestGetService.getOne(id, query)
   }
 
   @Post('create-draft')

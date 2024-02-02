@@ -5,8 +5,7 @@ import { ApiPurchaseRequestCancelService } from './service/api-purchase-request-
 import { ApiPurchaseRequestConfirmService } from './service/api-purchase-request-confirm.service'
 import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
 import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-delete.service'
-import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
-import { ApiPurchaseRequestListService } from './service/api-purchase-request-list.service'
+import { ApiPurchaseRequestGetService } from './service/api-purchase-request-get.service'
 import { ApiPurchaseRequestRejectService } from './service/api-purchase-request-reject.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
 import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-request-wait-confirm.service'
@@ -16,8 +15,7 @@ import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-req
   controllers: [ApiPurchaseRequestController],
   providers: [
     ApiPurchaseRequestService,
-    ApiPurchaseRequestListService,
-    ApiPurchaseRequestDetailService,
+    ApiPurchaseRequestGetService,
     ApiPurchaseRequestCreateService,
     ApiPurchaseRequestUpdateService,
     ApiPurchaseRequestDeleteService,

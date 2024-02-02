@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { uniqueArray } from '../../../../common/helpers'
+import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestRepository } from '../../../../mongo/purchase-request/purchase-request.repository'
 import { PurchaseRequestType } from '../../../../mongo/purchase-request/purchase-request.schema'
-import { SupplierType } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import {
   CostCenterType,
@@ -13,6 +13,7 @@ import {
   CurrencyType,
   ItemType,
   ItemTypeType,
+  ItemUnitType,
   NatsClientItemService,
 } from '../../../transporter/nats/service/nats-client-item.service'
 import {
@@ -21,12 +22,13 @@ import {
 } from '../../../transporter/nats/service/nats-client-user.service'
 import {
   PurchaseRequestGetManyQuery,
+  PurchaseRequestGetOneByIdQuery,
   PurchaseRequestPaginationQuery,
 } from '../request'
 
 @Injectable()
-export class ApiPurchaseRequestListService {
-  private logger = new Logger(ApiPurchaseRequestListService.name)
+export class ApiPurchaseRequestGetService {
+  private logger = new Logger(ApiPurchaseRequestGetService.name)
 
   constructor(
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
@@ -84,27 +86,50 @@ export class ApiPurchaseRequestListService {
     return { data: { data, meta } }
   }
 
+  async getOne(
+    id: string,
+    query?: PurchaseRequestGetOneByIdQuery
+  ): Promise<BaseResponse> {
+    const data = await this.purchaseRequestRepository.findOne({
+      relation: query?.relation,
+      condition: { id },
+    })
+    if (!data) throw new BusinessException('error.NOT_FOUND')
+
+    const meta = await this.getDataExtends([data])
+    return { data: { data, meta } }
+  }
+
   async getDataExtends(data: PurchaseRequestType[]) {
+    const supplierIdList = uniqueArray(data.map((i) => i.supplierId))
+    const supplierMap = await this.natsClientVendorService.getSupplierMap({
+      filter: { id: { IN: supplierIdList } },
+      relation: { supplierItems: true },
+    })
+    const supplierItemList = Object.values(supplierMap)
+      .map((i) => i.supplierItems || [])
+      .flat()
+
     const purchaseRequestItems = data
       .map((i) => i.purchaseRequestItems || [])
       .flat()
 
-    const supplierIdList = uniqueArray(data.map((i) => i.supplierId))
     const userRequestIdList = uniqueArray(data.map((i) => i.userIdRequest))
-    const itemIdList = uniqueArray(purchaseRequestItems.map((i) => i.itemId))
-    const itemTypeIdList = uniqueArray(
-      purchaseRequestItems.map((i) => i.itemTypeId)
-    )
+    const itemIdList = uniqueArray([
+      ...(supplierItemList || []).map((i) => i.itemId),
+      ...purchaseRequestItems.map((i) => i.itemId),
+    ])
+    const itemUnitIdList = uniqueArray([
+      ...(supplierItemList || []).map((i) => i.itemUnitId),
+      ...purchaseRequestItems.map((i) => i.itemUnitId),
+    ])
+    const itemTypeIdList = uniqueArray([
+      ...purchaseRequestItems.map((i) => i.itemTypeId),
+    ])
     const costCenterIdList = uniqueArray(data.map((i) => i.costCenterId))
     const currencyIdList = uniqueArray(data.map((i) => i.currencyId))
 
     const dataExtendsPromise = await Promise.allSettled([
-      supplierIdList.length
-        ? this.natsClientVendorService.getSupplierMap({
-            filter: { id: { IN: supplierIdList } },
-            relation: { supplierItems: true },
-          })
-        : {},
       userRequestIdList.length
         ? this.natsClientUserService.getUserMapByIds({
             userIds: userRequestIdList,
@@ -112,6 +137,11 @@ export class ApiPurchaseRequestListService {
         : {},
       itemIdList && itemIdList.length
         ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
+        : {},
+      itemUnitIdList && itemUnitIdList.length
+        ? this.natsClientItemService.getItemUnitMapByIds({
+            unitIds: itemUnitIdList,
+          })
         : {},
       itemTypeIdList && itemTypeIdList.length
         ? this.natsClientItemService.getItemTypeMapByIds({
@@ -140,21 +170,31 @@ export class ApiPurchaseRequestListService {
         return {}
       }
     }) as [
-      Record<string, SupplierType>,
       Record<string, UserType>,
       Record<string, ItemType>,
+      Record<string, ItemUnitType>,
       Record<string, ItemTypeType>,
       Record<string, CostCenterType>,
       Record<string, CurrencyType>,
     ]
 
+    const [
+      userMap,
+      itemMap,
+      itemUnitMap,
+      itemTypeMap,
+      costCenterMap,
+      currencyMap,
+    ] = dataExtendsResult
+
     return {
-      supplierMap: dataExtendsResult[0],
-      userMap: dataExtendsResult[1],
-      itemMap: dataExtendsResult[2],
-      itemTypeMap: dataExtendsResult[3],
-      costCenterMap: dataExtendsResult[4],
-      currencyMap: dataExtendsResult[5],
+      supplierMap,
+      userMap,
+      itemMap,
+      itemUnitMap,
+      itemTypeMap,
+      costCenterMap,
+      currencyMap,
     }
   }
 }

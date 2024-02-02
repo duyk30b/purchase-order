@@ -67,6 +67,18 @@ export class PoNoteBody {
   content: string
 }
 
+export class PoAttachFileBody {
+  @ApiProperty({ example: 'abc.png' })
+  @Expose()
+  @IsString()
+  fileName: string
+
+  @ApiProperty({ example: 'ABC_ZXX' })
+  @Expose()
+  @IsString()
+  description: string
+}
+
 export class PurchaseOrderCreateBody extends MultipleFileUpload {
   // @ApiProperty({
   //   example: PurchaseOrderStatus.DRAFT,
@@ -176,6 +188,29 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({
     type: String,
+    example: JSON.stringify(<PoAttachFileBody[]>[
+      {
+        fileName: 'ABC',
+        description: 'xxx', // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+      },
+    ]),
+  })
+  @Expose()
+  @Transform(({ value }) => {
+    try {
+      const plain = JSON.parse(value || '[]')
+      return plainToInstance(PoAttachFileBody, plain)
+    } catch (error: any) {
+      return error.message
+    }
+  })
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  poAttachFiles: PoAttachFileBody[]
+
+  @ApiProperty({
+    type: String,
     example: JSON.stringify(<PoNoteBody[]>[
       {
         date: new Date('2024-01-19T06:50:24.977Z'),
@@ -227,7 +262,7 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
   @ApiProperty({ example: 1 })
   @Expose()
   @IsNumber()
-  incotermsId: number
+  incotermId: number
 
   @ApiProperty({ example: 12 })
   @Expose()

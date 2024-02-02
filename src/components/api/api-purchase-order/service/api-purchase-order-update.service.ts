@@ -37,7 +37,13 @@ export class ApiPurchaseOrderUpdateService {
     userId: number
   }): Promise<BaseResponse> {
     const { id, body, userId } = options
-    const { files, poItems, poDeliveryItems, ...purchaseOrderBody } = body
+    const {
+      files,
+      poAttachFiles: poAttachFilesBody,
+      poItems,
+      poDeliveryItems,
+      ...purchaseOrderBody
+    } = body
 
     // await Promise.all([
     //   this.validateService.validateCostCenter(body.costCenterId),
@@ -57,10 +63,10 @@ export class ApiPurchaseOrderUpdateService {
 
       poAttachFiles = filesResponse.map((i, index) => {
         return {
-          fileName: i.fileNameRaw,
+          fileName: poAttachFilesBody[index].fileName,
           link: i.fileUrl,
           size: options.files[index].size,
-          description: '',
+          description: poAttachFilesBody[index].description,
         }
       })
     }
