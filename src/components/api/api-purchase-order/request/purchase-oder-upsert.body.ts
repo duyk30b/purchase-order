@@ -261,6 +261,7 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({ example: 1 })
   @Expose()
+  @Type(() => Number)
   @IsNumber()
   incotermId: number
 
