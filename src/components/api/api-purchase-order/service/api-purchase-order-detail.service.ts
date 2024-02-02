@@ -4,6 +4,8 @@ import { BusinessException } from '../../../../core/exception-filter/exception-f
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
 import { PurchaseOrderType } from '../../../../mongo/purchase-order/purchase-order.schema'
+import { IncotermType } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.response'
+import { NatsClientIncotermService } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.service'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import {
   CurrencyType,
@@ -25,7 +27,8 @@ export class ApiPurchaseOrderDetailService {
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
     private readonly natsClientUserService: NatsClientUserService,
-    private readonly natsClientItemService: NatsClientItemService
+    private readonly natsClientItemService: NatsClientItemService,
+    private readonly natsClientIncotermService: NatsClientIncotermService
   ) {}
 
   async getOne(
@@ -86,6 +89,11 @@ export class ApiPurchaseOrderDetailService {
             ids: [data.currencyId],
           })
         : {},
+      data.incotermId
+        ? this.natsClientIncotermService.incotermGetMap({
+            filter: { id: { IN: [data.incotermId] } },
+          })
+        : {},
     ])
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
       if (i.status === 'fulfilled') {
@@ -100,9 +108,11 @@ export class ApiPurchaseOrderDetailService {
       Record<string, ItemType>,
       Record<string, ItemUnitType>,
       Record<string, CurrencyType>,
+      Record<string, IncotermType>,
     ]
 
-    const [userMap, itemMap, itemUnitMap, currencyMap] = dataExtendsResult
+    const [userMap, itemMap, itemUnitMap, currencyMap, incotermMap] =
+      dataExtendsResult
 
     return {
       supplierMap,
@@ -110,6 +120,7 @@ export class ApiPurchaseOrderDetailService {
       itemMap,
       itemUnitMap,
       currencyMap,
+      incotermMap,
     }
   }
 }

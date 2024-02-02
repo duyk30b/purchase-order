@@ -6,6 +6,11 @@ import { PurchaseOrderType } from '../../../../mongo/purchase-order/purchase-ord
 import { SupplierType } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import {
+  ItemType,
+  ItemUnitType,
+  NatsClientItemService,
+} from '../../../transporter/nats/service/nats-client-item.service'
+import {
   NatsClientUserService,
   UserType,
 } from '../../../transporter/nats/service/nats-client-user.service'
@@ -21,7 +26,8 @@ export class ApiPurchaseOrderListService {
   constructor(
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
-    private readonly natsClientUserService: NatsClientUserService
+    private readonly natsClientUserService: NatsClientUserService,
+    private readonly natsClientItemService: NatsClientItemService
   ) {}
 
   async pagination(query: PurchaseOrderPaginationQuery): Promise<BaseResponse> {
@@ -93,18 +99,44 @@ export class ApiPurchaseOrderListService {
 
   async getDataExtends(data: PurchaseOrderType[]) {
     const supplierIdList = uniqueArray(data.map((i) => i.supplierId))
-    const userCreateIdList = uniqueArray(data.map((i) => i.createdByUserId))
+    const supplierMap = await this.natsClientVendorService.getSupplierMap({
+      filter: { id: { IN: supplierIdList } },
+      relation: { supplierItems: true },
+    })
+    const supplierItemList = Object.values(supplierMap)
+      .map((i) => i.supplierItems || [])
+      .flat()
+
+    const purchaseOrderItems = data
+      .map((i) => i.purchaseOrderItems || [])
+      .flat()
+    const poDeliveryItems = data.map((i) => i.poDeliveryItems || []).flat()
+
+    const itemIdList = uniqueArray([
+      ...(supplierItemList || []).map((i) => i.itemId),
+      ...(purchaseOrderItems || []).map((i) => i.itemId),
+      ...(poDeliveryItems || []).map((i) => i.itemId),
+    ])
+    const itemUnitIdList = uniqueArray([
+      ...(supplierItemList || []).map((i) => i.itemUnitId),
+      ...(purchaseOrderItems || []).map((i) => i.itemUnitId),
+      ...(poDeliveryItems || []).map((i) => i.itemUnitId),
+    ])
+
+    const userIdList = uniqueArray(data.map((i) => i.createdByUserId))
 
     const dataExtendsPromise = await Promise.allSettled([
-      supplierIdList.length
-        ? this.natsClientVendorService.getSupplierMap({
-            relation: { supplierItems: true },
-            filter: { id: { IN: supplierIdList } },
+      userIdList.length
+        ? this.natsClientUserService.getUserMapByIds({
+            userIds: userIdList,
           })
         : {},
-      userCreateIdList.length
-        ? this.natsClientUserService.getUserMapByIds({
-            userIds: userCreateIdList,
+      itemIdList && itemIdList.length
+        ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
+        : {},
+      itemUnitIdList && itemUnitIdList.length
+        ? this.natsClientItemService.getItemUnitMapByIds({
+            unitIds: itemUnitIdList,
           })
         : {},
     ])
@@ -117,11 +149,19 @@ export class ApiPurchaseOrderListService {
         this.logger.error(i)
         return {}
       }
-    }) as [Record<string, SupplierType>, Record<string, UserType>]
+    }) as [
+      Record<string, UserType>,
+      Record<string, ItemType>,
+      Record<string, ItemUnitType>,
+    ]
+
+    const [userMap, itemMap, itemUnitMap] = dataExtendsResult
 
     return {
-      supplierMap: dataExtendsResult[0],
-      userMap: dataExtendsResult[1],
+      supplierMap,
+      userMap,
+      itemMap,
+      itemUnitMap,
     }
   }
 }
