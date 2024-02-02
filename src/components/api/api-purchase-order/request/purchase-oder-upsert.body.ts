@@ -224,10 +224,10 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
   @IsIn(valuesEnum(PurchaseOrderKind))
   purchaseOrderKind: PurchaseOrderKind // loại đơn hàng
 
-  @ApiProperty({ example: 'XYZ' })
+  @ApiProperty({ example: 1 })
   @Expose()
-  @IsString()
-  incotermsId: string
+  @IsNumber()
+  incotermsId: number
 
   @ApiProperty({ example: 12 })
   @Expose()

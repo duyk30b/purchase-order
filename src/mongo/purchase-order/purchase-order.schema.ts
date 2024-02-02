@@ -118,7 +118,7 @@ export class PurchaseOrder extends BaseSchema {
   purchaseOrderKind: PurchaseOrderKind // loại đơn hàng
 
   @Prop()
-  incotermsId: string // International Commercial Terms (Incoterms) – Điều khoản thương mại quốc tế
+  incotermsId: number // International Commercial Terms (Incoterms) – Điều khoản thương mại quốc tế
 
   @Prop()
   manufacturingCountryId: number // nước sản xuất

@@ -19,6 +19,7 @@ export const NatsService = {
     'item_stock_planning_service',
   PURCHASE_ORDER:
     process.env.NATS_PURCHASE_ORDER_SERVICE || 'purchase_order_service',
+  SALE: process.env.NATS_SALE_SERVICE || 'sale_service',
 }
 
 export const NatsConfig: NatsOptions = {
