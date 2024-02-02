@@ -46,6 +46,7 @@ export class PurchaseOrderGetQuery {
   @ApiPropertyOptional({
     type: String,
     example: JSON.stringify(<PurchaseOrderFilterQuery>{
+      id: { IN: ['63fdde9517a7317f0e8f959a', '63fdde9517a7317f0e8f959b'] },
       searchText: 'AAA',
       code: 'PO',
       purchaseRequestCode: { LIKE: 'PR-' },
@@ -111,6 +112,11 @@ export class PurchaseOrderPaginationQuery extends IntersectionType(
 export class PurchaseOrderGetManyQuery extends IntersectionType(
   PickType(PurchaseOrderGetQuery, ['filter', 'relation', 'sort']),
   LimitQuery
+) {}
+
+export class PurchaseOrderActionManyQuery extends PickType(
+  PurchaseOrderGetQuery,
+  ['filter']
 ) {}
 
 export class PurchaseOrderGetOneQuery extends PickType(PurchaseOrderGetQuery, [
