@@ -55,14 +55,14 @@ export class ApiPurchaseOrderDetailService {
     const itemIdList = uniqueArray([
       ...(data.purchaseOrderItems || []).map((i) => i.itemId),
       ...(data.poDeliveryItems || []).map((i) => i.itemId),
-      ...(supplierMap[data.supplierId].supplierItems || []).map(
+      ...(supplierMap[data.supplierId]?.supplierItems || []).map(
         (i) => i.itemId
       ),
     ])
     const itemUnitIdList = uniqueArray([
       ...(data.purchaseOrderItems || []).map((i) => i.itemUnitId),
       ...(data.poDeliveryItems || []).map((i) => i.itemUnitId),
-      ...(supplierMap[data.supplierId].supplierItems || []).map(
+      ...(supplierMap[data.supplierId]?.supplierItems || []).map(
         (i) => i.itemUnitId
       ),
     ])

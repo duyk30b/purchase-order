@@ -76,6 +76,13 @@ export const PURCHASE_ORDER_DELETE = {
   status: PERMISSION_STATUS.ACTIVE,
 }
 
+export const PURCHASE_ORDER_WAIT_DELIVERY = {
+  code: PERMISSION_PREFIX + 'PURCHASE_ORDER_WAIT_DELIVERY',
+  name: 'Xác nhận đặt hàng',
+  groupPermissionSettingCode: PURCHASE_ORDER_GROUP.code,
+  status: PERMISSION_STATUS.ACTIVE,
+}
+
 export const PURCHASE_ORDER_HISTORY = {
   code: PERMISSION_PREFIX + 'PURCHASE_ORDER_HISTORY',
   name: 'Xem lịch sử phiếu mua hàng',

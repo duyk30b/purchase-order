@@ -26,6 +26,7 @@ import {
   PURCHASE_ORDER_SUCCESS,
   PURCHASE_ORDER_UPDATE,
   PURCHASE_ORDER_WAIT_CONFIRM,
+  PURCHASE_ORDER_WAIT_DELIVERY,
 } from '../../../core/guard/permission-purchase-order'
 import { FastifyFilesInterceptor } from '../../../core/interceptor/fastify-files-interceptor'
 import { PurchaseOrderStatus } from '../../../mongo/purchase-order/purchase-order.schema'
@@ -47,6 +48,7 @@ import { ApiPurchaseOrderRejectService } from './service/api-purchase-order-reje
 import { ApiPurchaseOrderSuccessService } from './service/api-purchase-order-success.service'
 import { ApiPurchaseOrderUpdateService } from './service/api-purchase-order-update.service'
 import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order-wait-confirm.service'
+import { ApiPurchaseOrderWaitDeliveryService } from './service/api-purchase-order-wait-delivery.service'
 
 @ApiTags('PurchaseOrder')
 @ApiBearerAuth('access-token')
@@ -62,7 +64,8 @@ export class ApiPurchaseOrderController {
     private readonly apiPurchaseOrderRejectService: ApiPurchaseOrderRejectService,
     private readonly apiPurchaseOrderConfirmService: ApiPurchaseOrderConfirmService,
     private readonly apiPurchaseOrderCancelService: ApiPurchaseOrderCancelService,
-    private readonly apiPurchaseOrderSuccessService: ApiPurchaseOrderSuccessService
+    private readonly apiPurchaseOrderSuccessService: ApiPurchaseOrderSuccessService,
+    private readonly apiPurchaseOrderWaitDeliveryService: ApiPurchaseOrderWaitDeliveryService
   ) {}
 
   // @ApiConsumes('multipart/form-data')
@@ -242,6 +245,31 @@ export class ApiPurchaseOrderController {
   ) {
     return await this.apiPurchaseOrderSuccessService.success({
       id,
+      userId: user.id,
+    })
+  }
+
+  @Patch('wait-delivery/:id')
+  @PermissionCode(PURCHASE_ORDER_WAIT_DELIVERY.code)
+  async waitDelivery(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam
+  ) {
+    return await this.apiPurchaseOrderWaitDeliveryService.waitDelivery({
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('wait-delivery-list')
+  @PermissionCode(PURCHASE_ORDER_WAIT_DELIVERY.code)
+  async waitDeliveryList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseOrderActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.IN
+    return await this.apiPurchaseOrderWaitDeliveryService.waitDelivery({
+      ids,
       userId: user.id,
     })
   }

@@ -10,6 +10,7 @@ import { ApiPurchaseOrderRejectService } from './service/api-purchase-order-reje
 import { ApiPurchaseOrderSuccessService } from './service/api-purchase-order-success.service'
 import { ApiPurchaseOrderUpdateService } from './service/api-purchase-order-update.service'
 import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order-wait-confirm.service'
+import { ApiPurchaseOrderWaitDeliveryService } from './service/api-purchase-order-wait-delivery.service'
 
 @Module({
   imports: [],
@@ -25,6 +26,7 @@ import { ApiPurchaseOrderWaitConfirmService } from './service/api-purchase-order
     ApiPurchaseOrderConfirmService,
     ApiPurchaseOrderCancelService,
     ApiPurchaseOrderSuccessService,
+    ApiPurchaseOrderWaitDeliveryService,
   ],
 })
 export class ApiPurchaseOrderModule {}

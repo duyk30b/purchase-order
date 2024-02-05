@@ -52,7 +52,7 @@ export class ApiPurchaseRequestCancelService {
     poList.forEach((i) => {
       if (
         ![
-          PurchaseOrderStatus.WAITING_DELIVERY,
+          PurchaseOrderStatus.WAIT_DELIVERY,
           PurchaseOrderStatus.DELIVERING,
           PurchaseOrderStatus.SUCCESS,
         ].includes(i.status)

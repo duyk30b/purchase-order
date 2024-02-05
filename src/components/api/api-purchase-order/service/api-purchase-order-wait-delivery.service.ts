@@ -8,14 +8,11 @@ import { PurchaseOrderHistoryRepository } from '../../../../mongo/purchase-order
 import { PurchaseOrderHistoryInsertType } from '../../../../mongo/purchase-order-history/purchase-order-history.schema'
 import { PurchaseOrderItemRepository } from '../../../../mongo/purchase-order-item/purchase-order-item.repository'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
-import {
-  PurchaseOrderStatus,
-  PurchaseOrderType,
-} from '../../../../mongo/purchase-order/purchase-order.schema'
+import { PurchaseOrderStatus } from '../../../../mongo/purchase-order/purchase-order.schema'
 
 @Injectable()
-export class ApiPurchaseOrderCancelService {
-  private logger = new Logger(ApiPurchaseOrderCancelService.name)
+export class ApiPurchaseOrderWaitDeliveryService {
+  private logger = new Logger(ApiPurchaseOrderWaitDeliveryService.name)
 
   constructor(
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
@@ -24,7 +21,7 @@ export class ApiPurchaseOrderCancelService {
     private readonly purchaseOrderHistoryRepository: PurchaseOrderHistoryRepository
   ) {}
 
-  async cancel(options: {
+  async waitDelivery(options: {
     ids: string[]
     userId: number
   }): Promise<BaseResponse> {
@@ -42,13 +39,7 @@ export class ApiPurchaseOrderCancelService {
     }
 
     rootList.forEach((i) => {
-      if (
-        [
-          PurchaseOrderStatus.CONFIRM,
-          PurchaseOrderStatus.WAIT_DELIVERY,
-          PurchaseOrderStatus.DELIVERING,
-        ].includes(i.status)
-      ) {
+      if ([PurchaseOrderStatus.CONFIRM].includes(i.status)) {
         throw new BusinessException('msg.MSG_010')
       }
     })
@@ -57,7 +48,7 @@ export class ApiPurchaseOrderCancelService {
     const poUpdateCount = await this.purchaseOrderRepository.updateMany(
       { _id: { IN: idsObject } },
       {
-        status: PurchaseOrderStatus.CANCEL,
+        status: PurchaseOrderStatus.WAIT_DELIVERY,
         updatedByUserId: userId,
       }
     )
@@ -67,8 +58,11 @@ export class ApiPurchaseOrderCancelService {
       const poHistoryDto: PurchaseOrderHistoryInsertType = {
         _purchase_order_id: new Types.ObjectId(po.id),
         userId,
-        status: { before: po.status, after: PurchaseOrderStatus.CANCEL },
-        content: PurchaseOrderHistoryContent.CANCEL,
+        status: {
+          before: po.status,
+          after: PurchaseOrderStatus.WAIT_DELIVERY,
+        },
+        content: PurchaseOrderHistoryContent.WAIT_DELIVERY,
         time: new Date(),
       }
       return poHistoryDto
@@ -78,6 +72,6 @@ export class ApiPurchaseOrderCancelService {
       poHistoryDtoList
     )
 
-    return { data: { ids }, message: 'msg.MSG_077' }
+    return { data: { ids }, message: 'msg.MSG_065' }
   }
 }

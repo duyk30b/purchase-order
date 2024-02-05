@@ -6,6 +6,7 @@ export const PurchaseOrderHistoryContent = {
   WAIT_CONFIRM: 'Đề nghị duyệt',
   REJECT: 'Từ chối đơn hàng',
   CONFIRM: 'Xác nhận đơn hàng',
+  WAIT_DELIVERY: 'Xác nhận đặt hàng',
   SUCCESS: 'Đơn hàng hoàn thành',
   CANCEL: 'Hủy đơn hàng',
 }

@@ -11,7 +11,7 @@ export enum PurchaseOrderStatus {
   WAIT_CONFIRM = 2, // đề nghị duyệt
   REJECT = 3,
   CONFIRM = 4,
-  WAITING_DELIVERY = 5, // chờ giao
+  WAIT_DELIVERY = 5, // chờ giao
   DELIVERING = 6, // đang giao
   SUCCESS = 7,
   CANCEL = 8,
