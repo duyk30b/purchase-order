@@ -162,13 +162,6 @@ export class ApiPurchaseOrderController {
     })
   }
 
-  @Delete('delete/:id')
-  @PermissionCode(PURCHASE_ORDER_DELETE.code)
-  @ApiParam({ name: 'id', example: 1 })
-  async deleteOne(@Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseOrderDeleteService.deleteOne(id)
-  }
-
   @Patch('wait-confirm/:id')
   @PermissionCode(PURCHASE_ORDER_WAIT_CONFIRM.code)
   async waitConfirm(
@@ -285,5 +278,22 @@ export class ApiPurchaseOrderController {
       ids,
       userId: user.id,
     })
+  }
+
+  @Delete('delete/:id')
+  @PermissionCode(PURCHASE_ORDER_DELETE.code)
+  @ApiParam({ name: 'id', example: 1 })
+  async deleteOne(@Param() { id }: IdMongoParam) {
+    return await this.apiPurchaseOrderDeleteService.delete([id])
+  }
+
+  @Delete('delete-list')
+  @PermissionCode(PURCHASE_ORDER_CANCEL.code)
+  async deleteList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseOrderActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.IN
+    return await this.apiPurchaseOrderDeleteService.delete(ids)
   }
 }
