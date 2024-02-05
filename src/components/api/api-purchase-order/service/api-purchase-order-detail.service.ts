@@ -18,6 +18,10 @@ import {
   NatsClientUserService,
   UserType,
 } from '../../../transporter/nats/service/nats-client-user.service'
+import {
+  NatsClientWarehouseService,
+  WarehouseType,
+} from '../../../transporter/nats/service/nats-client-warehouse.service'
 import { PurchaseOrderGetOneByIdQuery } from '../request'
 
 @Injectable()
@@ -29,7 +33,8 @@ export class ApiPurchaseOrderDetailService {
     private readonly natsClientVendorService: NatsClientVendorService,
     private readonly natsClientUserService: NatsClientUserService,
     private readonly natsClientItemService: NatsClientItemService,
-    private readonly natsClientIncotermService: NatsClientIncotermService
+    private readonly natsClientIncotermService: NatsClientIncotermService,
+    private readonly natsClientWarehouseService: NatsClientWarehouseService
   ) {}
 
   async getOne(
@@ -71,6 +76,10 @@ export class ApiPurchaseOrderDetailService {
       ...(data.purchaseOrderHistories || []).map((i) => i.userId),
     ])
 
+    const warehouseIdList = uniqueArray(
+      (data.poDeliveryItems || []).map((i) => i.warehouseIdReceiving)
+    )
+
     const dataExtendsPromise = await Promise.allSettled([
       userIdList.length
         ? this.natsClientUserService.getUserMapByIds({
@@ -83,6 +92,11 @@ export class ApiPurchaseOrderDetailService {
       itemUnitIdList && itemUnitIdList.length
         ? this.natsClientItemService.getItemUnitMapByIds({
             unitIds: itemUnitIdList,
+          })
+        : {},
+      warehouseIdList && warehouseIdList.length
+        ? this.natsClientWarehouseService.getWarehouseMap({
+            ids: warehouseIdList,
           })
         : {},
       data.currencyId
@@ -113,6 +127,7 @@ export class ApiPurchaseOrderDetailService {
       Record<string, UserType>,
       Record<string, ItemType>,
       Record<string, ItemUnitType>,
+      Record<string, WarehouseType>,
       Record<string, CurrencyType>,
       Record<string, IncotermType>,
       Record<string, ManufCountryType>,
@@ -122,6 +137,7 @@ export class ApiPurchaseOrderDetailService {
       userMap,
       itemMap,
       itemUnitMap,
+      warehouseMap,
       currencyMap,
       incotermMap,
       manufacturingCountryMap,
@@ -132,6 +148,7 @@ export class ApiPurchaseOrderDetailService {
       userMap,
       itemMap,
       itemUnitMap,
+      warehouseMap,
       currencyMap,
       incotermMap,
       manufacturingCountryMap,
