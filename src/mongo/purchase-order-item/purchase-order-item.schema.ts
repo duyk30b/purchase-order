@@ -22,16 +22,13 @@ export class PurchaseOrderItem extends BaseSchema {
   itemUnitId: number // Đơn vị tính => trường này phải lấy theo nhà cung cấp
 
   @Prop()
-  deliveryTerm: Date // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
+  deliveryTerm: number // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
 
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _price: Types.Decimal128 // Đơn giá
 
   @Prop()
-  quantityPrimary: number
-
-  @Prop()
-  quantitySecondary: number
+  quantityBuy: number // số lượng mua
 
   @Prop()
   discount: number

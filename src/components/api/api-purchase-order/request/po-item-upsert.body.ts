@@ -31,21 +31,15 @@ export class PoItemUpsertBody {
   @IsNumber()
   itemUnitId: number // đơn vị tính => trường này lấy theo nhà cung cấp
 
-  @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
+  @ApiProperty({ example: 22 })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
-  @IsDate()
-  deliveryTerm: Date // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+  @IsNumber()
+  deliveryTerm: number // thời hạn giao hàng => trường này lấy theo nhà cung cấp
 
   @ApiProperty({ example: 12 })
   @Expose()
   @IsNumber()
-  quantityPrimary: number
-
-  @ApiProperty({ example: 12 })
-  @Expose()
-  @IsNumber()
-  quantitySecondary: number
+  quantityBuy: number
 
   @ApiProperty({ example: 12 })
   @Expose()

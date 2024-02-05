@@ -68,6 +68,11 @@ export class PoNoteBody {
 }
 
 export class PoAttachFileBody {
+  @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
+  @Expose()
+  @IsMongoId()
+  fileId: string
+
   @ApiProperty({ example: 'abc.png' })
   @Expose()
   @IsString()
@@ -106,9 +111,8 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
         purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
         itemId: 12,
         itemUnitId: 12,
-        deliveryTerm: new Date('2024-01-19T06:50:24.977Z'),
-        quantityPrimary: 12,
-        quantitySecondary: 12,
+        deliveryTerm: 33,
+        quantityBuy: 12,
         discount: 12,
         price: '12.4567',
         totalMoney: '12.4567',

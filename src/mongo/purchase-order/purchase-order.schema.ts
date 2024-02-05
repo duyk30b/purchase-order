@@ -71,6 +71,9 @@ export class PoPaymentPlan {
 
 export class PoAttachFile {
   @Prop()
+  fileId: string
+
+  @Prop()
   fileName: string
 
   @Prop()

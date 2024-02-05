@@ -51,26 +51,6 @@ export class ApiPurchaseOrderUpdateService {
     //   this.validateService.validateItem(body.items.map((i) => i.itemId)),
     // ])
 
-    let poAttachFiles: PoAttachFile[] = []
-    if (options.files.length) {
-      const filesUpload = options.files.map((f) => ({
-        filename: f.originalname,
-        buffer: f.buffer,
-      }))
-
-      const fileIds = await this.fileService.uploadFiles(filesUpload)
-      const filesResponse = await this.fileService.getFilesByIds(fileIds)
-
-      poAttachFiles = filesResponse.map((i, index) => {
-        return {
-          fileName: poAttachFilesBody[index].fileName,
-          link: i.fileUrl,
-          size: options.files[index].size,
-          description: poAttachFilesBody[index].description,
-        }
-      })
-    }
-
     const rootData = await this.purchaseOrderRepository.findOneById(id)
     if (!rootData) {
       throw new BusinessException('error.NOT_FOUND')
@@ -94,6 +74,57 @@ export class ApiPurchaseOrderUpdateService {
       status = PurchaseOrderStatus.WAIT_CONFIRM
     }
 
+    const poAttachFilesInsert: PoAttachFile[] = []
+    const poAttachFilesUpdate: PoAttachFile[] = []
+    const poAttachFilesDelete: PoAttachFile[] = rootData.poAttachFiles // ban đầu thì cứ mặc định xóa hết
+
+    if (poAttachFilesBody.length) {
+      poAttachFilesBody.forEach((i) => {
+        // Nếu có id thì chuyển file đó sang dạng update
+        if (i.fileId) {
+          const indexUpdate = poAttachFilesDelete.findIndex((j) => {
+            return j.fileId === i.fileId
+          })
+          if (indexUpdate === -1) {
+            throw new BusinessException('error.NOT_FOUND')
+          }
+          const updateFile = poAttachFilesDelete[indexUpdate]
+          updateFile.description = i.description
+          updateFile.fileName = i.fileName
+
+          poAttachFilesUpdate.push(updateFile)
+          poAttachFilesDelete.splice(indexUpdate, 1)
+        } else {
+          poAttachFilesInsert.push({
+            fileId: '',
+            link: '',
+            fileName: i.fileName,
+            description: i.description,
+            size: 0,
+          })
+        }
+      })
+    }
+
+    if (options.files.length && poAttachFilesInsert.length) {
+      const filesUpload = options.files.map((f) => ({
+        filename: f.originalname,
+        buffer: f.buffer,
+      }))
+
+      const fileIds = await this.fileService.uploadFiles(filesUpload)
+      const filesResponse = await this.fileService.getFilesByIds(fileIds)
+
+      filesResponse.forEach((i, index) => {
+        poAttachFilesInsert[index].fileId = i.id
+        poAttachFilesInsert[index].link = i.fileUrl
+        poAttachFilesInsert[index].size = options.files[index].size
+      })
+    }
+
+    // TODO
+    // Xóa file cũ (file service chưa hỗ trợ)
+
     const purchaseOrder: PurchaseOrderType =
       await this.purchaseOrderRepository.updateOne(
         { id },
@@ -112,7 +143,7 @@ export class ApiPurchaseOrderUpdateService {
               _amount: new Types.Decimal128(body.amount),
             }
           }),
-          ...(poAttachFiles.length ? { poAttachFiles } : {}),
+          poAttachFiles: [...poAttachFilesInsert, ...poAttachFilesUpdate],
         }
       )
 

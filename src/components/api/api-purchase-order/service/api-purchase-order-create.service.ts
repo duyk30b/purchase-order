@@ -62,6 +62,7 @@ export class ApiPurchaseOrderCreateService {
 
       poAttachFiles = filesResponse.map((i, index) => {
         return {
+          fileId: i.id,
           fileName: poAttachFilesBody[index].fileName,
           link: i.fileUrl,
           size: options.files[index].size,
