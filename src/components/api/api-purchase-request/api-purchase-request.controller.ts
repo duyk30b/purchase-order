@@ -34,6 +34,7 @@ import {
   PurchaseRequestPaginationQuery,
   PurchaseRequestUpdateBody,
 } from './request'
+import { ApiPrItemDetailService } from './service/api-pr-items-detail.service'
 import { ApiPurchaseRequestCancelService } from './service/api-purchase-request-cancel.service'
 import { ApiPurchaseRequestConfirmService } from './service/api-purchase-request-confirm.service'
 import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
@@ -56,7 +57,8 @@ export class ApiPurchaseRequestController {
     private readonly apiPurchaseRequestWaitConfirmService: ApiPurchaseRequestWaitConfirmService,
     private readonly apiPurchaseRequestConfirmService: ApiPurchaseRequestConfirmService,
     private readonly apiPurchaseRequestRejectService: ApiPurchaseRequestRejectService,
-    private readonly apiPurchaseRequestCancelService: ApiPurchaseRequestCancelService
+    private readonly apiPurchaseRequestCancelService: ApiPurchaseRequestCancelService,
+    private readonly apiPrItemDetailService: ApiPrItemDetailService
   ) {}
 
   @Get('pagination')
@@ -218,10 +220,10 @@ export class ApiPurchaseRequestController {
     return await this.apiPurchaseRequestDeleteService.deleteList(ids)
   }
 
-  @Get('history/:id')
+  @Get('items-detail/:id')
   @PermissionCode(PURCHASE_REQUEST_HISTORY.code)
   @ApiParam({ name: 'id', example: '63fdde9517a7317f0e8f959a' })
-  async history(@Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.history(id)
+  async itemsDetail(@Param() { id }: IdMongoParam) {
+    return await this.apiPrItemDetailService.itemsDetail(id)
   }
 }

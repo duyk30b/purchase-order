@@ -50,14 +50,4 @@ export class ApiPurchaseRequestService {
     })
     return { data: id }
   }
-
-  async history(id: string): Promise<BaseResponse> {
-    const data = await this.purchaseRequestHistoryRepository.findManyBy({
-      _purchase_request_id: { EQUAL: new Types.ObjectId(id) },
-    })
-
-    // GET thêm dataUser
-
-    return { data: data }
-  }
 }

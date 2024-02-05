@@ -62,6 +62,7 @@ export type PurchaseRequestItemType = Omit<
   PurchaseRequestItem,
   keyof Document<PurchaseRequestItem>
 > & {
+  _id: Types.ObjectId
   id?: string
   price?: string
   purchaseRequestId?: string
