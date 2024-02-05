@@ -22,7 +22,7 @@ import { IncotermType } from '../../../transporter/nats/nats-sale/nats-client-in
 import { NatsClientIncotermService } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.service'
 import {
   SUPPLIER_STATUS,
-  SupplierType,
+  SupplierItemType,
 } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import { NatsClientCostCenterService } from '../../../transporter/nats/service/nats-client-cost-center.service'
@@ -32,6 +32,11 @@ import {
   ItemUnitType,
   NatsClientItemService,
 } from '../../../transporter/nats/service/nats-client-item.service'
+import {
+  NatsClientWarehouseService,
+  WarehouseStatusEnum,
+  WarehouseType,
+} from '../../../transporter/nats/service/nats-client-warehouse.service'
 
 @Injectable()
 export class ApiPurchaseOrderConfirmService {
@@ -46,7 +51,8 @@ export class ApiPurchaseOrderConfirmService {
     private readonly natsClientVendorService: NatsClientVendorService,
     private readonly natsClientCostCenterService: NatsClientCostCenterService,
     private readonly natsClientIncotermService: NatsClientIncotermService,
-    private readonly natsClientItemService: NatsClientItemService
+    private readonly natsClientItemService: NatsClientItemService,
+    private readonly natsClientWarehouseService: NatsClientWarehouseService
   ) {}
 
   async confirm(options: {
@@ -61,13 +67,16 @@ export class ApiPurchaseOrderConfirmService {
       })
     }
 
-    const rootList = await this.purchaseOrderRepository.findManyByIds(ids)
+    const rootList = await this.purchaseOrderRepository.findMany({
+      relation: { poDeliveryItems: true, purchaseOrderItems: true },
+      condition: { id: { IN: ids } },
+    })
     if (!rootList.length) {
       throw new BusinessException('error.NOT_FOUND')
     }
 
     rootList.forEach((i) => {
-      if ([PurchaseOrderStatus.WAIT_CONFIRM].includes(i.status)) {
+      if (![PurchaseOrderStatus.WAIT_CONFIRM].includes(i.status)) {
         throw new BusinessException('msg.MSG_010')
       }
     })
@@ -104,6 +113,13 @@ export class ApiPurchaseOrderConfirmService {
 
   // TODO
   async validate(purchaseOrderList: PurchaseOrderType[]) {
+    const supplierIds = purchaseOrderList.map((i) => i.supplierId)
+    const supplierMap = await this.natsClientVendorService.getSupplierMap({
+      filter: { id: { IN: supplierIds } },
+      relation: { supplierItems: true },
+    })
+    const supplierList = Object.values(supplierMap)
+
     const purchaseOrderItems = purchaseOrderList
       .map((i) => i.purchaseOrderItems || [])
       .flat()
@@ -119,7 +135,6 @@ export class ApiPurchaseOrderConfirmService {
       (i) => i.purchaseRequestCode
     )
     const contractCodes = purchaseOrderList.map((i) => i.contractCode) // mã hợp đồng
-    const supplierIds = purchaseOrderList.map((i) => i.supplierId)
 
     const itemIdList = uniqueArray([
       ...(purchaseOrderItems || []).map((i) => i.itemId),
@@ -146,18 +161,17 @@ export class ApiPurchaseOrderConfirmService {
             code: { IN: purchaseRequestCodes },
           })
         : [],
-      supplierIds && supplierIds.length
-        ? this.natsClientVendorService.getSupplierList({
-            filter: { id: { IN: supplierIds } },
-            relation: { supplierItems: true },
-          })
-        : {},
       itemIdList && itemIdList.length
-        ? this.natsClientItemService.getItemListByIds({ itemIds: itemIdList })
+        ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
         : {},
       itemUnitIdList && itemUnitIdList.length
         ? this.natsClientItemService.getItemUnitListByIds({
             unitIds: itemUnitIdList,
+          })
+        : {},
+      warehouseIdList && warehouseIdList.length
+        ? this.natsClientWarehouseService.getWarehouseList({
+            ids: warehouseIdList,
           })
         : {},
     ])
@@ -172,17 +186,17 @@ export class ApiPurchaseOrderConfirmService {
     }) as [
       IncotermType[],
       PurchaseRequestType[],
-      SupplierType[],
-      ItemType[],
+      Record<string, ItemType>,
       ItemUnitType[],
+      WarehouseType[],
     ]
 
     const [
       incotermList,
       purchaseRequestList,
-      supplierList,
-      itemList,
+      itemMap,
       itemUnitList,
+      warehouseList,
     ] = dataExtendsResult
 
     incotermList.forEach((i) => {
@@ -195,15 +209,38 @@ export class ApiPurchaseOrderConfirmService {
         throw new BusinessException('msg.MSG_010')
       }
     })
+    // TODO: hợp đồng không ở trạng thái xác nhận
     supplierList.forEach((i) => {
       if (i.status === SUPPLIER_STATUS.INACTIVE) {
         throw new BusinessException('msg.MSG_045')
       }
     })
-    itemList.forEach((i) => {
-      if (i.status !== ItemStatusEnum.CONFIRMED) {
-        throw new BusinessException('msg.MSG_195')
+    // TODO: phương thức vận chuyển không hoạt động
+    // TODO: phương thức thanh toán không hoạt động
+    warehouseList.forEach((i) => {
+      if (i.status !== WarehouseStatusEnum.Active) {
+        throw new BusinessException('msg.MSG_067')
       }
+    })
+
+    // check từng item của PO
+    purchaseOrderList.forEach((po: PurchaseOrderType) => {
+      const supplier = supplierMap[po.supplierId]
+      const supplierItemList = supplier.supplierItems || []
+      const supplierItemMap: Record<string, SupplierItemType> = {}
+      supplierItemList.forEach((i) => (supplierItemMap[i.id] = i))
+
+      po.poDeliveryItems.forEach((di) => {
+        if (itemMap[di.id].status !== ItemStatusEnum.CONFIRMED) {
+          throw new BusinessException('msg.MSG_195')
+        }
+        if (!supplierItemMap[di.id]) {
+          throw new BusinessException('msg.MSG_195')
+        }
+        if (di.deliveryDate.getTime() - po.orderDate.getTime() < 0) {
+          throw new BusinessException('msg.MSG_062')
+        }
+      })
     })
   }
 }

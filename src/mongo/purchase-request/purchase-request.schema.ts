@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { Document } from 'mongoose'
+import { Document, Types } from 'mongoose'
 import { BaseSchema } from '../base.schema'
 import { PurchaseRequestHistoryType } from '../purchase-request-history/purchase-request-history.schema'
 import { PurchaseRequestItemType } from '../purchase-request-item/purchase-request-item.schema'
@@ -83,6 +83,7 @@ export type PurchaseRequestType = Omit<
   PurchaseRequest,
   keyof Document<PurchaseRequest>
 > & {
+  _id: Types.ObjectId
   id?: string
   purchaseRequestItems?: PurchaseRequestItemType[]
   purchaseRequestHistories?: PurchaseRequestHistoryType[]

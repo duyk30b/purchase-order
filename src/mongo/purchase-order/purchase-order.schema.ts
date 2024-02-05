@@ -220,6 +220,7 @@ export type PurchaseOrderType = Omit<
   PurchaseOrder,
   keyof Document<PurchaseOrder>
 > & {
+  _id: Types.ObjectId
   id?: string
   purchaseOrderItems?: PurchaseOrderItemType[]
   poDeliveryItems?: PoDeliveryItemType[]

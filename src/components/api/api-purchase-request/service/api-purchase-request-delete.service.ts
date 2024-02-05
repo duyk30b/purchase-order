@@ -60,7 +60,7 @@ export class ApiPurchaseRequestDeleteService {
     })
 
     const idsObject = ids.map((id) => new Types.ObjectId(id))
-    await this.purchaseRequestRepository.deleteManyBy({ id: { IN: idsObject } })
+    await this.purchaseRequestRepository.deleteManyBy({ id: { IN: ids } })
     await this.purchaseRequestItemRepository.deleteManyBy({
       _purchase_request_id: { IN: idsObject },
     })

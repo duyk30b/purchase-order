@@ -30,7 +30,7 @@ export type WarehouseType = {
 export class NatsClientWarehouseService {
   constructor(private readonly natsClient: NatsClientService) {}
 
-  async getWarehouses(request: GetWarehousesRequest) {
+  async getWarehouseList(request: GetWarehousesRequest) {
     const response: NatsResponseInterface = await this.natsClient.send(
       NatsSubject.WAREHOUSE.GET_WAREHOUSES,
       request
@@ -39,5 +39,12 @@ export class NatsClientWarehouseService {
       throw new BusinessException(response.message as any)
     }
     return response.data as WarehouseType[]
+  }
+
+  async getWarehouseMap(request: GetWarehousesRequest) {
+    const warehouseList = await this.getWarehouseList(request)
+    const warehouseMap: Record<string, WarehouseType> = {}
+    warehouseList.forEach((i) => (warehouseMap[i.id] = i))
+    return warehouseMap
   }
 }

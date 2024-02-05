@@ -21,7 +21,7 @@ export abstract class BaseMongoRepository<
   async pagination<S extends _SORT, R extends _RELATION>(options: {
     page: number
     limit: number
-    condition?: BaseCondition<_SCHEMA>
+    condition?: BaseCondition<_TYPE>
     sort?: NoExtra<_SORT, S>
     relation?: NoExtra<_RELATION, R>
     rawCondition?: boolean
@@ -52,7 +52,7 @@ export abstract class BaseMongoRepository<
 
   async findMany<S extends _SORT, R extends _RELATION>(options: {
     limit?: number
-    condition?: BaseCondition<_SCHEMA>
+    condition?: BaseCondition<_TYPE>
     sort?: NoExtra<_SORT, S>
     relation?: NoExtra<_RELATION, R>
     rawCondition?: boolean
@@ -78,7 +78,7 @@ export abstract class BaseMongoRepository<
     return result as _TYPE[]
   }
 
-  async findManyBy(condition: BaseCondition<_SCHEMA>): Promise<_TYPE[]> {
+  async findManyBy(condition: BaseCondition<_TYPE>): Promise<_TYPE[]> {
     const filter = this.getFilterOptions(condition)
 
     const docs = await this.model.find(filter).exec()
@@ -118,7 +118,7 @@ export abstract class BaseMongoRepository<
     return doc ? doc.toObject() : null
   }
 
-  async findOneBy(condition: BaseCondition<_SCHEMA>): Promise<_TYPE> {
+  async findOneBy(condition: BaseCondition<_TYPE>): Promise<_TYPE> {
     const filter = this.getFilterOptions(condition)
 
     const doc = await this.model.findOne(filter)
@@ -167,7 +167,7 @@ export abstract class BaseMongoRepository<
   }
 
   async updateMany<T extends Partial<_UPDATE>>(
-    condition: BaseCondition<_SCHEMA>,
+    condition: BaseCondition<_TYPE>,
     data: NoExtra<Partial<_UPDATE>, T>
   ) {
     const filter = this.getFilterOptions(condition)
@@ -180,7 +180,7 @@ export abstract class BaseMongoRepository<
   }
 
   async updateOne<T extends Partial<_UPDATE>>(
-    condition: BaseCondition<_SCHEMA>,
+    condition: BaseCondition<_TYPE>,
     data: NoExtra<Partial<_UPDATE>, T>
   ): Promise<_TYPE> {
     const filter = this.getFilterOptions(condition)
@@ -200,7 +200,7 @@ export abstract class BaseMongoRepository<
     return await this.updateOne({ id } as any, data)
   }
 
-  async softDeleteOneBy(condition: BaseCondition<_SCHEMA>) {
+  async softDeleteOneBy(condition: BaseCondition<_TYPE>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.updateOne(filter, {
       $set: {
@@ -210,13 +210,13 @@ export abstract class BaseMongoRepository<
     return result.upsertedCount
   }
 
-  async deleteOneBy(condition: BaseCondition<_SCHEMA>) {
+  async deleteOneBy(condition: BaseCondition<_TYPE>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.deleteOne(filter)
     return result.deletedCount
   }
 
-  async deleteManyBy(condition: BaseCondition<_SCHEMA>) {
+  async deleteManyBy(condition: BaseCondition<_TYPE>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.deleteMany(filter)
     return result.deletedCount

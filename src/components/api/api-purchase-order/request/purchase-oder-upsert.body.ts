@@ -138,7 +138,7 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
         purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
         itemId: 12,
         itemUnitId: 12, // đơn vị tính => trường này lấy theo nhà cung cấp
-        deliveryTerm: new Date('2024-01-19T06:50:24.977Z'), // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+        deliveryTerm: 33, // thời hạn giao hàng => trường này lấy theo nhà cung cấp
         quantityBuy: 12,
         quantityDelivery: 12,
         warehouseIdReceiving: 12,

@@ -210,7 +210,20 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_REJECT.code)
   async reject(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
     return await this.apiPurchaseOrderRejectService.reject({
-      id,
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('reject-list')
+  @PermissionCode(PURCHASE_ORDER_REJECT.code)
+  async rejectList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseOrderActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.IN
+    return await this.apiPurchaseOrderRejectService.reject({
+      ids,
       userId: user.id,
     })
   }

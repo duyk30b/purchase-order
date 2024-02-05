@@ -18,7 +18,7 @@ export class PoDeliveryItem extends BaseSchema {
   itemUnitId: number // Đơn vị tính
 
   @Prop({ required: false })
-  deliveryTerm: Date // thời hạn giao hàng
+  deliveryTerm: number // thời hạn giao hàng
 
   @Prop()
   quantityBuy: number // số lượng mua

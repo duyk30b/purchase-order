@@ -39,6 +39,10 @@ export class BusinessException extends Error {
     this.i18args = i18args
   }
 
+  static msg(message: I18nPath, i18args = {}) {
+    return new BusinessException(message, HttpStatus.BAD_REQUEST, i18args)
+  }
+
   static error(options: {
     message: I18nPath
     error?: any[]

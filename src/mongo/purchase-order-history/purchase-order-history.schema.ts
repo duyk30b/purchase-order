@@ -46,6 +46,7 @@ export type PurchaseOrderHistoryType = Omit<
   PurchaseOrderHistory,
   keyof Document<PurchaseOrderHistory>
 > & {
+  _id: Types.ObjectId
   id?: string
   purchaseOrderId?: string
   purchaseOrder?: PurchaseOrder
