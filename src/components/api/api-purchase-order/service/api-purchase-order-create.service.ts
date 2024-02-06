@@ -14,6 +14,8 @@ import {
   PurchaseOrderStatus,
   PurchaseOrderType,
 } from '../../../../mongo/purchase-order/purchase-order.schema'
+import { UserActionRepository } from '../../../../mongo/user-action/user-action.repository'
+import { UserActionKey } from '../../../../mongo/user-action/user-action.schema'
 import { FileService } from '../../../transporter/axios/file.service'
 import { PurchaseOrderCreateBody } from '../request'
 
@@ -26,6 +28,7 @@ export class ApiPurchaseOrderCreateService {
     private readonly purchaseOrderItemRepository: PurchaseOrderItemRepository,
     private readonly poDeliveryItemRepository: PoDeliveryItemRepository,
     private readonly purchaseOrderHistoryRepository: PurchaseOrderHistoryRepository,
+    private readonly userActionRepository: UserActionRepository,
     private readonly fileService: FileService
   ) {}
 
@@ -140,6 +143,11 @@ export class ApiPurchaseOrderCreateService {
       content: 'Tạo mới thành công',
       time: new Date(),
     })
+
+    await this.userActionRepository.upsertOne(
+      { key: UserActionKey.CREATE_PO, userId },
+      { key: UserActionKey.CREATE_PO, userId }
+    )
 
     return { data: purchaseOrder }
   }

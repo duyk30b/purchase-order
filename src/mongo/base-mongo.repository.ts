@@ -200,6 +200,19 @@ export abstract class BaseMongoRepository<
     return await this.updateOne({ id } as any, data)
   }
 
+  async upsertOne<T extends Partial<_UPDATE>>(
+    condition: BaseCondition<_TYPE>,
+    data: NoExtra<Partial<_UPDATE>, T>
+  ): Promise<_TYPE> {
+    const filter = this.getFilterOptions(condition)
+    const hydratedDocument = await this.model.findOneAndUpdate(filter, data, {
+      new: true,
+      upsert: true,
+    })
+    const result = hydratedDocument ? hydratedDocument.toObject() : null
+    return result as _TYPE
+  }
+
   async softDeleteOneBy(condition: BaseCondition<_TYPE>) {
     const filter = this.getFilterOptions(condition)
     const result = await this.model.updateOne(filter, {

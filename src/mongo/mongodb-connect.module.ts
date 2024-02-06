@@ -15,24 +15,45 @@ import { PurchaseRequestItemRepository } from './purchase-request-item/purchase-
 import { PurchaseRequestItemSchema } from './purchase-request-item/purchase-request-item.schema'
 import { PurchaseRequestRepository } from './purchase-request/purchase-request.repository'
 import { PurchaseRequestSchema } from './purchase-request/purchase-request.schema'
+import { UserActionRepository } from './user-action/user-action.repository'
+import { UserActionSchema } from './user-action/user-action.schema'
 
 @Global()
 @Module({
   imports: [
     MongooseModule.forRootAsync({ useClass: MongodbConfigService }),
     MongooseModule.forFeature([
-      { name: 'PurchaseRequestSchema', schema: PurchaseRequestSchema },
-      { name: 'PurchaseRequestItemSchema', schema: PurchaseRequestItemSchema },
+      {
+        name: 'PurchaseRequestSchema',
+        schema: PurchaseRequestSchema,
+      },
+      {
+        name: 'PurchaseRequestItemSchema',
+        schema: PurchaseRequestItemSchema,
+      },
       {
         name: 'PurchaseRequestHistorySchema',
         schema: PurchaseRequestHistorySchema,
       },
-      { name: 'PurchaseOrderSchema', schema: PurchaseOrderSchema },
-      { name: 'PurchaseOrderItemSchema', schema: PurchaseOrderItemSchema },
-      { name: 'PoDeliveryItemSchema', schema: PoDeliveryItemSchema },
+      {
+        name: 'PurchaseOrderSchema',
+        schema: PurchaseOrderSchema,
+      },
+      {
+        name: 'PurchaseOrderItemSchema',
+        schema: PurchaseOrderItemSchema,
+      },
+      {
+        name: 'PoDeliveryItemSchema',
+        schema: PoDeliveryItemSchema,
+      },
       {
         name: 'PurchaseOrderHistorySchema',
         schema: PurchaseOrderHistorySchema,
+      },
+      {
+        name: 'UserActionSchema',
+        schema: UserActionSchema,
       },
     ]),
   ],
@@ -44,6 +65,7 @@ import { PurchaseRequestSchema } from './purchase-request/purchase-request.schem
     PurchaseOrderItemRepository,
     PoDeliveryItemRepository,
     PurchaseOrderHistoryRepository,
+    UserActionRepository,
   ],
   exports: [
     PurchaseRequestRepository,
@@ -53,6 +75,7 @@ import { PurchaseRequestSchema } from './purchase-request/purchase-request.schem
     PurchaseOrderItemRepository,
     PoDeliveryItemRepository,
     PurchaseOrderHistoryRepository,
+    UserActionRepository,
   ],
 })
 export class MongoDbConnectModule {}
