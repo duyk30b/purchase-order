@@ -108,6 +108,9 @@ export class PurchaseOrder extends BaseSchema {
   @Prop()
   code: string
 
+  @Prop({ type: Types.ObjectId })
+  _purchase_request_id: Types.ObjectId
+
   @Prop()
   purchaseRequestCode: string
 
@@ -183,6 +186,10 @@ export class PurchaseOrder extends BaseSchema {
 const PurchaseOrderSchema = SchemaFactory.createForClass(PurchaseOrder)
 PurchaseOrderSchema.index({ code: 1 }, { unique: false })
 
+PurchaseOrderSchema.virtual('purchaseRequestId').get(function () {
+  return this._purchase_request_id?.toHexString()
+})
+
 PurchaseOrderSchema.virtual('purchaseOrderItems', {
   ref: 'PurchaseOrderItemSchema',
   localField: '_id',
@@ -225,6 +232,7 @@ export type PurchaseOrderType = Omit<
 > & {
   _id: Types.ObjectId
   id?: string
+  purchaseRequestId?: string
   purchaseOrderItems?: PurchaseOrderItemType[]
   poDeliveryItems?: PoDeliveryItemType[]
   purchaseOrderHistories?: PurchaseOrderHistoryType[]
@@ -238,6 +246,7 @@ export type PurchaseOrderInsertType = Omit<
   PurchaseOrderType,
   | 'id'
   | '_id'
+  | 'purchaseRequestId'
   | 'purchaseOrderItems'
   | 'poDeliveryItems'
   | 'purchaseOrderHistories'
@@ -247,6 +256,7 @@ export type PurchaseOrderUpdateType = Omit<
   PurchaseOrderType,
   | 'id'
   | '_id'
+  | 'purchaseRequestId'
   | 'code'
   | 'createdAt'
   | 'createdByUserId'

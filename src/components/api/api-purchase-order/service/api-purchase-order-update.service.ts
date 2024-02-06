@@ -42,6 +42,7 @@ export class ApiPurchaseOrderUpdateService {
       poAttachFiles: poAttachFilesBody,
       poItems,
       poDeliveryItems,
+      purchaseRequestId,
       ...purchaseOrderBody
     } = body
 
@@ -130,6 +131,7 @@ export class ApiPurchaseOrderUpdateService {
         { id },
         {
           ...purchaseOrderBody,
+          _purchase_request_id: new Types.ObjectId(body.purchaseRequestId),
           status,
           updatedByUserId: userId,
           poPaymentStatus: PoPaymentStatus.UNPAID, // lưu tạm thế

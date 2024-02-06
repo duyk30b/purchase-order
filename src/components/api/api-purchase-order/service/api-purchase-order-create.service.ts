@@ -44,6 +44,7 @@ export class ApiPurchaseOrderCreateService {
       poAttachFiles: poAttachFilesBody,
       poItems,
       poDeliveryItems,
+      purchaseRequestId,
       ...purchaseOrderBody
     } = body
 
@@ -79,6 +80,7 @@ export class ApiPurchaseOrderCreateService {
     const purchaseOrder: PurchaseOrderType =
       await this.purchaseOrderRepository.insertOneFullField({
         ...purchaseOrderBody,
+        _purchase_request_id: new Types.ObjectId(body.purchaseRequestId),
         code,
         status,
         createdByUserId: userId,

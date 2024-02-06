@@ -244,6 +244,11 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
   @Expose()
+  @IsString()
+  purchaseRequestId: string
+
+  @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
+  @Expose()
   @IsMongoId()
   supplierId: string
 
