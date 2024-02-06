@@ -27,6 +27,9 @@ export class ApiUserActionService {
       },
       limit,
     })
+    if (data.length === 0) {
+      return { data: { userList: [] } }
+    }
     const userIdList = data.map((i) => i.userId)
     let userList = await this.natsClientUserService.getUserListByIds({
       userIds: userIdList,
