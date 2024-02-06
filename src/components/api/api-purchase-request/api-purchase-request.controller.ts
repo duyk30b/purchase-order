@@ -152,7 +152,7 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Query() query: PurchaseRequestActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestConfirmService.confirm({
       ids,
       userId: user.id,
@@ -174,7 +174,7 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Query() query: PurchaseRequestActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestRejectService.reject({
       ids,
       userId: user.id,
@@ -196,7 +196,7 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Query() query: PurchaseRequestActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestCancelService.cancel({
       ids,
       userId: user.id,
@@ -216,7 +216,7 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Query() query: PurchaseRequestActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestDeleteService.deleteList(ids)
   }
 

@@ -43,12 +43,15 @@ export class ConditionMongoId {
   'IN'?: string[]
 }
 
-export const transformConditionMongoId = (value: number | ConditionMongoId) => {
-  if (!value) return 'undefined'
+export const transformConditionMongoId = (
+  value: number | ConditionMongoId,
+  field?: string
+) => {
+  if (!value) return undefined
 
   if (typeof value === 'string') {
     const validate = isMongoId(value)
-    if (!validate) throw new Error('')
+    if (!validate) throw new Error(`${field} must be a mongoID`)
     return value
   } else if (typeof value === 'object') {
     const instance = plainToInstance(ConditionMongoId, value)
@@ -57,9 +60,9 @@ export const transformConditionMongoId = (value: number | ConditionMongoId) => {
       forbidNonWhitelisted: true,
       skipMissingProperties: true,
     })
-    if (validate.length) throw new Error('')
+    if (validate.length) throw new Error(`${field} must be a mongoID`)
     return instance
   } else {
-    throw new Error('')
+    throw new Error(`${field} must be a mongoID`)
   }
 }

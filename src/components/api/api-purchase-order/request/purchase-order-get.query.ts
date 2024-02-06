@@ -40,7 +40,7 @@ export class PurchaseOrderGetQuery {
     }
   })
   @IsObject()
-  @ValidateNested({ each: true })
+  @ValidateNested({ each: true, message: ({ value }) => JSON.stringify(value) })
   relation: PurchaseOrderRelationQuery
 
   @ApiPropertyOptional({
@@ -73,7 +73,7 @@ export class PurchaseOrderGetQuery {
     }
   })
   @IsObject()
-  @ValidateNested({ each: true })
+  @ValidateNested({ each: true, message: ({ value }) => JSON.stringify(value) })
   filter?: PurchaseOrderFilterQuery
 
   @ApiPropertyOptional({
@@ -100,7 +100,7 @@ export class PurchaseOrderGetQuery {
     }
   })
   @IsObject()
-  @ValidateNested({ each: true })
+  @ValidateNested({ each: true, message: ({ value }) => JSON.stringify(value) })
   sort?: PurchaseOrderSortQuery
 }
 

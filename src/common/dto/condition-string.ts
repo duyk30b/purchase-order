@@ -37,7 +37,10 @@ export class ConditionString {
   'IN'?: string[]
 }
 
-export const transformConditionString = (value: number | ConditionString) => {
+export const transformConditionString = (
+  value: number | ConditionString,
+  field?: string
+) => {
   if (!value) {
     return
   }
@@ -50,9 +53,9 @@ export const transformConditionString = (value: number | ConditionString) => {
       forbidNonWhitelisted: true,
       skipMissingProperties: true,
     })
-    if (validate.length) throw new Error('')
+    if (validate.length) throw new Error(`${field} must be a string`)
     return instance
   } else {
-    throw new Error('')
+    throw new Error(`${field} must be a string`)
   }
 }

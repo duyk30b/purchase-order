@@ -79,7 +79,10 @@ export class ConditionNumber {
   'BETWEEN'?: [number, number]
 }
 
-export const transformConditionNumber = (value: number | ConditionNumber) => {
+export const transformConditionNumber = (
+  value: number | ConditionNumber,
+  field?: string
+) => {
   if (!value) {
     return
   }
@@ -92,9 +95,9 @@ export const transformConditionNumber = (value: number | ConditionNumber) => {
       forbidNonWhitelisted: true,
       skipMissingProperties: true,
     })
-    if (validate.length) throw new Error('')
+    if (validate.length) throw new Error(`${field} must be a Number`)
     return instance
   } else {
-    throw new Error('')
+    throw new Error(`${field} must be a Number`)
   }
 }

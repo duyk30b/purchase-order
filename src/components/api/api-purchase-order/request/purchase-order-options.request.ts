@@ -13,7 +13,10 @@ import {
   ConditionMongoId,
   transformConditionMongoId,
 } from '../../../../common/dto/condition-mongo-id'
-import { ConditionString } from '../../../../common/dto/condition-string'
+import {
+  ConditionString,
+  transformConditionString,
+} from '../../../../common/dto/condition-string'
 import { SortQuery } from '../../../../common/dto/query'
 import { valuesEnum } from '../../../../common/helpers'
 import {
@@ -38,7 +41,7 @@ export class PurchaseOrderRelationQuery {
 
 export class PurchaseOrderFilterQuery {
   @Expose()
-  // @Transform(({ value }) => transformConditionMongoId(value))
+  @Transform(({ value }) => transformConditionMongoId(value, 'id'))
   @Allow()
   id: string | ConditionMongoId
 
@@ -47,8 +50,8 @@ export class PurchaseOrderFilterQuery {
   searchText: string
 
   @Expose()
-  @Type(() => ConditionString)
-  @ValidateNested({ each: true })
+  @Transform(({ value }) => transformConditionString(value, 'code'))
+  @Allow()
   code: string | ConditionString
 
   @Expose()
