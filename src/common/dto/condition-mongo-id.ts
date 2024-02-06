@@ -1,5 +1,11 @@
-import { Expose } from 'class-transformer'
-import { ArrayMinSize, IsArray, IsMongoId } from 'class-validator'
+import { Expose, plainToInstance } from 'class-transformer'
+import {
+  ArrayMinSize,
+  IsArray,
+  IsMongoId,
+  isMongoId,
+  validateSync,
+} from 'class-validator'
 
 export class ConditionMongoId {
   @Expose()
@@ -35,4 +41,25 @@ export class ConditionMongoId {
   @IsMongoId({ each: true })
   @ArrayMinSize(1)
   'IN'?: string[]
+}
+
+export const transformConditionMongoId = (value: number | ConditionMongoId) => {
+  if (!value) return 'undefined'
+
+  if (typeof value === 'string') {
+    const validate = isMongoId(value)
+    if (!validate) throw new Error('')
+    return value
+  } else if (typeof value === 'object') {
+    const instance = plainToInstance(ConditionMongoId, value)
+    const validate = validateSync(instance, {
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: true,
+    })
+    if (validate.length) throw new Error('')
+    return instance
+  } else {
+    throw new Error('')
+  }
 }

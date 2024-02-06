@@ -192,7 +192,7 @@ export class ApiPurchaseOrderController {
     @External() { user }: TExternal,
     @Query() query: PurchaseOrderActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderConfirmService.confirm({
       ids,
       userId: user.id,
@@ -214,7 +214,7 @@ export class ApiPurchaseOrderController {
     @External() { user }: TExternal,
     @Query() query: PurchaseOrderActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderRejectService.reject({
       ids,
       userId: user.id,
@@ -236,7 +236,7 @@ export class ApiPurchaseOrderController {
     @External() { user }: TExternal,
     @Query() query: PurchaseOrderActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderCancelService.cancel({
       ids,
       userId: user.id,
@@ -273,7 +273,7 @@ export class ApiPurchaseOrderController {
     @External() { user }: TExternal,
     @Query() query: PurchaseOrderActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderWaitDeliveryService.waitDelivery({
       ids,
       userId: user.id,
@@ -293,7 +293,7 @@ export class ApiPurchaseOrderController {
     @External() { user }: TExternal,
     @Query() query: PurchaseOrderActionManyQuery
   ) {
-    const ids = query?.filter?.id?.IN
+    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderDeleteService.delete(ids)
   }
 }

@@ -1,10 +1,11 @@
-import { Expose } from 'class-transformer'
+import { Expose, plainToInstance } from 'class-transformer'
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsBoolean,
   IsNumber,
+  validateSync,
 } from 'class-validator'
 
 export class ConditionNumber {
@@ -76,4 +77,24 @@ export class ConditionNumber {
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
   'BETWEEN'?: [number, number]
+}
+
+export const transformConditionNumber = (value: number | ConditionNumber) => {
+  if (!value) {
+    return
+  }
+  if (typeof value === 'number') {
+    return value
+  } else if (typeof value === 'object') {
+    const instance = plainToInstance(ConditionNumber, value)
+    const validate = validateSync(instance, {
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: true,
+    })
+    if (validate.length) throw new Error('')
+    return instance
+  } else {
+    throw new Error('')
+  }
 }
