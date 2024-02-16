@@ -4,5 +4,8 @@
   "UNAUTHORIZED": "Không được ủy quyền",
   "FORBIDDEN": "Quyền truy cập bị từ chối",
   "NOT_ACCEPTABLE": "Không có quyền truy cập",
-  "BAD_REQUEST": "Yêu cầu không hợp lệ"
+  "BAD_REQUEST": "Yêu cầu không hợp lệ",
+  "SupplierItem": {
+    "NotFound": "Không tồn tại sản phẩm nhà cung cấp"
+  }
 }

@@ -9,6 +9,7 @@ import {
   IsNumber,
   IsPositive,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator'
 import { objectEnum, valuesEnum } from '../../../../common/helpers'
@@ -30,11 +31,13 @@ export class ItemUpsertBody {
   @IsNumber()
   itemTypeId: number
 
-  // @ApiProperty({ example: 12 })
-  // @Expose()
-  // @IsDefined()
-  // @IsNumber()
-  // itemUnitId: number // đơn vị tính => trường này lấy theo nhà cung cấp
+  @ApiProperty({ example: 12 })
+  @Expose()
+  @ValidateIf(
+    (e, value) => value !== null && value !== undefined && value !== ''
+  )
+  @IsNumber()
+  itemUnitId: number // đơn vị tính => trường này lấy theo nhà cung cấp
 
   // @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   // @Expose()
