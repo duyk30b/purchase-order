@@ -10,6 +10,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { contentParser } from 'fastify-multer'
 import { AppModule } from './app.module'
 import { NatsConfig } from './components/transporter/nats/nats.config'
 import { GlobalConfig } from './config/global.config'
@@ -23,10 +24,6 @@ import { TransformResponseInterceptor } from './core/interceptor/transform-respo
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter()
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  fastifyAdapter.register(require('@fastify/multipart'), {
-    attachFieldsToBody: true,
-    addToBody: true,
-  })
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fastifyAdapter,
@@ -34,7 +31,7 @@ async function bootstrap() {
       logger: ['error', 'warn', 'log', 'debug'],
     }
   )
-
+  app.register(contentParser)
   app.useGlobalInterceptors(
     new AccessLogInterceptor(),
     new ClassSerializerInterceptor(app.get(Reflector), {
@@ -50,8 +47,8 @@ async function bootstrap() {
     new ValidationPipe({
       validationError: { target: false, value: false },
       skipMissingProperties: true, // no validate field undefined
-      whitelist: true, // no field not in DTO
-      forbidNonWhitelisted: true, // exception when field not in DTO
+      // whitelist: true, // no field not in DTO
+      // forbidNonWhitelisted: true, // exception when field not in DTO
       transform: true, // use for DTO
       transformOptions: {
         excludeExtraneousValues: false, // exclude field not in class DTO => no
@@ -93,5 +90,4 @@ async function bootstrap() {
     )
   })
 }
-
 bootstrap()

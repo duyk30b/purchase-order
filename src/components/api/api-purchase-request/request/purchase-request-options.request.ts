@@ -1,5 +1,6 @@
-import { Expose, Type } from 'class-transformer'
+import { Expose, Transform, Type } from 'class-transformer'
 import {
+  Allow,
   IsBoolean,
   IsIn,
   IsMongoId,
@@ -7,6 +8,10 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { ConditionDate } from '../../../../common/dto/condition-date'
+import {
+  ConditionMongoId,
+  transformConditionMongoId,
+} from '../../../../common/dto/condition-mongo-id'
 import { ConditionString } from '../../../../common/dto/condition-string'
 import { SortQuery } from '../../../../common/dto/query'
 import { valuesEnum } from '../../../../common/helpers'
@@ -19,9 +24,18 @@ export class PurchaseRequestRelationQuery {
   @Expose()
   @IsBoolean()
   purchaseRequestItems: boolean
+
+  @Expose()
+  @IsBoolean()
+  purchaseRequestHistories: boolean
 }
 
 export class PurchaseRequestFilterQuery {
+  @Expose()
+  @Transform(({ value }) => transformConditionMongoId(value, 'id'))
+  @Allow()
+  id: string | ConditionMongoId
+
   @Expose()
   @Type(() => ConditionString)
   @ValidateNested({ each: true })

@@ -201,7 +201,7 @@ export class ApiPurchaseOrderConfirmService {
 
     incotermList.forEach((i) => {
       if (!i.isActive) {
-        throw new BusinessException('msg.MSG_052')
+        throw BusinessException.msg('msg.MSG_195', { item: i.code })
       }
     })
     purchaseRequestList.forEach((i) => {

@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { Document } from 'mongoose'
+import { Document, Types } from 'mongoose'
 import { BaseSchema } from '../base.schema'
+import { PurchaseRequestHistoryType } from '../purchase-request-history/purchase-request-history.schema'
 import { PurchaseRequestItemType } from '../purchase-request-item/purchase-request-item.schema'
 
 export enum PurchaseRequestStatus {
   DRAFT = 1,
-  WAIT_CONFIRM = 2,
+  WAIT_CONFIRM = 2, // đề nghị duyệt
   REJECT = 3,
   CONFIRM = 4,
   SUCCESS = 5,
@@ -69,19 +70,28 @@ PurchaseRequestSchema.virtual('purchaseRequestItems', {
   justOne: false,
 })
 
+PurchaseRequestSchema.virtual('purchaseRequestHistories', {
+  ref: 'PurchaseRequestHistorySchema',
+  localField: '_id',
+  foreignField: '_purchase_request_id',
+  justOne: false,
+})
+
 export { PurchaseRequestSchema }
 
 export type PurchaseRequestType = Omit<
   PurchaseRequest,
   keyof Document<PurchaseRequest>
 > & {
+  _id: Types.ObjectId
   id?: string
   purchaseRequestItems?: PurchaseRequestItemType[]
+  purchaseRequestHistories?: PurchaseRequestHistoryType[]
 }
 
 export type PurchaseRequestInsertType = Omit<
   PurchaseRequestType,
-  'id' | '_id' | 'purchaseRequestItems'
+  'id' | '_id' | 'purchaseRequestItems' | 'purchaseRequestHistories'
 >
 
 export type PurchaseRequestUpdateType = Omit<
@@ -91,5 +101,6 @@ export type PurchaseRequestUpdateType = Omit<
   | 'createdAt'
   | 'createdByUserId'
   | 'purchaseRequestItems'
+  | 'purchaseRequestHistories'
   | 'code'
 >

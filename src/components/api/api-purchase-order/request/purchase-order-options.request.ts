@@ -1,48 +1,113 @@
-import { Expose, Type } from 'class-transformer'
+import { Expose, Transform, Type } from 'class-transformer'
 import {
+  Allow,
   IsBoolean,
   IsIn,
-  IsNotEmpty,
+  IsMongoId,
+  IsPositive,
   IsString,
   ValidateNested,
 } from 'class-validator'
 import { ConditionDate } from '../../../../common/dto/condition-date'
-import { ConditionNumber } from '../../../../common/dto/condition-number'
+import {
+  ConditionMongoId,
+  transformConditionMongoId,
+} from '../../../../common/dto/condition-mongo-id'
+import {
+  ConditionString,
+  transformConditionString,
+} from '../../../../common/dto/condition-string'
 import { SortQuery } from '../../../../common/dto/query'
+import { valuesEnum } from '../../../../common/helpers'
+import {
+  PoPaymentStatus,
+  PurchaseOrderKind,
+  PurchaseOrderStatus,
+} from '../../../../mongo/purchase-order/purchase-order.schema'
 
 export class PurchaseOrderRelationQuery {
   @Expose()
   @IsBoolean()
-  vendor: boolean
+  purchaseOrderItems: boolean
+
+  @Expose()
+  @IsBoolean()
+  poDeliveryItems: boolean
+
+  @Expose()
+  @IsBoolean()
+  purchaseOrderHistories: boolean
 }
 
 export class PurchaseOrderFilterQuery {
   @Expose()
-  @IsIn([0, 1])
-  isActive: 0 | 1
+  @Transform(({ value }) => transformConditionMongoId(value, 'id'))
+  @Allow()
+  id: string | ConditionMongoId
 
   @Expose()
-  @IsNotEmpty()
   @IsString()
   searchText: string
 
   @Expose()
-  @Type(() => ConditionNumber)
+  @Transform(({ value }) => transformConditionString(value, 'code'))
+  @Allow()
+  code: string | ConditionString
+
+  @Expose()
+  @Type(() => ConditionString)
   @ValidateNested({ each: true })
-  debt: ConditionNumber
+  purchaseRequestCode: ConditionString
 
   @Expose()
   @Type(() => ConditionDate)
   @ValidateNested({ each: true })
-  updatedAt: ConditionDate
+  orderDate: ConditionDate // ngày đặt hàng
+
+  @Expose()
+  @Type(() => ConditionDate)
+  @ValidateNested({ each: true })
+  deliveryDate: ConditionDate // ngày giao hàng
+
+  @Expose()
+  @IsMongoId()
+  supplierId: string
+
+  @Expose()
+  @IsIn(valuesEnum(PurchaseOrderKind))
+  purchaseOrderKind: PurchaseOrderKind // loại đơn hàng
+
+  @Expose()
+  @IsPositive()
+  createdByUserId: number
+
+  @Expose()
+  @IsIn(valuesEnum(PoPaymentStatus))
+  poPaymentStatus: PoPaymentStatus // trạng thái thanh toán
+
+  @Expose()
+  @IsIn(valuesEnum(PurchaseOrderStatus))
+  status: PurchaseOrderStatus // trạng thái đơn mua hàng
 }
 
 export class PurchaseOrderSortQuery extends SortQuery {
   @Expose()
   @IsIn(['ASC', 'DESC'])
-  debt: 'ASC' | 'DESC'
+  code: 'ASC' | 'DESC'
 
   @Expose()
   @IsIn(['ASC', 'DESC'])
-  fullName: 'ASC' | 'DESC'
+  purchaseRequestCode: 'ASC' | 'DESC'
+
+  @Expose()
+  @IsIn(['ASC', 'DESC'])
+  supplierId: 'ASC' | 'DESC'
+
+  @Expose()
+  @IsIn(['ASC', 'DESC'])
+  orderDate: 'ASC' | 'DESC'
+
+  @Expose()
+  @IsIn(['ASC', 'DESC'])
+  deliveryDate: 'ASC' | 'DESC'
 }

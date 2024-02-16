@@ -10,29 +10,39 @@ export class PurchaseRequestItem extends BaseSchema {
   _purchase_request_id: Types.ObjectId
 
   @Prop()
+  line: number // số line của sản phẩm trên PR
+
+  @Prop()
   itemId: number
 
   @Prop()
   itemTypeId: number
 
-  // @Prop()
-  // deliveryTerm: Date // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
+  @Prop()
+  deliveryTerm: number // thời hạn giao hàng => trường này phải lấy theo nhà cung cấp
 
-  // @Prop()
-  // itemUnitId: number // Đơn vị tính => trường này phải lấy theo nhà cung cấp
+  @Prop()
+  itemUnitId: number // Đơn vị tính => trường này phải lấy theo nhà cung cấp
 
   @Prop()
   quantity: number
 
   @Prop({ type: mongoose.Schema.Types.Decimal128 })
   _price: Types.Decimal128 // Đơn giá
+
+  @Prop({ type: mongoose.Schema.Types.Decimal128 })
+  _amount: Types.Decimal128 // Tổng tiền
 }
 
 const PurchaseRequestItemSchema =
   SchemaFactory.createForClass(PurchaseRequestItem)
+PurchaseRequestItemSchema.index({ _purchase_request_id: 1 }, { unique: false })
 PurchaseRequestItemSchema.index({ itemId: 1 }, { unique: false })
 
 PurchaseRequestItemSchema.virtual('price').get(function () {
+  return this._price.toString()
+})
+PurchaseRequestItemSchema.virtual('amount').get(function () {
   return this._price.toString()
 })
 
@@ -52,6 +62,7 @@ export type PurchaseRequestItemType = Omit<
   PurchaseRequestItem,
   keyof Document<PurchaseRequestItem>
 > & {
+  _id: Types.ObjectId
   id?: string
   price?: string
   purchaseRequestId?: string

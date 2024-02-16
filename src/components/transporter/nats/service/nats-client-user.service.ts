@@ -6,6 +6,7 @@ import { NatsResponseInterface } from '../nats.interface'
 
 export type UserType = {
   id: number
+  code: string
   email: string
   username: string
   fullName: string
@@ -19,7 +20,7 @@ export type UserType = {
     status: number
   }
   status: number
-  costCenters: {
+  costCenters?: {
     id: string
     code: string
     eName: string
@@ -67,7 +68,8 @@ export class NatsClientUserService {
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }
-    return response.data as UserType[]
+    const { userPermissions, costCenters, ...other } = response.data
+    return other as UserType
   }
 
   async getUserListByIds(request: { userIds: number[] }) {
@@ -78,7 +80,11 @@ export class NatsClientUserService {
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }
-    return response.data as UserType[]
+    const userList = response.data.map((user) => {
+      const { userPermissions, costCenters, ...other } = user
+      return other
+    })
+    return userList as UserType[]
   }
 
   async getUserMapByIds(request: { userIds: number[] }) {

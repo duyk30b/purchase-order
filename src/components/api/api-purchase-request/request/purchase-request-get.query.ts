@@ -21,6 +21,7 @@ export class PurchaseRequestGetQuery {
     type: String,
     example: JSON.stringify(<PurchaseRequestRelationQuery>{
       purchaseRequestItems: true,
+      purchaseRequestHistories: true,
     }),
   })
   @Expose()
@@ -43,6 +44,7 @@ export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
     example: JSON.stringify(<PurchaseRequestFilterQuery>{
+      id: { IN: ['63fdde9517a7317f0e8f959a', '63fdde9517a7317f0e8f959b'] },
       searchText: '001',
       code: { LIKE: 'RQ' },
       requestDate: { GTE: new Date() },
@@ -107,6 +109,11 @@ export class PurchaseRequestPaginationQuery extends IntersectionType(
 export class PurchaseRequestGetManyQuery extends IntersectionType(
   PickType(PurchaseRequestGetQuery, ['filter', 'relation']),
   LimitQuery
+) {}
+
+export class PurchaseRequestActionManyQuery extends PickType(
+  PurchaseRequestGetQuery,
+  ['filter']
 ) {}
 
 export class PurchaseRequestGetOneQuery extends PurchaseRequestGetQuery {}

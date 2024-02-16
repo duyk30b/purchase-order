@@ -19,6 +19,11 @@ import {
 } from '../../../../mongo/purchase-request/purchase-request.schema'
 
 export class ItemUpsertBody {
+  @ApiProperty({ example: 1 })
+  @Expose()
+  @IsNumber()
+  line: number // Thứ tự
+
   @ApiProperty({ example: 12 })
   @Expose()
   @IsDefined()
@@ -39,11 +44,10 @@ export class ItemUpsertBody {
   @IsNumber()
   itemUnitId: number // đơn vị tính => trường này lấy theo nhà cung cấp
 
-  // @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
-  // @Expose()
-  // @Transform(({ value }) => (value ? new Date() : undefined))
-  // @IsDate()
-  // deliveryTerm: Date // thời hạn giao hàng => trường này lấy theo nhà cung cấp
+  @ApiProperty({ example: 15 })
+  @Expose()
+  @IsNumber()
+  deliveryTerm: number // thời hạn giao hàng => trường này lấy theo nhà cung cấp
 
   @ApiProperty({ example: 12 })
   @Expose()
@@ -57,6 +61,12 @@ export class ItemUpsertBody {
   @IsDefined()
   @IsString()
   price: string // giá sản phẩm
+
+  @ApiProperty({ example: '12.4567' })
+  @Expose()
+  @IsDefined()
+  @IsString()
+  amount: string // giá sản phẩm
 }
 
 export class PurchaseRequestCreateBody {
@@ -77,7 +87,7 @@ export class PurchaseRequestCreateBody {
   @ValidateNested({ each: true })
   items: ItemUpsertBody[]
 
-  @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
+  @ApiProperty({ example: '65bb485141d769c0cdd622d9' })
   @Expose()
   @IsMongoId()
   supplierId: string
@@ -94,7 +104,7 @@ export class PurchaseRequestCreateBody {
   @IsDate()
   receiveDate: Date
 
-  @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
+  @ApiProperty({ example: '65a359aed1209643735ec7d5' })
   @Expose()
   @IsMongoId()
   costCenterId: string

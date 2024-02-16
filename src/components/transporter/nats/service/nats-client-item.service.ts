@@ -4,12 +4,28 @@ import { NatsClientService } from '../nats-client.service'
 import { NatsService, NatsSubject } from '../nats.config'
 import { NatsResponseInterface } from '../nats.interface'
 
+export enum ItemStatusEnum {
+  DRAFT,
+  WAITING_CONFIRM,
+  CONFIRMED,
+  REJECTED,
+}
+
+export enum ItemActiveStatusEnum {
+  INACTIVE = 0,
+  ACTIVE = 1,
+}
+
 export type ItemType = {
   id: number
   code?: string
   nameVn?: string
   nameJp?: string
   nameEn?: string
+  itemCostCenters?: any[]
+  country: any
+  status: ItemStatusEnum
+  activeStatus: ItemActiveStatusEnum
 }
 
 export type ItemTypeType = {
@@ -36,6 +52,12 @@ export type CurrencyType = {
   name?: string
 }
 
+export type ManufCountryType = {
+  id: number
+  code?: string
+  name?: string
+}
+
 @Injectable()
 export class NatsClientItemService {
   constructor(private readonly natsClient: NatsClientService) {}
@@ -51,7 +73,7 @@ export class NatsClientItemService {
     return response.data as ItemType[]
   }
 
-  async getItemsByIds(request: { itemIds: number[] }) {
+  async getItemListByIds(request: { itemIds: number[] }) {
     const response: NatsResponseInterface = await this.natsClient.send(
       `${NatsService.ITEM}.get_items_by_ids`,
       request
@@ -63,7 +85,7 @@ export class NatsClientItemService {
   }
 
   async getItemMapByIds(request: { itemIds: number[] }) {
-    const itemList = await this.getItemsByIds(request)
+    const itemList = await this.getItemListByIds(request)
     const itemMap: Record<string, ItemType> = {}
     itemList.forEach((i) => (itemMap[i.id] = i))
     return itemMap
@@ -99,18 +121,23 @@ export class NatsClientItemService {
     return response.data as ItemTypeType[]
   }
 
-  async getItemUnitsByIds(request: { ids: number[] }): Promise<any> {
-    if (request.ids.length === 0) return {}
+  async getItemUnitListByIds(request: { unitIds: number[] }) {
+    if (request.unitIds.length === 0) return []
     const response: NatsResponseInterface = await this.natsClient.send(
       `${NatsService.ITEM}.get_item_unit_setting_by_ids`,
-      { unitIds: request.ids }
+      { unitIds: request.unitIds }
     )
     if (response.statusCode !== 200) {
       throw new BusinessException(response.message as any)
     }
-    const result: Record<string, ItemUnitType> = {}
-    response.data.forEach((i: ItemUnitType) => (result[i.id] = i))
-    return result
+    return response.data as ItemUnitType[]
+  }
+
+  async getItemUnitMapByIds(request: { unitIds: number[] }) {
+    const itemUnitList = await this.getItemUnitListByIds(request)
+    const itemUnitMap: Record<string, ItemUnitType> = {}
+    itemUnitList.forEach((i) => (itemUnitMap[i.id] = i))
+    return itemUnitMap
   }
 
   async getItemPackingsByIds(request: { ids: number[] }): Promise<any> {
@@ -144,5 +171,24 @@ export class NatsClientItemService {
     const currencyMap: Record<string, CurrencyType> = {}
     currencyList.forEach((i) => (currencyMap[i.id] = i))
     return currencyMap
+  }
+
+  async getManufCountryListByIds(request: { ids: number[] }) {
+    if (request.ids.length === 0) return []
+    const response: NatsResponseInterface = await this.natsClient.send(
+      `${NatsService.ITEM}.get_manufacturing_country_by_ids`,
+      { manufacturingCountryIds: request.ids }
+    )
+    if (response.statusCode !== 200) {
+      throw new BusinessException(response.message as any)
+    }
+    return response.data as ManufCountryType[]
+  }
+
+  async getManufacturingCountryMapByIds(request: { ids: number[] }) {
+    const manufCountryList = await this.getManufCountryListByIds(request)
+    const manufCountryMap: Record<string, ManufCountryType> = {}
+    manufCountryList.forEach((i) => (manufCountryMap[i.id] = i))
+    return manufCountryMap
   }
 }

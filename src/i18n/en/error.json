@@ -5,10 +5,18 @@
   "FORBIDDEN": "Access denied",
   "NOT_ACCEPTABLE": "Do not accept updates",
   "BAD_REQUEST": "Invalid request",
+  "FILTER_EMPTY": "FILTER_EMPTY",
   "CostCenter": {
-    "Error": "Error"
+    "NotFound": "CostCenter.NotFound"
   },
-  "PURCHASE_REQUEST": {
-    "STATUS_INVALID": "Status Invalid "
+  "Supplier": {
+    "NotFound": "Supplier.NotFound"
+  },
+  "SupplierItem": {
+    "NotFound": "SupplierItem.NotFound"
+  },
+  "PurchaseRequest": {
+    "NotFound": "PurchaseRequest.NotFound",
+    "StatusInvalid": "PurchaseRequest.StatusInvalid "
   }
 }

@@ -19,6 +19,7 @@ export const NatsService = {
     'item_stock_planning_service',
   PURCHASE_ORDER:
     process.env.NATS_PURCHASE_ORDER_SERVICE || 'purchase_order_service',
+  SALE: process.env.NATS_SALE_SERVICE || 'sale_service',
 }
 
 export const NatsConfig: NatsOptions = {
@@ -31,6 +32,11 @@ export const NatsConfig: NatsOptions = {
 }
 
 export const NatsSubject = {
+  SALE: {
+    PING: NatsService.SALE + '.ping',
+    INCOTERM_GET_MANY: `${NatsService.SALE}.incoterm_get_many`,
+    INCOTERM_GET_ONE: `${NatsService.SALE}.incoterm_get_one`,
+  },
   VENDOR: {
     SUPPLIER_GET_MANY: `${NatsService.VENDOR}.supplier_get_many`,
     SUPPLIER_GET_ONE: `${NatsService.VENDOR}.supplier_get_one`,

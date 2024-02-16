@@ -24,16 +24,25 @@ import {
   PURCHASE_REQUEST_UPDATE,
   PURCHASE_REQUEST_WAIT_CONFIRM,
 } from '../../../core/guard/permission-purchase-request'
+import { PurchaseRequestStatus } from '../../../mongo/purchase-request/purchase-request.schema'
 import { ApiPurchaseRequestService } from './api-purchase-request.service'
 import {
+  PurchaseRequestActionManyQuery,
   PurchaseRequestCreateBody,
   PurchaseRequestGetManyQuery,
   PurchaseRequestGetOneByIdQuery,
   PurchaseRequestPaginationQuery,
   PurchaseRequestUpdateBody,
 } from './request'
-import { ApiPurchaseRequestDetailService } from './service/api-purchase-request-detail.service'
-import { ApiPurchaseRequestPaginationService } from './service/api-purchase-request-pagination.service'
+import { ApiPrItemDetailService } from './service/api-pr-items-detail.service'
+import { ApiPurchaseRequestCancelService } from './service/api-purchase-request-cancel.service'
+import { ApiPurchaseRequestConfirmService } from './service/api-purchase-request-confirm.service'
+import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
+import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-delete.service'
+import { ApiPurchaseRequestGetService } from './service/api-purchase-request-get.service'
+import { ApiPurchaseRequestRejectService } from './service/api-purchase-request-reject.service'
+import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
+import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-request-wait-confirm.service'
 
 @ApiTags('PurchaseRequest')
 @ApiBearerAuth('access-token')
@@ -41,19 +50,27 @@ import { ApiPurchaseRequestPaginationService } from './service/api-purchase-requ
 export class ApiPurchaseRequestController {
   constructor(
     private readonly apiPurchaseRequestService: ApiPurchaseRequestService,
-    private readonly apiPurchaseRequestDetailService: ApiPurchaseRequestDetailService,
-    private readonly apiPurchaseRequestPaginationService: ApiPurchaseRequestPaginationService
+    private readonly apiPurchaseRequestGetService: ApiPurchaseRequestGetService,
+    private readonly apiPurchaseRequestCreateService: ApiPurchaseRequestCreateService,
+    private readonly apiPurchaseRequestUpdateService: ApiPurchaseRequestUpdateService,
+    private readonly apiPurchaseRequestDeleteService: ApiPurchaseRequestDeleteService,
+    private readonly apiPurchaseRequestWaitConfirmService: ApiPurchaseRequestWaitConfirmService,
+    private readonly apiPurchaseRequestConfirmService: ApiPurchaseRequestConfirmService,
+    private readonly apiPurchaseRequestRejectService: ApiPurchaseRequestRejectService,
+    private readonly apiPurchaseRequestCancelService: ApiPurchaseRequestCancelService,
+    private readonly apiPrItemDetailService: ApiPrItemDetailService
   ) {}
 
   @Get('pagination')
   @PermissionCode(PURCHASE_REQUEST_LIST.code)
   pagination(@Query() query: PurchaseRequestPaginationQuery) {
-    return this.apiPurchaseRequestPaginationService.pagination(query)
+    return this.apiPurchaseRequestGetService.pagination(query)
   }
 
   @Get('list')
+  @PermissionCode(PURCHASE_REQUEST_LIST.code)
   list(@Query() query: PurchaseRequestGetManyQuery) {
-    return this.apiPurchaseRequestService.getMany(query)
+    return this.apiPurchaseRequestGetService.getMany(query)
   }
 
   @Get('detail/:id')
@@ -62,7 +79,7 @@ export class ApiPurchaseRequestController {
     @Param() { id }: IdMongoParam,
     @Query() query: PurchaseRequestGetOneByIdQuery
   ) {
-    return await this.apiPurchaseRequestDetailService.getOne(id, query)
+    return await this.apiPurchaseRequestGetService.getOne(id, query)
   }
 
   @Post('create-draft')
@@ -71,7 +88,11 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Body() body: PurchaseRequestCreateBody
   ) {
-    return await this.apiPurchaseRequestService.createDraft(body, user.id)
+    return await this.apiPurchaseRequestCreateService.createOne({
+      body,
+      userId: user.id,
+      status: PurchaseRequestStatus.DRAFT,
+    })
   }
 
   @Post('create-wait-confirm')
@@ -80,7 +101,11 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Body() body: PurchaseRequestCreateBody
   ) {
-    return await this.apiPurchaseRequestService.createWaitConfirm(body, user.id)
+    return await this.apiPurchaseRequestCreateService.createOne({
+      body,
+      userId: user.id,
+      status: PurchaseRequestStatus.WAIT_CONFIRM,
+    })
   }
 
   @Patch('update/:id')
@@ -90,7 +115,7 @@ export class ApiPurchaseRequestController {
     @Param() { id }: IdMongoParam,
     @Body() body: PurchaseRequestUpdateBody
   ) {
-    return await this.apiPurchaseRequestService.updateOne({
+    return await this.apiPurchaseRequestUpdateService.updateOne({
       id,
       body,
       userId: user.id,
@@ -103,7 +128,7 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Param() { id }: IdMongoParam
   ) {
-    return await this.apiPurchaseRequestService.waitConfirm({
+    return await this.apiPurchaseRequestWaitConfirmService.waitConfirm({
       id,
       userId: user.id,
     })
@@ -115,32 +140,90 @@ export class ApiPurchaseRequestController {
     @External() { user }: TExternal,
     @Param() { id }: IdMongoParam
   ) {
-    return await this.apiPurchaseRequestService.confirm({ id, userId: user.id })
+    return await this.apiPurchaseRequestConfirmService.confirm({
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('confirm-list')
+  @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
+  async confirmList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseRequestActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.['IN'] || []
+    return await this.apiPurchaseRequestConfirmService.confirm({
+      ids,
+      userId: user.id,
+    })
   }
 
   @Patch('reject/:id')
   @PermissionCode(PURCHASE_REQUEST_REJECT.code)
   async reject(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.reject({ id, userId: user.id })
+    return await this.apiPurchaseRequestRejectService.reject({
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('reject-list')
+  @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
+  async rejectList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseRequestActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.['IN'] || []
+    return await this.apiPurchaseRequestRejectService.reject({
+      ids,
+      userId: user.id,
+    })
   }
 
   @Patch('cancel/:id')
   @PermissionCode(PURCHASE_REQUEST_CANCEL.code)
   async cancel(@External() { user }: TExternal, @Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.cancel({ id, userId: user.id })
+    return await this.apiPurchaseRequestCancelService.cancel({
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('cancel-list')
+  @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
+  async cancelList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseRequestActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.['IN'] || []
+    return await this.apiPurchaseRequestCancelService.cancel({
+      ids,
+      userId: user.id,
+    })
   }
 
   @Delete('delete/:id')
   @PermissionCode(PURCHASE_REQUEST_DELETE.code)
   @ApiParam({ name: 'id', example: '63fdde9517a7317f0e8f959a' })
   async deleteOne(@Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.deleteOne(id)
+    return await this.apiPurchaseRequestDeleteService.deleteOne(id)
   }
 
-  @Get('history/:id')
+  @Delete('delete-list')
+  @PermissionCode(PURCHASE_REQUEST_DELETE.code)
+  async deleteList(
+    @External() { user }: TExternal,
+    @Query() query: PurchaseRequestActionManyQuery
+  ) {
+    const ids = query?.filter?.id?.['IN'] || []
+    return await this.apiPurchaseRequestDeleteService.deleteList(ids)
+  }
+
+  @Get('items-detail/:id')
   @PermissionCode(PURCHASE_REQUEST_HISTORY.code)
   @ApiParam({ name: 'id', example: '63fdde9517a7317f0e8f959a' })
-  async history(@Param() { id }: IdMongoParam) {
-    return await this.apiPurchaseRequestService.history(id)
+  async itemsDetail(@Param() { id }: IdMongoParam) {
+    return await this.apiPrItemDetailService.itemsDetail(id)
   }
 }

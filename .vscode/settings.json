@@ -39,6 +39,8 @@
         "certbot",
         "datetime",
         "exceljs",
+        "Incoterm",
+        "Incoterms",
         "jdbc",
         "kafkajs",
         "letsencrypt",

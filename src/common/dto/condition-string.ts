@@ -1,5 +1,5 @@
-import { Expose } from 'class-transformer'
-import { ArrayMinSize, IsArray, IsString } from 'class-validator'
+import { Expose, plainToInstance } from 'class-transformer'
+import { ArrayMinSize, IsArray, IsString, validateSync } from 'class-validator'
 
 export class ConditionString {
   @Expose()
@@ -35,4 +35,27 @@ export class ConditionString {
   @IsString({ each: true })
   @ArrayMinSize(1)
   'IN'?: string[]
+}
+
+export const transformConditionString = (
+  value: number | ConditionString,
+  field?: string
+) => {
+  if (!value) {
+    return
+  }
+  if (typeof value === 'string') {
+    return value
+  } else if (typeof value === 'object') {
+    const instance = plainToInstance(ConditionString, value)
+    const validate = validateSync(instance, {
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: true,
+    })
+    if (validate.length) throw new Error(`${field} must be a string`)
+    return instance
+  } else {
+    throw new Error(`${field} must be a string`)
+  }
 }
