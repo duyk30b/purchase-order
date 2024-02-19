@@ -120,7 +120,7 @@ export class ApiPurchaseRequestWaitConfirmService {
 
     purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
       const supplierItem = (supplier.supplierItems || []).find((si) => {
-        purchaseRequestItem.id === si.id
+        purchaseRequestItem.itemId === si.itemId
       })
       if (!supplierItem) {
         throw new BusinessException('error.SupplierItem.NotFound')
