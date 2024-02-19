@@ -52,10 +52,12 @@ export class ApiPurchaseOrderDetailService {
   }
 
   async getDataExtends(data: PurchaseOrderType) {
-    const supplierMap = await this.natsClientVendorService.getSupplierMap({
-      filter: { id: { IN: [data.supplierId] } },
-      relation: { supplierItems: true },
-    })
+    const supplierMap = data.supplierId
+      ? await this.natsClientVendorService.getSupplierMap({
+          filter: { id: { IN: [data.supplierId] } },
+          relation: { supplierItems: true },
+        })
+      : {}
 
     const itemIdList = uniqueArray([
       ...(data.purchaseOrderItems || []).map((i) => i.itemId),

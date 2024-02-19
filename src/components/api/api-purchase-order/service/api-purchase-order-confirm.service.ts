@@ -114,10 +114,12 @@ export class ApiPurchaseOrderConfirmService {
   // TODO
   async validate(purchaseOrderList: PurchaseOrderType[]) {
     const supplierIds = purchaseOrderList.map((i) => i.supplierId)
-    const supplierMap = await this.natsClientVendorService.getSupplierMap({
-      filter: { id: { IN: supplierIds } },
-      relation: { supplierItems: true },
-    })
+    const supplierMap = supplierIds.length
+      ? await this.natsClientVendorService.getSupplierMap({
+          filter: { id: { IN: supplierIds } },
+          relation: { supplierItems: true },
+        })
+      : {}
     const supplierList = Object.values(supplierMap)
 
     const purchaseOrderItems = purchaseOrderList

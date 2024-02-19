@@ -28,15 +28,26 @@ export class NatsPurchaseOrderService {
 
   async getMany(query: PurchaseOrderGetManyRequest): Promise<BaseResponse> {
     const { limit, filter, relation, sort } = query
-
     const data = await this.purchaseOrderRepository.findMany({
       relation,
       condition: {
         ...(filter?.searchText
           ? {
-              //   $OR: [{ code: { LIKE: filter?.searchText } }, { name: { LIKE: filter?.searchText } }],
+              $OR: [
+                { code: { LIKE: filter.searchText } },
+                { purchaseRequestCode: { LIKE: filter.searchText } },
+              ],
             }
-          : { ...filter }),
+          : {}),
+        code: filter?.code,
+        purchaseRequestCode: filter?.purchaseRequestCode,
+        orderDate: filter?.orderDate,
+        deliveryDate: filter?.deliveryDate,
+        supplierId: filter?.supplierId,
+        purchaseOrderKind: filter?.purchaseOrderKind,
+        createdByUserId: filter?.createdByUserId,
+        poPaymentStatus: filter?.poPaymentStatus,
+        status: filter?.status,
       },
       limit,
       sort,
@@ -49,10 +60,12 @@ export class NatsPurchaseOrderService {
 
   async getDataExtends(data: PurchaseOrderType[]) {
     const supplierIdList = uniqueArray(data.map((i) => i.supplierId))
-    const supplierMap = await this.natsClientVendorService.getSupplierMap({
-      filter: { id: { IN: supplierIdList } },
-      relation: { supplierItems: true },
-    })
+    const supplierMap = supplierIdList.length
+      ? await this.natsClientVendorService.getSupplierMap({
+          filter: { id: { IN: supplierIdList } },
+          relation: { supplierItems: true },
+        })
+      : {}
     const supplierItemList = Object.values(supplierMap)
       .map((i) => i.supplierItems || [])
       .flat()
