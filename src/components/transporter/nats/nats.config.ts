@@ -19,6 +19,8 @@ export const NatsService = {
     'item_stock_planning_service',
   PURCHASE_ORDER:
     process.env.NATS_PURCHASE_ORDER_SERVICE || 'purchase_order_service',
+  PURCHASED_REQUEST:
+    process.env.NATS_PURCHASED_REQUEST_SERVICE || 'purchased_request_service',
   SALE: process.env.NATS_SALE_SERVICE || 'sale_service',
 }
 
@@ -93,5 +95,9 @@ export const NatsSubject = {
   PURCHASE_ORDER: {
     GET_PURCHASED_ORDER_LIST:
       NatsService.PURCHASE_ORDER + '.get_purchase_order_list',
+  },
+  PURCHASED_REQUEST: {
+    GET_PURCHASED_REQUEST_LIST:
+      NatsService.PURCHASED_REQUEST + '.get_purchased_request_list',
   },
 }
