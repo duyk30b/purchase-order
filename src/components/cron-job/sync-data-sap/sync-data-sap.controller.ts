@@ -6,10 +6,10 @@ import { SyncItemGroupService } from './soap-item-group/sync-item-group.service'
 @ApiBearerAuth('access-token')
 @Controller('sync-data-sap')
 export class SyncDataSapController {
-  constructor(private readonly syncItemGroupService: SyncItemGroupService) {}
+  // constructor(private readonly syncItemGroupService: SyncItemGroupService) {}
 
   @Get('sync-item-group')
   async syncItemGroup() {
-    return await this.syncItemGroupService.start()
+    // return await this.syncItemGroupService.start()
   }
 }

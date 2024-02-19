@@ -55,7 +55,6 @@ import { UserActionSchema } from './user-action/user-action.schema'
   providers: [
     PurchaseRequestRepository,
     PurchaseRequestItemRepository,
-    PurchaseOrderRepository,
     PurchaseRequestHistoryRepository,
     PurchaseOrderRepository,
     PurchaseOrderItemRepository,
@@ -66,7 +65,6 @@ import { UserActionSchema } from './user-action/user-action.schema'
   exports: [
     PurchaseRequestRepository,
     PurchaseRequestItemRepository,
-    PurchaseOrderRepository,
     PurchaseRequestHistoryRepository,
     PurchaseOrderRepository,
     PurchaseOrderItemRepository,
