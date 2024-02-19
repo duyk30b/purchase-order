@@ -1,11 +1,10 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { SyncItemGroupService } from './soap-item-group/sync-item-group.service'
 
-@ApiTags('Sync Data SAP')
+@ApiTags('Sync Data')
 @ApiBearerAuth('access-token')
-@Controller('sync-data-sap')
-export class SyncDataSapController {
+@Controller('sync-data')
+export class SyncDataController {
   // constructor(private readonly syncItemGroupService: SyncItemGroupService) {}
 
   @Get('sync-item-group')

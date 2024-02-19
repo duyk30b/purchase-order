@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigType } from '@nestjs/config'
 import { SoapModule, SoapModuleOptions } from 'nestjs-soap'
-import { SyncDataSapConfig } from '../sync-data-sap.config'
+import { SyncDataSapConfig } from './soap-item-group.config'
 import { SoapItemGroupService } from './soap-item-group.service'
 import { SyncItemGroupService } from './sync-item-group.service'
 

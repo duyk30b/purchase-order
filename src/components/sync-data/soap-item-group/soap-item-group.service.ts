@@ -1,11 +1,11 @@
 import { sleep } from '@nestcloud/common'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { Client } from 'nestjs-soap'
+import { ProductCategorySapType } from './product-category-sap.type'
 import {
   SAP_SYNC_RETRY_EACH_TIME,
   SAP_SYNC_RETRY_NUMBER,
-} from '../sync-data-sap.config'
-import { ProductCategorySapType } from './product-category-sap.type'
+} from './soap-item-group.config'
 
 @Injectable()
 export class SoapItemGroupService {

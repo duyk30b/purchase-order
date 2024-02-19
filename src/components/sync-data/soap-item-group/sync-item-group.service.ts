@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Interval } from '@nestjs/schedule'
-import { SAP_SYNC_ITEM_GROUP_TIME } from '../sync-data-sap.config'
+import { SAP_SYNC_ITEM_GROUP_TIME } from './soap-item-group.config'
 import { SoapItemGroupService } from './soap-item-group.service'
 
 @Injectable()
