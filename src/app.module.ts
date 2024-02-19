@@ -72,7 +72,7 @@ import { MongoDbConnectModule } from './mongo/mongodb-connect.module'
     // RedisClientModule,
 
     // EventListenerModule,
-    // CronJobModule,
+    CronJobModule,
     AxiosModule,
     ApiModule,
   ],
