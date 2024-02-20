@@ -233,15 +233,15 @@ export class ApiPurchaseOrderConfirmService {
       supplierItemList.forEach((i) => (supplierItemMap[i.id] = i))
 
       po.poDeliveryItems.forEach((di) => {
-        if (itemMap[di.id].status !== ItemStatusEnum.CONFIRMED) {
-          throw new BusinessException('msg.MSG_195')
-        }
-        if (!supplierItemMap[di.id]) {
-          throw new BusinessException('msg.MSG_195')
-        }
-        if (di.deliveryDate.getTime() - po.orderDate.getTime() < 0) {
-          throw new BusinessException('msg.MSG_062')
-        }
+        // if (itemMap[di.itemId].status !== ItemStatusEnum.CONFIRMED) {
+        //   throw new BusinessException('msg.MSG_195')
+        // }
+        // if (!supplierItemMap[di.itemId]) {
+        //   throw new BusinessException('msg.MSG_195')
+        // }
+        // if (di.deliveryDate.getTime() - po.orderDate.getTime() < 0) {
+        //   throw new BusinessException('msg.MSG_062')
+        // }
       })
     })
   }
