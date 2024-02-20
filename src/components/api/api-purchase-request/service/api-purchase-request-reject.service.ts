@@ -43,7 +43,7 @@ export class ApiPurchaseRequestRejectService {
     const prUpdateCount = await this.purchaseRequestRepository.updateMany(
       { _id: { IN: idsObject } },
       {
-        status: PurchaseRequestStatus.CONFIRM,
+        status: PurchaseRequestStatus.REJECT,
         updatedByUserId: userId,
       }
     )
