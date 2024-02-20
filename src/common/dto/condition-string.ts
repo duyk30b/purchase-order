@@ -1,4 +1,4 @@
-import { Expose, plainToInstance } from 'class-transformer'
+import { Expose, TransformFnParams, plainToInstance } from 'class-transformer'
 import { ArrayMinSize, IsArray, IsString, validateSync } from 'class-validator'
 
 export class ConditionString {
@@ -37,10 +37,7 @@ export class ConditionString {
   'IN'?: string[]
 }
 
-export const transformConditionString = (
-  value: number | ConditionString,
-  field?: string
-) => {
+export const transformConditionString = ({ value, key }: TransformFnParams) => {
   if (!value) {
     return
   }
@@ -53,9 +50,9 @@ export const transformConditionString = (
       forbidNonWhitelisted: true,
       skipMissingProperties: true,
     })
-    if (validate.length) throw new Error(`${field} must be a string`)
+    if (validate.length) throw new Error(`${key} must be a String`)
     return instance
   } else {
-    throw new Error(`${field} must be a string`)
+    throw new Error(`${key} must be a String`)
   }
 }

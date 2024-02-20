@@ -1,4 +1,4 @@
-import { Expose, plainToInstance } from 'class-transformer'
+import { Expose, TransformFnParams, plainToInstance } from 'class-transformer'
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -79,10 +79,7 @@ export class ConditionNumber {
   'BETWEEN'?: [number, number]
 }
 
-export const transformConditionNumber = (
-  value: number | ConditionNumber,
-  field?: string
-) => {
+export const transformConditionNumber = ({ value, key }: TransformFnParams) => {
   if (!value) {
     return
   }
@@ -95,9 +92,9 @@ export const transformConditionNumber = (
       forbidNonWhitelisted: true,
       skipMissingProperties: true,
     })
-    if (validate.length) throw new Error(`${field} must be a Number`)
+    if (validate.length) throw new Error(`${key} must be a Number`)
     return instance
   } else {
-    throw new Error(`${field} must be a Number`)
+    throw new Error(`${key} must be a Number`)
   }
 }

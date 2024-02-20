@@ -1,10 +1,17 @@
-import { Expose, Transform } from 'class-transformer'
+import {
+  Expose,
+  Transform,
+  TransformFnParams,
+  plainToInstance,
+} from 'class-transformer'
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDate,
+  isDateString,
+  validateSync,
 } from 'class-validator'
 
 export class ConditionDate {
@@ -96,4 +103,25 @@ export class ConditionDate {
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
   'BETWEEN'?: [Date, Date]
+}
+
+export const transformConditionDate = ({ value, key }: TransformFnParams) => {
+  if (!value) return undefined
+
+  if (typeof value === 'string') {
+    const validate = isDateString(value)
+    if (!validate) throw new Error(`${key} must be a DateString`)
+    return value
+  } else if (typeof value === 'object') {
+    const instance = plainToInstance(ConditionDate, value)
+    const validate = validateSync(instance, {
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: true,
+    })
+    if (validate.length) throw new Error(`${key} must be a DateString`)
+    return instance
+  } else {
+    throw new Error(`${key} must be a DateString`)
+  }
 }

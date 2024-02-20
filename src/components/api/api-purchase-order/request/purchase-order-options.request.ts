@@ -41,7 +41,7 @@ export class PurchaseOrderRelationQuery {
 
 export class PurchaseOrderFilterQuery {
   @Expose()
-  @Transform(({ value }) => transformConditionMongoId(value, 'id'))
+  @Transform(transformConditionMongoId)
   @Allow()
   id: string | ConditionMongoId
 
@@ -50,7 +50,7 @@ export class PurchaseOrderFilterQuery {
   searchText: string
 
   @Expose()
-  @Transform(({ value }) => transformConditionString(value, 'code'))
+  @Transform(transformConditionString)
   @Allow()
   code: string | ConditionString
 

@@ -1,4 +1,4 @@
-import { Expose, plainToInstance } from 'class-transformer'
+import { Expose, TransformFnParams, plainToInstance } from 'class-transformer'
 import {
   ArrayMinSize,
   IsArray,
@@ -43,15 +43,15 @@ export class ConditionMongoId {
   'IN'?: string[]
 }
 
-export const transformConditionMongoId = (
-  value: number | ConditionMongoId,
-  field?: string
-) => {
+export const transformConditionMongoId = ({
+  value,
+  key,
+}: TransformFnParams) => {
   if (!value) return undefined
 
   if (typeof value === 'string') {
     const validate = isMongoId(value)
-    if (!validate) throw new Error(`${field} must be a mongoID`)
+    if (!validate) throw new Error(`${key} must be a mongoID`)
     return value
   } else if (typeof value === 'object') {
     const instance = plainToInstance(ConditionMongoId, value)
@@ -60,9 +60,9 @@ export const transformConditionMongoId = (
       forbidNonWhitelisted: true,
       skipMissingProperties: true,
     })
-    if (validate.length) throw new Error(`${field} must be a mongoID`)
+    if (validate.length) throw new Error(`${key} must be a mongoID`)
     return instance
   } else {
-    throw new Error(`${field} must be a mongoID`)
+    throw new Error(`${key} must be a mongoID`)
   }
 }
