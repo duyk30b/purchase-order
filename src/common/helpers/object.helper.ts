@@ -34,7 +34,7 @@ export const uniqueArray = <T>(array: T[]) => {
   return Array.from(new Set(array))
 }
 
-export const objectKeyByArray = <T>(array: T[], property: keyof T) => {
+export const arrayToKeyValue = <T>(array: T[], property: keyof T) => {
   const object: Record<string, T> = {}
   array.forEach((item: T) => {
     const key = (item[property] as any).toString()
@@ -43,7 +43,7 @@ export const objectKeyByArray = <T>(array: T[], property: keyof T) => {
   return object
 }
 
-export const objectGroupByArray = <T>(array: T[], property: keyof T) => {
+export const arrayToKeyArray = <T>(array: T[], property: keyof T) => {
   const object: Record<string, T[]> = {}
   array.forEach((item: T) => {
     const key = (item[property] as any).toString()

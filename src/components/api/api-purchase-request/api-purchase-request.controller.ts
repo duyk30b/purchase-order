@@ -8,7 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { IdMongoParam } from '../../../common/dto/param'
 import { External, TExternal } from '../../../core/decorator/request-external'
 import { PermissionCode } from '../../../core/guard/authorization.guard'
@@ -18,6 +18,7 @@ import {
   PURCHASE_REQUEST_CREATE,
   PURCHASE_REQUEST_DELETE,
   PURCHASE_REQUEST_DETAIL,
+  PURCHASE_REQUEST_EXCHANGE,
   PURCHASE_REQUEST_HISTORY,
   PURCHASE_REQUEST_LIST,
   PURCHASE_REQUEST_REJECT,
@@ -40,6 +41,7 @@ import { ApiPurchaseRequestConfirmService } from './service/api-purchase-request
 import { ApiPurchaseRequestCreateService } from './service/api-purchase-request-create.service'
 import { ApiPurchaseRequestDeleteService } from './service/api-purchase-request-delete.service'
 import { ApiPurchaseRequestGetService } from './service/api-purchase-request-get.service'
+import { ApiPurchaseRequestItemExchangeService } from './service/api-purchase-request-item-exchange.service'
 import { ApiPurchaseRequestRejectService } from './service/api-purchase-request-reject.service'
 import { ApiPurchaseRequestUpdateService } from './service/api-purchase-request-update.service'
 import { ApiPurchaseRequestWaitConfirmService } from './service/api-purchase-request-wait-confirm.service'
@@ -58,6 +60,7 @@ export class ApiPurchaseRequestController {
     private readonly apiPurchaseRequestConfirmService: ApiPurchaseRequestConfirmService,
     private readonly apiPurchaseRequestRejectService: ApiPurchaseRequestRejectService,
     private readonly apiPurchaseRequestCancelService: ApiPurchaseRequestCancelService,
+    private readonly apiPurchaseRequestItemExchangeService: ApiPurchaseRequestItemExchangeService,
     private readonly apiPrItemDetailService: ApiPrItemDetailService
   ) {}
 
@@ -225,5 +228,19 @@ export class ApiPurchaseRequestController {
   @ApiParam({ name: 'id', example: '63fdde9517a7317f0e8f959a' })
   async itemsDetail(@Param() { id }: IdMongoParam) {
     return await this.apiPrItemDetailService.itemsDetail(id)
+  }
+
+  @Get('exchange/:id')
+  @PermissionCode(PURCHASE_REQUEST_EXCHANGE.code)
+  @ApiParam({ name: 'id', example: '65d446710785ded97447ef33' })
+  @ApiQuery({ name: 'searchText', example: '123' })
+  async itemsExchange(
+    @Param() { id }: IdMongoParam,
+    @Query() query: { searchText: string }
+  ) {
+    return await this.apiPurchaseRequestItemExchangeService.itemsExchange({
+      purchaseRequestId: id,
+      searchText: query.searchText,
+    })
   }
 }
