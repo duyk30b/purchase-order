@@ -5,9 +5,9 @@ import { NatsSubject } from '../../transporter/nats/nats.config'
 import { NatsPurchaseRequestService } from './nats-purchased-request.service'
 import { PurchaseRequestGetManyQuery } from './request/purchased-request-get.query'
 
-@ApiTags('PurchaseRequest')
+@ApiTags('Nats PurchaseRequest')
 @ApiBearerAuth('access-token')
-@Controller('customer')
+@Controller()
 export class NatsPurchaseRequestController {
   constructor(
     private readonly natsPurchaseRequestService: NatsPurchaseRequestService

@@ -7,7 +7,7 @@ import { PurchaseOrderGetManyRequest } from './request/purchase-order-get.query'
 
 @ApiTags('Nats PurchaseOrder')
 @ApiBearerAuth('access-token')
-@Controller('customer')
+@Controller()
 export class NatsPurchaseOrderController {
   constructor(
     private readonly natsPurchaseOrderService: NatsPurchaseOrderService
@@ -24,7 +24,7 @@ export class NatsPurchaseOrderController {
   @Get('test')
   async test() {
     return await this.natsPurchaseOrderService.getMany({
-      filter: { supplierId: '65c32b5ce86b86fdc5b589c3' },
+      filter: { code: { IN: ['PO-0000004'] } },
     } as any)
   }
 }

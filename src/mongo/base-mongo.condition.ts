@@ -21,6 +21,7 @@ export class BaseMongoCondition<T> {
         if (Object.keys(target).length === 0) return
         const ruleColumn: any = {}
         Object.entries(target).forEach(([rule, value]: [string, any]) => {
+          if (value === undefined) return
           if (rule === '>' || rule === 'GT') {
             ruleColumn.$gt = value
             return
