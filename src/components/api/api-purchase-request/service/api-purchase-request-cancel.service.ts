@@ -64,7 +64,7 @@ export class ApiPurchaseRequestCancelService {
     const prUpdateCount = await this.purchaseRequestRepository.updateMany(
       { _id: { IN: idsObject } },
       {
-        status: PurchaseRequestStatus.CONFIRM,
+        status: PurchaseRequestStatus.CANCEL,
         updatedByUserId: userId,
       }
     )
@@ -74,7 +74,7 @@ export class ApiPurchaseRequestCancelService {
       const prHistoryDto: PurchaseRequestHistoryInsertType = {
         _purchase_request_id: new Types.ObjectId(pr.id),
         userId,
-        status: { before: pr.status, after: PurchaseRequestStatus.CONFIRM },
+        status: { before: pr.status, after: PurchaseRequestStatus.CANCEL },
         content: PurchaseRequestHistoryContent.CANCEL,
         time: new Date(),
       }
@@ -85,6 +85,6 @@ export class ApiPurchaseRequestCancelService {
       prHistoryDtoList
     )
 
-    return { data: { ids }, message: 'msg.MSG_011' }
+    return { data: { ids }, message: 'msg.MSG_283' }
   }
 }
