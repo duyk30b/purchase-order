@@ -113,7 +113,10 @@ export const transformConditionDate = ({ value, key }: TransformFnParams) => {
     if (!validate) throw new Error(`${key} must be a DateString`)
     return value
   } else if (typeof value === 'object') {
-    const instance = plainToInstance(ConditionDate, value)
+    const instance = plainToInstance(ConditionDate, value, {
+      exposeUnsetFields: false,
+      excludeExtraneousValues: false,
+    })
     const validate = validateSync(instance, {
       whitelist: true,
       forbidNonWhitelisted: true,

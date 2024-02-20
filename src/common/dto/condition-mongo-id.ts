@@ -54,7 +54,10 @@ export const transformConditionMongoId = ({
     if (!validate) throw new Error(`${key} must be a mongoID`)
     return value
   } else if (typeof value === 'object') {
-    const instance = plainToInstance(ConditionMongoId, value)
+    const instance = plainToInstance(ConditionMongoId, value, {
+      exposeUnsetFields: false,
+      excludeExtraneousValues: false,
+    })
     const validate = validateSync(instance, {
       whitelist: true,
       forbidNonWhitelisted: true,
