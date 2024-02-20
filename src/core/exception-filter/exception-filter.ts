@@ -31,8 +31,8 @@ export class BusinessException extends Error {
 
   constructor(
     message: I18nPath,
-    statusCode = HttpStatus.BAD_REQUEST,
-    i18args = {} // biến khai báo cho i18n
+    i18args = {}, // biến khai báo cho i18n
+    statusCode = HttpStatus.BAD_REQUEST
   ) {
     super(message)
     this.statusCode = statusCode
@@ -40,18 +40,18 @@ export class BusinessException extends Error {
   }
 
   static msg(message: I18nPath, i18args = {}) {
-    return new BusinessException(message, HttpStatus.BAD_REQUEST, i18args)
+    return new BusinessException(message, i18args, HttpStatus.BAD_REQUEST)
   }
 
   static error(options: {
     message: I18nPath
-    error?: any[]
     i18args?: Record<string, any>
+    error?: any[]
   }) {
     const exception = new BusinessException(
       options.message,
-      HttpStatus.BAD_REQUEST,
-      options.i18args
+      options.i18args,
+      HttpStatus.BAD_REQUEST
     )
     exception.errors = options.error || []
     return exception

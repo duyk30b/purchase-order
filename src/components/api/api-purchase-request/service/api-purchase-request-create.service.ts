@@ -144,7 +144,9 @@ export class ApiPurchaseRequestCreateService {
         CostCenterStatusEnum.INACTIVE,
       ].includes(costCenter.status)
     ) {
-      throw new BusinessException('msg.MSG_041')
+      throw new BusinessException('msg.MSG_195', {
+        obj: 'Cost center / Bộ phận',
+      })
     }
 
     if (!supplier) {
