@@ -56,7 +56,11 @@ export class ApiPurchaseRequestItemExchangeService {
       _purchase_order_id: { IN: purchaseOrderIdList },
     })
 
-    const meta = await this.getDataExtends(poDeliveryItemList)
+    const meta = {
+      purchaseRequest,
+      purchaseOrderMap,
+      ...(await this.getDataExtends(poDeliveryItemList)),
+    }
 
     if (searchText) {
       poDeliveryItemList = poDeliveryItemList.filter((i) => {
