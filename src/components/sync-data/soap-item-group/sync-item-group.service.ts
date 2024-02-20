@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Interval } from '@nestjs/schedule'
-import { SAP_SYNC_ITEM_GROUP_TIME } from './soap-item-group.config'
+import { SAP_ITEM_GROUP_INTERVAL } from './soap-item-group.config'
 import { SoapItemGroupService } from './soap-item-group.service'
 
 @Injectable()
@@ -9,7 +9,7 @@ export class SyncItemGroupService {
 
   constructor(private readonly soapItemGroupService: SoapItemGroupService) {}
 
-  @Interval(SAP_SYNC_ITEM_GROUP_TIME)
+  @Interval(SAP_ITEM_GROUP_INTERVAL)
   async start() {
     const dataSoap = await this.soapItemGroupService.getAll()
   }

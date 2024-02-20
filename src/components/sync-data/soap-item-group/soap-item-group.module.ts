@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigType } from '@nestjs/config'
 import { SoapModule, SoapModuleOptions } from 'nestjs-soap'
-import { SyncDataSapConfig } from './soap-item-group.config'
+import { SoapItemGroupConfig } from './soap-item-group.config'
 import { SoapItemGroupService } from './soap-item-group.service'
 import { SyncItemGroupService } from './sync-item-group.service'
 
@@ -9,17 +9,17 @@ import { SyncItemGroupService } from './sync-item-group.service'
   imports: [
     SoapModule.forRootAsync({
       clientName: 'SOAP_ITEM_GROUP_SERVICE',
-      imports: [ConfigModule.forFeature(SyncDataSapConfig)],
-      inject: [SyncDataSapConfig.KEY],
+      imports: [ConfigModule.forFeature(SoapItemGroupConfig)],
+      inject: [SoapItemGroupConfig.KEY],
       useFactory: async (
-        syncDataSapConfig: ConfigType<typeof SyncDataSapConfig>
+        soapItemGroupConfig: ConfigType<typeof SoapItemGroupConfig>
       ): Promise<SoapModuleOptions> => ({
         clientName: 'SOAP_ITEM_GROUP_SERVICE',
-        uri: syncDataSapConfig.syncItemGroupUri,
+        uri: soapItemGroupConfig.syncItemGroupUri,
         auth: {
           type: 'basic',
-          username: syncDataSapConfig.username,
-          password: syncDataSapConfig.password,
+          username: soapItemGroupConfig.username,
+          password: soapItemGroupConfig.password,
         },
       }),
     }),

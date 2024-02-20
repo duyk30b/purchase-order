@@ -3,8 +3,8 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import { Client } from 'nestjs-soap'
 import { ProductCategorySapType } from './product-category-sap.type'
 import {
-  SAP_SYNC_RETRY_EACH_TIME,
-  SAP_SYNC_RETRY_NUMBER,
+  SAP_ITEM_GROUP_RETRY_EACH_TIME,
+  SAP_ITEM_GROUP_RETRY_NUMBER,
 } from './soap-item-group.config'
 
 @Injectable()
@@ -18,7 +18,7 @@ export class SoapItemGroupService {
   async getAll() {
     this.logger.debug('Start fetch "ProductCategory" from SAP')
 
-    for (let i = 0; i <= SAP_SYNC_RETRY_NUMBER; i++) {
+    for (let i = 0; i <= SAP_ITEM_GROUP_RETRY_NUMBER; i++) {
       try {
         const response: ProductCategorySapType = await new Promise(
           (resolve, reject) => {
@@ -58,7 +58,7 @@ export class SoapItemGroupService {
         // các lỗi khác (NETWORK, TIMEOUT, ...) thì cho retry
         else {
           this.logger.error(error.message)
-          await sleep(i * SAP_SYNC_RETRY_EACH_TIME)
+          await sleep(i * SAP_ITEM_GROUP_RETRY_EACH_TIME)
           this.logger.debug(`Start retry, number of retries = ${i}`)
         }
       }
