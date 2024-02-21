@@ -160,32 +160,34 @@ export class ApiPurchaseRequestUpdateService {
     const costCenter = costCenterMap[costCenterId]
     const supplier = supplierMap[supplierId]
 
-    if (!costCenter) {
-      throw new BusinessException('error.CostCenter.NotFound')
-    }
     if (
+      !costCenter ||
       [
         CostCenterStatusEnum.DRAFT,
         CostCenterStatusEnum.DELETED,
         CostCenterStatusEnum.INACTIVE,
       ].includes(costCenter.status)
     ) {
-      throw new BusinessException('msg.MSG_195', {
-        obj: 'Cost center / Bộ phận',
+      throw BusinessException.error({
+        message: 'msg.MSG_195',
+        i18args: { obj: 'Cost center / Bộ phận' },
+        error: { costCenter: costCenter || null },
       })
     }
 
-    if (!supplier) {
-      throw new BusinessException('error.Supplier.NotFound')
-    }
-    if ([SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
-      throw new BusinessException('msg.MSG_045')
+    if (!supplier || [SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
+      throw BusinessException.error({
+        message: 'msg.MSG_045',
+        error: { supplier: supplier || null },
+      })
     }
 
-    itemList.forEach((i) => {
-      if ([ItemActiveStatusEnum.INACTIVE].includes(i.activeStatus)) {
-        throw new BusinessException('msg.MSG_195', {
-          obj: 'Sản phẩm',
+    itemList.forEach((item) => {
+      if (![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)) {
+        throw BusinessException.error({
+          message: 'msg.MSG_195',
+          i18args: { obj: 'Sản phẩm' },
+          error: { item: item || null },
         })
       }
     })
@@ -194,17 +196,18 @@ export class ApiPurchaseRequestUpdateService {
       const supplierItem = supplier.supplierItems.find(
         (j) => j.itemId === i.itemId
       )
-      if (!supplierItem) {
-        throw new BusinessException('error.SupplierItem.NotFound')
-      }
-      if (i.itemUnitId !== supplierItem.itemUnitId) {
+
+      if (!supplierItem || i.itemUnitId !== supplierItem.itemUnitId) {
         throw BusinessException.error({
           message: 'msg.MSG_298',
-          error: [{ supplierItem, purchaseRequestItem: i }],
+          error: { supplierItem, purchaseRequestItem: i },
         })
       }
       if (i.deliveryTerm !== supplierItem.deliveryTerm) {
-        throw new BusinessException('msg.MSG_043', {})
+        throw BusinessException.error({
+          message: 'msg.MSG_043',
+          error: { supplierItem, purchaseRequestItem: i },
+        })
       }
     })
   }

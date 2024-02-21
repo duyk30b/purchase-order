@@ -140,54 +140,66 @@ export class ApiPurchaseRequestConfirmService {
       const costCenter = costCenterMap[purchaseRequest.costCenterId]
       const supplier = supplierMap[purchaseRequest.supplierId]
 
-      if (!costCenter) {
-        throw new BusinessException('error.CostCenter.NotFound')
-      }
       if (
+        !costCenter ||
         [
           CostCenterStatusEnum.DRAFT,
           CostCenterStatusEnum.DELETED,
           CostCenterStatusEnum.INACTIVE,
         ].includes(costCenter.status)
       ) {
-        throw new BusinessException('msg.MSG_195', {
-          obj: 'Cost center / Bộ phận',
+        throw BusinessException.error({
+          message: 'msg.MSG_195',
+          i18args: { obj: 'Cost center / Bộ phận' },
+          error: { costCenter: costCenter || null },
         })
       }
 
-      if (!supplier) {
-        throw new BusinessException('error.Supplier.NotFound')
-      }
-      if ([SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
-        throw new BusinessException('msg.MSG_045')
+      if (!supplier || [SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
+        throw BusinessException.error({
+          message: 'msg.MSG_045',
+          error: { supplier: supplier || null },
+        })
       }
 
       purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
         const item = itemMap[purchaseRequestItem.itemId]
         if ([ItemActiveStatusEnum.INACTIVE].includes(item.activeStatus)) {
-          throw new BusinessException('msg.MSG_195', {
-            obj: 'Sản phẩm',
+          throw BusinessException.error({
+            message: 'msg.MSG_195',
+            i18args: { obj: 'Sản phẩm' },
+            error: { item: item || null },
           })
         }
 
         const supplierItem = (supplier.supplierItems || []).find(
           (si) => purchaseRequestItem.itemId === si.itemId
         )
-        if (!supplierItem) {
-          throw new BusinessException('error.SupplierItem.NotFound')
+
+        if (
+          !item ||
+          !supplierItem ||
+          ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
+        ) {
+          throw BusinessException.error({
+            message: 'msg.MSG_195',
+            i18args: { obj: 'Sản phẩm' },
+            error: { item: item || null, supplierItem: supplierItem || null },
+          })
         }
+
         // Đơn vị tính thay đổi thì báo lỗi
         if (purchaseRequestItem.itemUnitId !== supplierItem.itemUnitId) {
           throw BusinessException.error({
             message: 'msg.MSG_298',
-            error: [{ purchaseRequestItem, supplierItem }],
+            error: { purchaseRequestItem, supplierItem },
           })
         }
         // Thời hạn giao hàng thay đổi cũng báo lỗi
         if (purchaseRequestItem.deliveryTerm !== supplierItem.deliveryTerm) {
           throw BusinessException.error({
             message: 'msg.MSG_043',
-            error: [{ purchaseRequestItem, supplierItem }],
+            error: { purchaseRequestItem, supplierItem },
           })
         }
       })

@@ -27,7 +27,7 @@ export class ValidationException extends Error {
 export class BusinessException extends Error {
   public statusCode: HttpStatus
   public i18args?: Record<string, any>
-  public errors: any[]
+  public errors: any[] | Record<string, any>
 
   constructor(
     message: I18nPath,
@@ -46,14 +46,14 @@ export class BusinessException extends Error {
   static error(options: {
     message: I18nPath
     i18args?: Record<string, any>
-    error?: any[]
+    error?: Record<string, any>
   }) {
     const exception = new BusinessException(
       options.message,
       options.i18args,
       HttpStatus.BAD_REQUEST
     )
-    exception.errors = options.error || []
+    exception.errors = options.error || {}
     return exception
   }
 }

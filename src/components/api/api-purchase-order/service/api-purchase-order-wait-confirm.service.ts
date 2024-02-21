@@ -185,17 +185,28 @@ export class ApiPurchaseOrderWaitConfirmService {
     data.forEach((po: PurchaseOrderType) => {
       const supplier = supplierMap[po.supplierId]
       if (!supplier || ![SUPPLIER_STATUS.ACTIVE].includes(supplier.status)) {
-        throw new BusinessException('msg.MSG_045')
+        throw BusinessException.error({
+          message: 'msg.MSG_045',
+          error: { supplier: supplier || null },
+        })
       }
 
       const pr = purchaseRequestMap[po.purchaseRequestCode]
       if (!pr || ![PurchaseRequestStatus.CONFIRM].includes(pr.status)) {
-        throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
+        throw BusinessException.error({
+          message: 'msg.MSG_010',
+          i18args: { obj: 'Đơn mua hàng' },
+          error: { purchaseRequest: pr || null },
+        })
       }
 
       const incoterm = incotermMap[po.incotermId]
       if (!incoterm || !incoterm.isActive) {
-        throw BusinessException.msg('msg.MSG_195', { obj: 'Incoterms' })
+        throw BusinessException.error({
+          message: 'msg.MSG_195',
+          i18args: { obj: 'Incoterms' },
+          error: { incoterm: incoterm || null },
+        })
       }
 
       const supplierItemList = supplier.supplierItems || []
@@ -211,13 +222,17 @@ export class ApiPurchaseOrderWaitConfirmService {
           !supplierItem ||
           ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
         ) {
-          throw new BusinessException('msg.MSG_195', {
-            obj: 'Sản phẩm',
+          throw BusinessException.error({
+            message: 'msg.MSG_195',
+            i18args: { obj: 'Sản phẩm' },
+            error: { item: item || null, supplierItem: supplierItem || null },
           })
         }
         if (poItem.itemUnitId !== supplierItem.itemUnitId) {
-          throw new BusinessException('msg.MSG_298', {
-            obj: 'Sản phẩm',
+          throw BusinessException.error({
+            message: 'msg.MSG_298',
+            i18args: { obj: 'Sản phẩm' },
+            error: { item: item || null, supplierItem: supplierItem || null },
           })
         }
 
@@ -233,7 +248,11 @@ export class ApiPurchaseOrderWaitConfirmService {
           !warehouse ||
           ![WarehouseStatusEnum.Active].includes(warehouse.status)
         ) {
-          throw new BusinessException('msg.MSG_067', {})
+          throw BusinessException.error({
+            message: 'msg.MSG_067',
+            i18args: { obj: 'Sản phẩm' },
+            error: { warehouse: warehouse || null },
+          })
         }
       })
     })

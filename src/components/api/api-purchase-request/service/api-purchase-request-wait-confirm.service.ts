@@ -145,8 +145,10 @@ export class ApiPurchaseRequestWaitConfirmService {
     purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
       const item = itemMap[purchaseRequestItem.itemId]
       if ([ItemActiveStatusEnum.INACTIVE].includes(item.activeStatus)) {
-        throw new BusinessException('msg.MSG_195', {
-          obj: 'Sản phẩm',
+        throw BusinessException.error({
+          message: 'msg.MSG_195',
+          i18args: { obj: 'Sản phẩm' },
+          error: { item: item || null },
         })
       }
 
