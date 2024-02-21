@@ -42,7 +42,7 @@ export class ApiPurchaseOrderRejectService {
     }
     rootList.forEach((i) => {
       if (![PurchaseOrderStatus.WAIT_CONFIRM].includes(i.status)) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
       }
     })
 
@@ -71,6 +71,10 @@ export class ApiPurchaseOrderRejectService {
       poHistoryDtoList
     )
 
-    return { data: { ids }, message: 'msg.MSG_189' }
+    return {
+      data: { ids },
+      message: 'msg.MSG_189',
+      args: { obj: 'Đơn mua hàng' },
+    }
   }
 }

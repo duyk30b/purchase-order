@@ -40,7 +40,7 @@ export class ApiPurchaseOrderWaitDeliveryService {
 
     rootList.forEach((i) => {
       if ([PurchaseOrderStatus.CONFIRM].includes(i.status)) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
       }
     })
 

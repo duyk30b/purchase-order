@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
-import { uniqueArray } from '../../../../common/helpers'
+import { arrayToKeyValue, uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
@@ -23,11 +23,12 @@ import { NatsClientIncotermService } from '../../../transporter/nats/nats-sale/n
 import {
   SUPPLIER_STATUS,
   SupplierItemType,
+  SupplierType,
 } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import { NatsClientCostCenterService } from '../../../transporter/nats/service/nats-client-cost-center.service'
 import {
-  ItemStatusEnum,
+  ItemActiveStatusEnum,
   ItemType,
   ItemUnitType,
   NatsClientItemService,
@@ -77,7 +78,7 @@ export class ApiPurchaseOrderConfirmService {
 
     rootList.forEach((i) => {
       if (![PurchaseOrderStatus.WAIT_CONFIRM].includes(i?.status)) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
       }
     })
 
@@ -114,14 +115,6 @@ export class ApiPurchaseOrderConfirmService {
   // TODO
   async validate(purchaseOrderList: PurchaseOrderType[]) {
     const supplierIds = purchaseOrderList.map((i) => i.supplierId)
-    const supplierMap = supplierIds.length
-      ? await this.natsClientVendorService.getSupplierMap({
-          filter: { id: { IN: supplierIds } },
-          relation: { supplierItems: true },
-        })
-      : {}
-    const supplierList = Object.values(supplierMap)
-
     const purchaseOrderItems = purchaseOrderList
       .map((i) => i.purchaseOrderItems || [])
       .flat()
@@ -153,8 +146,14 @@ export class ApiPurchaseOrderConfirmService {
     const warehouseIdList = poDeliveryItems.map((i) => i.warehouseIdReceiving) // kho nhận
 
     const dataExtendsPromise = await Promise.allSettled([
+      supplierIds.length
+        ? this.natsClientVendorService.getSupplierMap({
+            filter: { id: { IN: supplierIds } },
+            relation: { supplierItems: true },
+          })
+        : {},
       incotermIds && incotermIds.length
-        ? this.natsClientIncotermService.incotermGetList({
+        ? this.natsClientIncotermService.incotermGetMap({
             filter: { id: { IN: incotermIds } },
           })
         : {},
@@ -172,7 +171,7 @@ export class ApiPurchaseOrderConfirmService {
           })
         : {},
       warehouseIdList && warehouseIdList.length
-        ? this.natsClientWarehouseService.getWarehouseList({
+        ? this.natsClientWarehouseService.getWarehouseMap({
             ids: warehouseIdList,
           })
         : {},
@@ -186,7 +185,8 @@ export class ApiPurchaseOrderConfirmService {
         return []
       }
     }) as [
-      IncotermType[],
+      Record<string, SupplierType>,
+      Record<string, IncotermType>,
       PurchaseRequestType[],
       Record<string, ItemType>,
       ItemUnitType[],
@@ -194,54 +194,72 @@ export class ApiPurchaseOrderConfirmService {
     ]
 
     const [
-      incotermList,
+      supplierMap,
+      incotermMap,
       purchaseRequestList,
       itemMap,
       itemUnitList,
-      warehouseList,
+      warehouseMap,
     ] = dataExtendsResult
+    const purchaseRequestMap = arrayToKeyValue(purchaseRequestList, 'code')
 
-    incotermList.forEach((i) => {
-      if (!i.isActive) {
-        throw BusinessException.msg('msg.MSG_195', { item: i.code })
-      }
-    })
-    purchaseRequestList.forEach((i) => {
-      if (i.status !== PurchaseRequestStatus.CONFIRM) {
-        throw new BusinessException('msg.MSG_010')
-      }
-    })
-    // TODO: hợp đồng không ở trạng thái xác nhận
-    supplierList.forEach((i) => {
-      if (i.status === SUPPLIER_STATUS.INACTIVE) {
+    purchaseOrderList.forEach((po) => {
+      const supplier = supplierMap[po.supplierId]
+      if (!supplier || ![SUPPLIER_STATUS.ACTIVE].includes(supplier.status)) {
         throw new BusinessException('msg.MSG_045')
       }
-    })
-    // TODO: phương thức vận chuyển không hoạt động
-    // TODO: phương thức thanh toán không hoạt động
-    warehouseList.forEach((i) => {
-      if (i.status !== WarehouseStatusEnum.Active) {
-        throw new BusinessException('msg.MSG_067')
-      }
-    })
 
-    // check từng item của PO
-    purchaseOrderList.forEach((po: PurchaseOrderType) => {
-      const supplier = supplierMap[po.supplierId]
+      const pr = purchaseRequestMap[po.purchaseRequestCode]
+      if (!pr || ![PurchaseRequestStatus.CONFIRM].includes(pr.status)) {
+        throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
+      }
+
+      const incoterm = incotermMap[po.incotermId]
+      if (!incoterm || !incoterm.isActive) {
+        throw BusinessException.msg('msg.MSG_195', { obj: 'Incoterms' })
+      }
+
       const supplierItemList = supplier.supplierItems || []
       const supplierItemMap: Record<string, SupplierItemType> = {}
       supplierItemList.forEach((i) => (supplierItemMap[i.id] = i))
 
-      po.poDeliveryItems.forEach((di) => {
-        // if (itemMap[di.itemId].status !== ItemStatusEnum.CONFIRMED) {
-        //   throw new BusinessException('msg.MSG_195')
-        // }
-        // if (!supplierItemMap[di.itemId]) {
-        //   throw new BusinessException('msg.MSG_195')
-        // }
-        // if (di.deliveryDate.getTime() - po.orderDate.getTime() < 0) {
-        //   throw new BusinessException('msg.MSG_062')
-        // }
+      po.purchaseOrderItems.forEach((poItem) => {
+        const item = itemMap[poItem.itemId]
+        const supplierItem = supplierItemMap[poItem.itemId]
+
+        if (
+          !item ||
+          !supplierItem ||
+          ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
+        ) {
+          throw new BusinessException('msg.MSG_195', {
+            obj: 'Sản phẩm',
+          })
+        }
+        if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+          throw new BusinessException('msg.MSG_298', {
+            obj: 'Sản phẩm',
+          })
+        }
+
+        // TODO: Tổng SL giao kế hoạch khác SL mua: Thông báo mã lỗi MSG_ 059
+      })
+
+      // TODO: Phương thức vận chuyển không hoạt động: thông báo mã lỗi MSG_056
+      // TODO: Phương thức thanh toán không hoạt động: thông báo mã lỗi MSG_060
+
+      po.poDeliveryItems.forEach((poDelivery) => {
+        const warehouse = warehouseMap[poDelivery.warehouseIdReceiving]
+        if (
+          !warehouse ||
+          ![WarehouseStatusEnum.Active].includes(warehouse.status)
+        ) {
+          throw new BusinessException('msg.MSG_067', {})
+        }
+
+        if (poDelivery.deliveryDate.getTime() - po.orderDate.getTime() < 0) {
+          throw new BusinessException('msg.MSG_062')
+        }
       })
     })
   }

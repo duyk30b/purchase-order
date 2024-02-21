@@ -32,7 +32,7 @@ export class ApiPurchaseOrderSuccessService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if ([PurchaseOrderStatus.DELIVERING].includes(rootData.status)) {
-      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
+      throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
     }
 
     // await Promise.all([

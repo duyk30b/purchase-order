@@ -68,7 +68,7 @@ export class ApiPurchaseOrderWaitConfirmService {
       throw new BusinessException('error.NOT_FOUND')
     }
     if (![PurchaseOrderStatus.DRAFT].includes(rootData.status)) {
-      throw new BusinessException('error.PurchaseRequest.StatusInvalid')
+      throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
     }
 
     await this.validate([rootData])
