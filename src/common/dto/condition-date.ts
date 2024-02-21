@@ -16,62 +16,62 @@ import {
 
 export class ConditionDate {
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '>'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'GT'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '>='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'GTE'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '<'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'LT'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '<='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'LTE'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '=='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'EQUAL'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '!='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'NOT'?: Date
 

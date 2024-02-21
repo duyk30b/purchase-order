@@ -94,13 +94,13 @@ export class PurchaseRequestCreateBody {
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   requestDate: Date
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   receiveDate: Date
 

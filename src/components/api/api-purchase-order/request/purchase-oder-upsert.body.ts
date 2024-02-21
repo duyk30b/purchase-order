@@ -25,7 +25,7 @@ import { PoItemUpsertBody } from './po-item-upsert.body'
 export class PoPaymentPlanBody {
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   expectedDate: Date // ngày dự kiến
 
@@ -53,7 +53,7 @@ export class PoPaymentPlanBody {
 export class PoNoteBody {
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   date: Date
 
@@ -255,7 +255,7 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   orderDate: Date
 
@@ -327,7 +327,7 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   deliveryDate: Date
 
