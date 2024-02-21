@@ -192,21 +192,21 @@ export class ApiPurchaseRequestUpdateService {
       }
     })
 
-    data.items.forEach((i) => {
+    data.items.forEach((poItem) => {
       const supplierItem = supplier.supplierItems.find(
-        (j) => j.itemId === i.itemId
+        (j) => j.itemId === poItem.itemId
       )
 
-      if (!supplierItem || i.itemUnitId !== supplierItem.itemUnitId) {
+      if (!supplierItem || poItem.itemUnitId !== supplierItem.itemUnitId) {
         throw BusinessException.error({
           message: 'msg.MSG_298',
-          error: { supplierItem, purchaseRequestItem: i },
+          error: { supplierItem, purchaseRequestItem: poItem },
         })
       }
-      if (i.deliveryTerm !== supplierItem.deliveryTerm) {
+      if (poItem.deliveryTerm !== supplierItem.deliveryTerm) {
         throw BusinessException.error({
           message: 'msg.MSG_043',
-          error: { supplierItem, purchaseRequestItem: i },
+          error: { supplierItem, purchaseRequestItem: poItem },
         })
       }
     })

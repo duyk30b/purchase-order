@@ -142,8 +142,8 @@ export class ApiPurchaseRequestWaitConfirmService {
       throw new BusinessException('msg.MSG_045')
     }
 
-    purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
-      const item = itemMap[purchaseRequestItem.itemId]
+    purchaseRequest.purchaseRequestItems.forEach((poItem) => {
+      const item = itemMap[poItem.itemId]
       if ([ItemActiveStatusEnum.INACTIVE].includes(item.activeStatus)) {
         throw BusinessException.error({
           message: 'msg.MSG_195',
@@ -153,23 +153,23 @@ export class ApiPurchaseRequestWaitConfirmService {
       }
 
       const supplierItem = (supplier.supplierItems || []).find(
-        (si) => purchaseRequestItem.itemId === si.itemId
+        (si) => poItem.itemId === si.itemId
       )
       if (!supplierItem) {
         throw new BusinessException('error.SupplierItem.NotFound')
       }
       // Đơn vị tính thay đổi thì báo lỗi
-      if (purchaseRequestItem.itemUnitId !== supplierItem.itemUnitId) {
+      if (poItem.itemUnitId !== supplierItem.itemUnitId) {
         throw BusinessException.error({
           message: 'msg.MSG_298',
-          error: [{ purchaseRequestItem, supplierItem }],
+          error: [{ purchaseRequestItem: poItem, supplierItem }],
         })
       }
       // Thời hạn giao hàng thay đổi cũng báo lỗi
-      if (purchaseRequestItem.deliveryTerm !== supplierItem.deliveryTerm) {
+      if (poItem.deliveryTerm !== supplierItem.deliveryTerm) {
         throw BusinessException.error({
           message: 'msg.MSG_043',
-          error: [{ purchaseRequestItem, supplierItem }],
+          error: [{ poItem, supplierItem }],
         })
       }
     })

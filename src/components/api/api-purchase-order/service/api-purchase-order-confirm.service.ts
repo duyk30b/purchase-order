@@ -252,7 +252,11 @@ export class ApiPurchaseOrderConfirmService {
           throw BusinessException.error({
             message: 'msg.MSG_298',
             i18args: { obj: 'Sản phẩm' },
-            error: { item: item || null, supplierItem: supplierItem || null },
+            error: {
+              item: item || null,
+              supplierItem: supplierItem || null,
+              purchaseRequestItem: poItem,
+            },
           })
         }
 
