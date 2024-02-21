@@ -86,7 +86,10 @@ export class ConditionDate {
   @Expose()
   @Transform(({ value }) => {
     if (!value) return undefined
-    return value.map((v: string | Date) => new Date(v))
+    return value.map((v: any) => {
+      if (v == null) return null
+      return new Date(v)
+    })
   })
   @IsArray()
   @IsDate({ each: true })
@@ -96,7 +99,10 @@ export class ConditionDate {
   @Expose()
   @Transform(({ value }) => {
     if (!value) return undefined
-    return value.map((v: string | Date) => new Date(v))
+    return value.map((v: any) => {
+      if (v == null) return null
+      return new Date(v)
+    })
   })
   @IsArray()
   @IsDate({ each: true })
