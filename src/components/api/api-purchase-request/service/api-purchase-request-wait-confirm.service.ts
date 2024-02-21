@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
+import { uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestHistoryContent } from '../../../../mongo/purchase-request-history/purchase-request-history.constant'
@@ -19,6 +20,11 @@ import {
   CostCenterType,
   NatsClientCostCenterService,
 } from '../../../transporter/nats/service/nats-client-cost-center.service'
+import {
+  ItemActiveStatusEnum,
+  ItemType,
+  NatsClientItemService,
+} from '../../../transporter/nats/service/nats-client-item.service'
 
 @Injectable()
 export class ApiPurchaseRequestWaitConfirmService {
@@ -28,7 +34,8 @@ export class ApiPurchaseRequestWaitConfirmService {
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
     private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
-    private readonly natsClientCostCenterService: NatsClientCostCenterService
+    private readonly natsClientCostCenterService: NatsClientCostCenterService,
+    private readonly natsClientItemService: NatsClientItemService
   ) {}
 
   async waitConfirm(options: {
@@ -44,7 +51,7 @@ export class ApiPurchaseRequestWaitConfirmService {
       throw new BusinessException('error.PurchaseRequest.NotFound')
     }
     if (![PurchaseRequestStatus.DRAFT].includes(rootData.status)) {
-      throw new BusinessException('msg.MSG_010')
+      throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
     }
 
     await this.validate(rootData)
@@ -66,11 +73,19 @@ export class ApiPurchaseRequestWaitConfirmService {
       content: PurchaseRequestHistoryContent.WAIT_CONFIRM,
       time: new Date(),
     })
-    return { data: purchaseRequest, message: 'msg.MSG_044' }
+    return {
+      data: purchaseRequest,
+      message: 'msg.MSG_255',
+      args: { obj: 'Yêu cầu mua hàng' },
+    }
   }
 
   async validate(purchaseRequest: PurchaseRequestType) {
     const { costCenterId, supplierId } = purchaseRequest
+    const itemIdList = uniqueArray(
+      (purchaseRequest.purchaseRequestItems || []).map((i) => i.itemId)
+    )
+
     const dataExtendsPromise = await Promise.allSettled([
       costCenterId
         ? this.natsClientCostCenterService.getCostCenterMap({
@@ -83,6 +98,9 @@ export class ApiPurchaseRequestWaitConfirmService {
             relation: { supplierItems: true },
           })
         : {},
+      itemIdList && itemIdList.length
+        ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
+        : [],
     ])
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
       if (i.status === 'fulfilled') {
@@ -92,9 +110,13 @@ export class ApiPurchaseRequestWaitConfirmService {
         this.logger.error(i)
         return []
       }
-    }) as [Record<string, CostCenterType>, Record<string, SupplierType>]
+    }) as [
+      Record<string, CostCenterType>,
+      Record<string, SupplierType>,
+      Record<string, ItemType>,
+    ]
 
-    const [costCenterMap, supplierMap] = dataExtendsResult
+    const [costCenterMap, supplierMap, itemMap] = dataExtendsResult
     const costCenter = costCenterMap[costCenterId]
     const supplier = supplierMap[supplierId]
 
@@ -108,7 +130,9 @@ export class ApiPurchaseRequestWaitConfirmService {
         CostCenterStatusEnum.INACTIVE,
       ].includes(costCenter.status)
     ) {
-      throw new BusinessException('msg.MSG_041')
+      throw new BusinessException('msg.MSG_195', {
+        obj: 'Cost center / Bộ phận',
+      })
     }
 
     if (!supplier) {
@@ -119,6 +143,13 @@ export class ApiPurchaseRequestWaitConfirmService {
     }
 
     purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
+      const item = itemMap[purchaseRequestItem.itemId]
+      if ([ItemActiveStatusEnum.INACTIVE].includes(item.activeStatus)) {
+        throw new BusinessException('msg.MSG_195', {
+          obj: 'Sản phẩm',
+        })
+      }
+
       const supplierItem = (supplier.supplierItems || []).find(
         (si) => purchaseRequestItem.itemId === si.itemId
       )
@@ -128,14 +159,14 @@ export class ApiPurchaseRequestWaitConfirmService {
       // Đơn vị tính thay đổi thì báo lỗi
       if (purchaseRequestItem.itemUnitId !== supplierItem.itemUnitId) {
         throw BusinessException.error({
-          message: 'msg.MSG_035',
+          message: 'msg.MSG_298',
           error: [{ purchaseRequestItem, supplierItem }],
         })
       }
       // Thời hạn giao hàng thay đổi cũng báo lỗi
       if (purchaseRequestItem.deliveryTerm !== supplierItem.deliveryTerm) {
         throw BusinessException.error({
-          message: 'msg.MSG_035',
+          message: 'msg.MSG_043',
           error: [{ purchaseRequestItem, supplierItem }],
         })
       }

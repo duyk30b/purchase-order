@@ -35,7 +35,7 @@ export class ApiPurchaseRequestRejectService {
 
     rootList.forEach((i) => {
       if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(i.status)) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
       }
     })
 
@@ -64,6 +64,10 @@ export class ApiPurchaseRequestRejectService {
       prHistoryDtoList
     )
 
-    return { data: { ids }, message: 'msg.MSG_015' }
+    return {
+      data: { ids },
+      message: 'msg.MSG_189',
+      args: { obj: 'Yêu cầu mua hàng' },
+    }
   }
 }

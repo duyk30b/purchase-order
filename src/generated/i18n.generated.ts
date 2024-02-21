@@ -501,7 +501,6 @@ export type I18nTranslations = {
         "MSG_360": string;
         "MSG_361": string;
         "MSG_362": string;
-        "MSG_363": string;
     };
 };
 export type I18nPath = Path<I18nTranslations>;

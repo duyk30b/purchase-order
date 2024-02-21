@@ -38,7 +38,7 @@ export class ApiPurchaseRequestCancelService {
 
     rootList.forEach((i) => {
       if (![PurchaseRequestStatus.CONFIRM].includes(i.status)) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
       }
     })
 

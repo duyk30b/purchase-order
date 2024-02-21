@@ -63,7 +63,7 @@ export class ApiPurchaseRequestUpdateService {
         PurchaseRequestStatus.REJECT,
       ].includes(rootData.status)
     ) {
-      throw new BusinessException('msg.MSG_100')
+      throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
     }
 
     let status: PurchaseRequestStatus
@@ -170,7 +170,9 @@ export class ApiPurchaseRequestUpdateService {
         CostCenterStatusEnum.INACTIVE,
       ].includes(costCenter.status)
     ) {
-      throw new BusinessException('msg.MSG_041')
+      throw new BusinessException('msg.MSG_195', {
+        obj: 'Cost center / Bộ phận',
+      })
     }
 
     if (!supplier) {
@@ -182,7 +184,24 @@ export class ApiPurchaseRequestUpdateService {
 
     itemList.forEach((i) => {
       if ([ItemActiveStatusEnum.INACTIVE].includes(i.activeStatus)) {
-        throw new BusinessException('msg.MSG_032')
+        throw new BusinessException('msg.MSG_195', {
+          obj: 'Sản phẩm',
+        })
+      }
+    })
+
+    data.items.forEach((i) => {
+      const supplierItem = supplier.supplierItems.find(
+        (j) => j.itemId === i.itemId
+      )
+      if (!supplierItem) {
+        throw new BusinessException('error.SupplierItem.NotFound')
+      }
+      if (i.itemUnitId !== supplierItem.itemUnitId) {
+        throw new BusinessException('msg.MSG_298', {})
+      }
+      if (i.deliveryTerm !== supplierItem.deliveryTerm) {
+        throw new BusinessException('msg.MSG_043', {})
       }
     })
   }

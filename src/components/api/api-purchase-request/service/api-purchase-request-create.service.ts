@@ -158,7 +158,9 @@ export class ApiPurchaseRequestCreateService {
 
     itemList.forEach((i) => {
       if ([ItemActiveStatusEnum.INACTIVE].includes(i.activeStatus)) {
-        throw new BusinessException('msg.MSG_032')
+        throw new BusinessException('msg.MSG_195', {
+          obj: 'Sản phẩm',
+        })
       }
     })
   }
