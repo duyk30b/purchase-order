@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
 import { FileDto } from '../../../../common/dto/file'
-import { uniqueArray } from '../../../../common/helpers'
+import { arrayToKeyValue, uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
@@ -28,6 +28,7 @@ import { NatsClientIncotermService } from '../../../transporter/nats/nats-sale/n
 import {
   SUPPLIER_STATUS,
   SupplierItemType,
+  SupplierType,
 } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import { NatsClientCostCenterService } from '../../../transporter/nats/service/nats-client-cost-center.service'
@@ -245,18 +246,6 @@ export class ApiPurchaseOrderUpdateService {
 
   async validate(data: PurchaseOrderUpdateBody[]) {
     const supplierIds = data.map((i) => i.supplierId)
-    const supplierMap = supplierIds.length
-      ? await this.natsClientVendorService.getSupplierMap({
-          filter: { id: { IN: supplierIds } },
-          relation: { supplierItems: true },
-        })
-      : {}
-    const supplierList = Object.values(supplierMap)
-    supplierList.forEach((i) => {
-      if (![SUPPLIER_STATUS.ACTIVE].includes(i.status)) {
-        throw new BusinessException('msg.MSG_045')
-      }
-    })
 
     const purchaseOrderItems = data.map((i) => i.poItems || []).flat()
     const poDeliveryItems = data.map((i) => i.poDeliveryItems || []).flat()
@@ -279,8 +268,14 @@ export class ApiPurchaseOrderUpdateService {
     const warehouseIdList = poDeliveryItems.map((i) => i.warehouseIdReceiving) // kho nhận
 
     const dataExtendsPromise = await Promise.allSettled([
+      supplierIds.length
+        ? this.natsClientVendorService.getSupplierMap({
+            filter: { id: { IN: supplierIds } },
+            relation: { supplierItems: true },
+          })
+        : {},
       incotermIds && incotermIds.length
-        ? this.natsClientIncotermService.incotermGetList({
+        ? this.natsClientIncotermService.incotermGetMap({
             filter: { id: { IN: incotermIds } },
           })
         : {},
@@ -312,7 +307,8 @@ export class ApiPurchaseOrderUpdateService {
         return []
       }
     }) as [
-      IncotermType[],
+      Record<string, SupplierType>,
+      Record<string, IncotermType>,
       PurchaseRequestType[],
       Record<string, ItemType>,
       ItemUnitType[],
@@ -320,33 +316,36 @@ export class ApiPurchaseOrderUpdateService {
     ]
 
     const [
-      incotermList,
+      supplierMap,
+      incotermMap,
       purchaseRequestList,
       itemMap,
       itemUnitList,
       warehouseList,
     ] = dataExtendsResult
     const itemList = Object.values(itemMap)
+    const purchaseRequestMap = arrayToKeyValue(purchaseRequestList, 'code')
 
-    incotermList.forEach((i) => {
-      if (!i.isActive) {
-        throw BusinessException.msg('msg.MSG_195', { obj: 'Incoterms' })
+    // check từng poBody trong list
+    data.forEach((po: PurchaseOrderUpdateBody) => {
+      const supplier = supplierMap[po.supplierId]
+      if (!supplier || ![SUPPLIER_STATUS.ACTIVE].includes(supplier.status)) {
+        throw new BusinessException('msg.MSG_045')
       }
-    })
-    purchaseRequestList.forEach((i) => {
-      if (![PurchaseRequestStatus.CONFIRM].includes(i.status)) {
+      const supplierItemList = supplier.supplierItems || []
+      const supplierItemMap = arrayToKeyValue(supplierItemList, 'itemId')
+
+      const pr = purchaseRequestMap[po.purchaseRequestCode]
+      if (!pr || ![PurchaseRequestStatus.CONFIRM].includes(pr.status)) {
         throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
       }
-    })
 
-    // check từng item của PO
-    data.forEach((body: PurchaseOrderUpdateBody) => {
-      const supplier = supplierMap[body.supplierId]
-      const supplierItemList = supplier.supplierItems || []
-      const supplierItemMap: Record<string, SupplierItemType> = {}
-      supplierItemList.forEach((i) => (supplierItemMap[i.id] = i))
+      const incoterm = incotermMap[po.incotermId]
+      if (!incoterm || !incoterm.isActive) {
+        throw BusinessException.msg('msg.MSG_195', { obj: 'Incoterms' })
+      }
 
-      body.poItems.forEach((poItem) => {
+      po.poItems.forEach((poItem) => {
         const item = itemMap[poItem.itemId]
         const supplierItem = supplierItemMap[poItem.itemId]
         if (![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)) {
