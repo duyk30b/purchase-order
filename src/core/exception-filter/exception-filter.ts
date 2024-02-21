@@ -108,7 +108,8 @@ export class ServerExceptionFilter implements ExceptionFilter {
       const urlQuery = urlParse.query
       Logger.error(
         JSON.stringify({
-          message,
+          message: exception.message,
+          messageI18n: message,
           type: '[HTTP]',
           method,
           path: urlPath,

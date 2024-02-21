@@ -198,7 +198,10 @@ export class ApiPurchaseRequestUpdateService {
         throw new BusinessException('error.SupplierItem.NotFound')
       }
       if (i.itemUnitId !== supplierItem.itemUnitId) {
-        throw new BusinessException('msg.MSG_298', {})
+        throw BusinessException.error({
+          message: 'msg.MSG_298',
+          error: [{ supplierItem, purchaseRequestItem: i }],
+        })
       }
       if (i.deliveryTerm !== supplierItem.deliveryTerm) {
         throw new BusinessException('msg.MSG_043', {})
