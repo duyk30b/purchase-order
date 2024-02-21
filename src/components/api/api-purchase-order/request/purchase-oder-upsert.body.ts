@@ -327,7 +327,12 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  @Transform(({ value }) => {
+    if (!value || value === 'null') {
+      return undefined
+    }
+    return new Date(value)
+  })
   @IsDate()
   deliveryDate: Date
 
