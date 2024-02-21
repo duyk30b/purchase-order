@@ -131,7 +131,7 @@ export class ApiPurchaseRequestWaitConfirmService {
       ].includes(costCenter.status)
     ) {
       throw new BusinessException('msg.MSG_195', {
-        obj: 'Cost center / Bộ phận',
+        obj: 'Cost center',
       })
     }
 

@@ -144,7 +144,7 @@ export class ApiPurchaseRequestCreateService {
     ) {
       throw BusinessException.error({
         message: 'msg.MSG_195',
-        i18args: { obj: 'Cost center / Bộ phận' },
+        i18args: { obj: 'Cost center' },
         error: { costCenter: costCenter || null },
       })
     }
