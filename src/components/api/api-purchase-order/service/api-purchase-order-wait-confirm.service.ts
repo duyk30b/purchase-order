@@ -210,8 +210,7 @@ export class ApiPurchaseOrderWaitConfirmService {
       }
 
       const supplierItemList = supplier.supplierItems || []
-      const supplierItemMap: Record<string, SupplierItemType> = {}
-      supplierItemList.forEach((i) => (supplierItemMap[i.id] = i))
+      const supplierItemMap = arrayToKeyValue(supplierItemList, 'itemId')
 
       po.purchaseOrderItems.forEach((poItem) => {
         const item = itemMap[poItem.itemId]
