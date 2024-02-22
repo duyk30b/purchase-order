@@ -236,7 +236,7 @@ export class ApiPurchaseOrderUpdateService {
     await this.purchaseOrderHistoryRepository.insertOneFullField({
       _purchase_order_id: new Types.ObjectId(purchaseOrder.id),
       userId,
-      status: { before: null, after: purchaseOrder.status },
+      status: { before: rootData.status, after: purchaseOrder.status },
       content: 'Chỉnh sửa phiếu mua',
       time: new Date(),
     })
