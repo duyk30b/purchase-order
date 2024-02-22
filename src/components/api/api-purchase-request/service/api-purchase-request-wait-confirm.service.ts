@@ -177,29 +177,33 @@ export class ApiPurchaseRequestWaitConfirmService {
 
         if (
           !item ||
-          !supplierItem ||
           ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
         ) {
           throw BusinessException.error({
             message: 'msg.MSG_195',
             i18args: { obj: 'Sản phẩm' },
-            error: { item: item || null, supplierItem: supplierItem || null },
+            error: { item: item || null },
           })
         }
 
-        // Đơn vị tính thay đổi thì báo lỗi
-        if (poItem.itemUnitId !== supplierItem.itemUnitId) {
-          throw BusinessException.error({
-            message: 'msg.MSG_298',
-            error: [{ purchaseRequestItem: poItem, supplierItem }],
-          })
-        }
+        // TOD: Đơn vị tính thay đổi thì báo lỗi // Đơn vị tính của Item thay đổi khác với PO
+        // if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+        //   throw BusinessException.error({
+        //     message: 'msg.MSG_298',
+        //     error: [{ purchaseRequestItem: poItem, supplierItem }],
+        //   })
+        // }
+
         // Thời hạn giao hàng thay đổi cũng báo lỗi
-        if (poItem.deliveryTerm !== supplierItem.deliveryTerm) {
-          throw BusinessException.error({
-            message: 'msg.MSG_043',
-            error: [{ poItem, supplierItem }],
-          })
+        if (supplierItem) {
+          if (supplierItem.deliveryTerm) {
+            if (poItem.deliveryTerm !== supplierItem?.deliveryTerm) {
+              throw BusinessException.error({
+                message: 'msg.MSG_043',
+                error: [{ purchaseRequestItem: poItem, supplierItem }],
+              })
+            }
+          }
         }
       })
     })

@@ -239,26 +239,26 @@ export class ApiPurchaseOrderConfirmService {
 
         if (
           !item ||
-          !supplierItem ||
           ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
         ) {
           throw BusinessException.error({
             message: 'msg.MSG_195',
             i18args: { obj: 'Sản phẩm' },
-            error: { item: item || null, supplierItem: supplierItem || null },
+            error: { item: item || null },
           })
         }
-        if (poItem.itemUnitId !== supplierItem.itemUnitId) {
-          throw BusinessException.error({
-            message: 'msg.MSG_298',
-            i18args: { obj: 'Sản phẩm' },
-            error: {
-              item: item || null,
-              supplierItem: supplierItem || null,
-              purchaseRequestItem: poItem,
-            },
-          })
-        }
+
+        // if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+        //   throw BusinessException.error({
+        //     message: 'msg.MSG_298',
+        //     i18args: { obj: 'Sản phẩm' },
+        //     error: {
+        //       item: item || null,
+        //       supplierItem: supplierItem || null,
+        //       purchaseRequestItem: poItem,
+        //     },
+        //   })
+        // }
 
         // TODO: Tổng SL giao kế hoạch khác SL mua: Thông báo mã lỗi MSG_ 059
       })

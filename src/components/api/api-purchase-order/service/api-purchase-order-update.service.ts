@@ -359,24 +359,29 @@ export class ApiPurchaseOrderUpdateService {
       po.poItems.forEach((poItem) => {
         const item = itemMap[poItem.itemId]
         const supplierItem = supplierItemMap[poItem.itemId]
-        if (![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)) {
+        if (
+          !item ||
+          ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
+        ) {
           throw BusinessException.error({
             message: 'msg.MSG_195',
             i18args: { obj: 'Sản phẩm' },
-            error: { item: item || null, supplierItem: supplierItem || null },
+            error: { item: item || null },
           })
         }
-        if (poItem.itemUnitId !== supplierItem.itemUnitId) {
-          throw BusinessException.error({
-            message: 'msg.MSG_298',
-            i18args: { obj: 'Sản phẩm' },
-            error: {
-              item: item || null,
-              supplierItem: supplierItem || null,
-              purchaseRequestItem: poItem,
-            },
-          })
-        }
+
+        // TOD: Đơn vị tính thay đổi thì báo lỗi // Đơn vị tính của Item thay đổi khác với PO
+        // if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+        //   throw BusinessException.error({
+        //     message: 'msg.MSG_298',
+        //     i18args: { obj: 'Sản phẩm' },
+        //     error: {
+        //       item: item || null,
+        //       supplierItem: supplierItem || null,
+        //       purchaseRequestItem: poItem,
+        //     },
+        //   })
+        // }
 
         // TODO: Tổng SL giao kế hoạch khác SL mua: Thông báo mã lỗi MSG_ 059
       })

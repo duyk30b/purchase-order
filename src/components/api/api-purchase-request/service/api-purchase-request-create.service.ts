@@ -157,7 +157,7 @@ export class ApiPurchaseRequestCreateService {
     }
 
     itemList.forEach((item) => {
-      if ([ItemActiveStatusEnum.INACTIVE].includes(item.activeStatus)) {
+      if (![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)) {
         throw BusinessException.error({
           message: 'msg.MSG_195',
           i18args: { obj: 'Sản phẩm' },

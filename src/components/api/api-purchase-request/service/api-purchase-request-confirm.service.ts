@@ -164,7 +164,10 @@ export class ApiPurchaseRequestConfirmService {
 
       purchaseRequest.purchaseRequestItems.forEach((poItem) => {
         const item = itemMap[poItem.itemId]
-        if ([ItemActiveStatusEnum.INACTIVE].includes(item.activeStatus)) {
+        if (
+          !item ||
+          ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
+        ) {
           throw BusinessException.error({
             message: 'msg.MSG_195',
             i18args: { obj: 'Sản phẩm' },
@@ -175,32 +178,24 @@ export class ApiPurchaseRequestConfirmService {
         const supplierItem = (supplier.supplierItems || []).find(
           (si) => poItem.itemId === si.itemId
         )
+        // TOD: Đơn vị tính thay đổi thì báo lỗi // Đơn vị tính của Item thay đổi khác với PO
+        // if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+        //   throw BusinessException.error({
+        //     message: 'msg.MSG_298',
+        //     error: [{ purchaseRequestItem: poItem, supplierItem }],
+        //   })
+        // }
 
-        if (
-          !item ||
-          !supplierItem ||
-          ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
-        ) {
-          throw BusinessException.error({
-            message: 'msg.MSG_195',
-            i18args: { obj: 'Sản phẩm' },
-            error: { item: item || null, supplierItem: supplierItem || null },
-          })
-        }
-
-        // Đơn vị tính thay đổi thì báo lỗi
-        if (poItem.itemUnitId !== supplierItem.itemUnitId) {
-          throw BusinessException.error({
-            message: 'msg.MSG_298',
-            error: { purchaseRequestItem: poItem, supplierItem },
-          })
-        }
         // Thời hạn giao hàng thay đổi cũng báo lỗi
-        if (poItem.deliveryTerm !== supplierItem.deliveryTerm) {
-          throw BusinessException.error({
-            message: 'msg.MSG_043',
-            error: { poItem, supplierItem },
-          })
+        if (supplierItem) {
+          if (supplierItem.deliveryTerm) {
+            if (poItem.deliveryTerm !== supplierItem?.deliveryTerm) {
+              throw BusinessException.error({
+                message: 'msg.MSG_043',
+                error: [{ purchaseRequestItem: poItem, supplierItem }],
+              })
+            }
+          }
         }
       })
     })
