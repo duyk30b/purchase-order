@@ -4,7 +4,9 @@ import { arrayToKeyValue, uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
+import { PurchaseOrderHistoryContent } from '../../../../mongo/purchase-order-history/purchase-order-history.constant'
 import { PurchaseOrderHistoryRepository } from '../../../../mongo/purchase-order-history/purchase-order-history.repository'
+import { PurchaseOrderHistoryInsertType } from '../../../../mongo/purchase-order-history/purchase-order-history.schema'
 import { PurchaseOrderItemRepository } from '../../../../mongo/purchase-order-item/purchase-order-item.repository'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
 import {
@@ -59,41 +61,58 @@ export class ApiPurchaseOrderWaitConfirmService {
   ) {}
 
   async waitConfirm(options: {
-    id: string
+    ids: string[]
     userId: number
   }): Promise<BaseResponse> {
-    const { id, userId } = options
-    const rootData = await this.purchaseOrderRepository.findOne({
-      condition: { id },
+    const { ids, userId } = options
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      throw BusinessException.error({
+        message: 'error.FILTER_EMPTY',
+        error: [{ ids }],
+      })
+    }
+
+    const rootList = await this.purchaseOrderRepository.findMany({
       relation: { purchaseOrderItems: true, poDeliveryItems: true },
+      condition: { id: { IN: ids } },
     })
-    if (!rootData) {
+    if (!rootList.length) {
       throw new BusinessException('error.NOT_FOUND')
     }
-    if (![PurchaseOrderStatus.DRAFT].includes(rootData.status)) {
-      throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
-    }
+    rootList.forEach((i) => {
+      if (![PurchaseOrderStatus.DRAFT].includes(i?.status)) {
+        throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
+      }
+    })
 
-    await this.validate([rootData])
+    await this.validate(rootList)
 
-    const purchaseOrder: PurchaseOrderType =
-      await this.purchaseOrderRepository.updateOne(
-        { id },
-        {
-          status: PurchaseOrderStatus.WAIT_CONFIRM,
-          updatedByUserId: userId,
-        }
-      )
+    const idsObject = ids.map((id) => new Types.ObjectId(id))
+    const poUpdateCount = await this.purchaseOrderRepository.updateMany(
+      { _id: { IN: idsObject } },
+      {
+        status: PurchaseOrderStatus.WAIT_CONFIRM,
+        updatedByUserId: userId,
+      }
+    )
 
     // Lưu lịch sử
-    await this.purchaseOrderHistoryRepository.insertOneFullField({
-      _purchase_order_id: new Types.ObjectId(purchaseOrder.id),
-      userId,
-      status: { before: rootData.status, after: purchaseOrder.status },
-      content: 'Đề nghị duyệt phiếu mua',
-      time: new Date(),
+    const poHistoryDtoList = rootList.map((po) => {
+      const poHistoryDto: PurchaseOrderHistoryInsertType = {
+        _purchase_order_id: new Types.ObjectId(po.id),
+        userId,
+        status: { before: po.status, after: PurchaseOrderStatus.WAIT_CONFIRM },
+        content: PurchaseOrderHistoryContent.WAIT_CONFIRM,
+        time: new Date(),
+      }
+      return poHistoryDto
     })
-    return { data: purchaseOrder }
+
+    await this.purchaseOrderHistoryRepository.insertManyFullField(
+      poHistoryDtoList
+    )
+
+    return { data: { ids } }
   }
 
   async validate(data: PurchaseOrderType[]) {

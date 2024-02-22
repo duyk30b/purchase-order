@@ -53,7 +53,7 @@ export class ApiPurchaseRequestRejectService {
       const prHistoryDto: PurchaseRequestHistoryInsertType = {
         _purchase_request_id: new Types.ObjectId(pr.id),
         userId,
-        status: { before: pr.status, after: PurchaseRequestStatus.CONFIRM },
+        status: { before: pr.status, after: PurchaseRequestStatus.REJECT },
         content: PurchaseRequestHistoryContent.REJECT,
         time: new Date(),
       }

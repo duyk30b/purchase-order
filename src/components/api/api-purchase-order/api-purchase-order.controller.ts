@@ -170,7 +170,19 @@ export class ApiPurchaseOrderController {
     @Param() { id }: IdMongoParam
   ) {
     return await this.apiPurchaseOrderWaitConfirmService.waitConfirm({
-      id,
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('wait-confirm/multiple')
+  @PermissionCode(PURCHASE_ORDER_WAIT_CONFIRM.code)
+  async waitConfirmMultiple(
+    @External() { user }: TExternal,
+    @Query() { ids }: MultiMongoIdQuery
+  ) {
+    return await this.apiPurchaseOrderWaitConfirmService.waitConfirm({
+      ids,
       userId: user.id,
     })
   }
@@ -187,8 +199,8 @@ export class ApiPurchaseOrderController {
     })
   }
 
-  @Patch('confirm-list')
-  @PermissionCode(PURCHASE_ORDER_CANCEL.code)
+  @Patch('confirm/multiple')
+  @PermissionCode(PURCHASE_ORDER_CONFIRM.code)
   async confirmList(
     @External() { user }: TExternal,
     @Query() { ids }: MultiMongoIdQuery
@@ -208,7 +220,7 @@ export class ApiPurchaseOrderController {
     })
   }
 
-  @Patch('reject-list')
+  @Patch('reject/multiple')
   @PermissionCode(PURCHASE_ORDER_REJECT.code)
   async rejectList(
     @External() { user }: TExternal,
@@ -229,7 +241,7 @@ export class ApiPurchaseOrderController {
     })
   }
 
-  @Patch('cancel-list')
+  @Patch('cancel/multiple')
   @PermissionCode(PURCHASE_ORDER_CANCEL.code)
   async cancelList(
     @External() { user }: TExternal,
@@ -265,7 +277,7 @@ export class ApiPurchaseOrderController {
     })
   }
 
-  @Patch('wait-delivery-list')
+  @Patch('wait-delivery/multiple')
   @PermissionCode(PURCHASE_ORDER_WAIT_DELIVERY.code)
   async waitDeliveryList(
     @External() { user }: TExternal,
@@ -284,8 +296,8 @@ export class ApiPurchaseOrderController {
     return await this.apiPurchaseOrderDeleteService.delete([id])
   }
 
-  @Delete('delete-list')
-  @PermissionCode(PURCHASE_ORDER_CANCEL.code)
+  @Delete('delete/multiple')
+  @PermissionCode(PURCHASE_ORDER_DELETE.code)
   async deleteList(
     @External() { user }: TExternal,
     @Query() { ids }: MultiMongoIdQuery

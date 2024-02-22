@@ -36,7 +36,7 @@ export class ApiPurchaseRequestDeleteService {
     return { data: id, message: 'msg.MSG_016' }
   }
 
-  async deleteList(ids: string[]): Promise<BaseResponse> {
+  async deleteMultiple(ids: string[]): Promise<BaseResponse> {
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       throw BusinessException.error({
         message: 'error.FILTER_EMPTY',

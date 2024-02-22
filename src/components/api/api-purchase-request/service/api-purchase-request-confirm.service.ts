@@ -33,7 +33,7 @@ export class ApiPurchaseRequestConfirmService {
 
   constructor(
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
-    private readonly purchaseOrderHistoryRepository: PurchaseRequestHistoryRepository,
+    private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
     private readonly natsClientCostCenterService: NatsClientCostCenterService,
     private readonly natsClientItemService: NatsClientItemService
@@ -87,7 +87,7 @@ export class ApiPurchaseRequestConfirmService {
       return prHistoryDto
     })
 
-    await this.purchaseOrderHistoryRepository.insertManyFullField(
+    await this.purchaseRequestHistoryRepository.insertManyFullField(
       prHistoryDtoList
     )
 
