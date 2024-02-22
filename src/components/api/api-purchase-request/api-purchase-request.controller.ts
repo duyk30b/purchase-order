@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { IdMongoParam } from '../../../common/dto/param'
+import { MultiMongoIdQuery } from '../../../common/dto/query'
 import { External, TExternal } from '../../../core/decorator/request-external'
 import { PermissionCode } from '../../../core/guard/authorization.guard'
 import {
@@ -28,7 +29,6 @@ import {
 import { PurchaseRequestStatus } from '../../../mongo/purchase-request/purchase-request.schema'
 import { ApiPurchaseRequestService } from './api-purchase-request.service'
 import {
-  PurchaseRequestActionManyQuery,
   PurchaseRequestCreateBody,
   PurchaseRequestGetManyQuery,
   PurchaseRequestGetOneByIdQuery,
@@ -153,9 +153,8 @@ export class ApiPurchaseRequestController {
   @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
   async confirmList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestConfirmService.confirm({
       ids,
       userId: user.id,
@@ -175,9 +174,8 @@ export class ApiPurchaseRequestController {
   @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
   async rejectList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestRejectService.reject({
       ids,
       userId: user.id,
@@ -197,9 +195,8 @@ export class ApiPurchaseRequestController {
   @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
   async cancelList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestCancelService.cancel({
       ids,
       userId: user.id,
@@ -217,9 +214,8 @@ export class ApiPurchaseRequestController {
   @PermissionCode(PURCHASE_REQUEST_DELETE.code)
   async deleteList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestDeleteService.deleteList(ids)
   }
 

@@ -1,6 +1,6 @@
-import { ApiPropertyOptional, PickType } from '@nestjs/swagger'
-import { Expose, Transform, Type } from 'class-transformer'
-import { IsIn, IsInt, Max, Min } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Expose, Transform } from 'class-transformer'
+import { IsIn, IsInt, IsMongoId, IsNotEmpty, Max, Min } from 'class-validator'
 
 export class PaginationQuery {
   @ApiPropertyOptional({ example: 1 })
@@ -33,4 +33,19 @@ export class SortQuery {
   @Expose({ name: 'id' })
   @IsIn(['ASC', 'DESC'])
   id: 'ASC' | 'DESC'
+}
+
+export class MultiMongoIdQuery {
+  @ApiProperty({
+    type: String,
+    example: '63fdde9517a7317f0e8f959a,63fdde9517a7317f0e8f959a',
+  })
+  @Expose()
+  @Transform(({ value }) => {
+    if (value?.length) return value?.split(',')
+    else return []
+  })
+  @IsNotEmpty()
+  @IsMongoId({ each: true })
+  ids: string[]
 }

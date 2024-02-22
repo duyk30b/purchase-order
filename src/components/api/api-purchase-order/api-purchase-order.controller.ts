@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger'
 import { FileDto } from '../../../common/dto/file'
 import { IdMongoParam } from '../../../common/dto/param'
+import { MultiMongoIdQuery } from '../../../common/dto/query'
 import { External, TExternal } from '../../../core/decorator/request-external'
 import { PermissionCode } from '../../../core/guard/authorization.guard'
 import {
@@ -190,9 +191,8 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_CANCEL.code)
   async confirmList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseOrderActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderConfirmService.confirm({
       ids,
       userId: user.id,
@@ -212,9 +212,8 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_REJECT.code)
   async rejectList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseOrderActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderRejectService.reject({
       ids,
       userId: user.id,
@@ -234,9 +233,8 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_CANCEL.code)
   async cancelList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseOrderActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderCancelService.cancel({
       ids,
       userId: user.id,
@@ -271,9 +269,8 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_WAIT_DELIVERY.code)
   async waitDeliveryList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseOrderActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderWaitDeliveryService.waitDelivery({
       ids,
       userId: user.id,
@@ -291,9 +288,8 @@ export class ApiPurchaseOrderController {
   @PermissionCode(PURCHASE_ORDER_CANCEL.code)
   async deleteList(
     @External() { user }: TExternal,
-    @Query() query: PurchaseOrderActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseOrderDeleteService.delete(ids)
   }
 }
