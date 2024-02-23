@@ -11,11 +11,13 @@ import {
 export class PoItemUpsertBody {
   @ApiProperty({ example: 1 })
   @Expose()
+  @IsDefined()
   @IsNumber()
   prItemLine: number // Thứ tự item trên PR
 
   @ApiProperty({ example: 1 })
   @Expose()
+  @IsDefined()
   @IsNumber()
   poItemLine: number // Thứ tự item trên PO
 

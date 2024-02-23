@@ -5,6 +5,7 @@ import { IsDate, IsDefined, IsMongoId, IsNumber } from 'class-validator'
 export class PoItemDeliveryUpsertBody {
   @ApiProperty({ example: 1 })
   @Expose()
+  @IsDefined()
   @IsNumber()
   poItemLine: number // Thứ tự item trên PO
 

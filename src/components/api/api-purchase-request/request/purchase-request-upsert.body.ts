@@ -21,6 +21,7 @@ import {
 export class ItemUpsertBody {
   @ApiProperty({ example: 1 })
   @Expose()
+  @IsDefined()
   @IsNumber()
   prItemLine: number // Thứ tự
 
