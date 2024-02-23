@@ -22,7 +22,7 @@ export class ItemUpsertBody {
   @ApiProperty({ example: 1 })
   @Expose()
   @IsNumber()
-  line: number // Thứ tự
+  prItemLine: number // Thứ tự
 
   @ApiProperty({ example: 12 })
   @Expose()

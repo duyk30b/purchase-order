@@ -220,6 +220,7 @@ export class ApiPurchaseOrderUpdateService {
         })
         const dto: PoDeliveryItemInsertType = {
           ...item,
+          quantityActualDelivery: 0,
           _purchase_order_id: new Types.ObjectId(purchaseOrder.id),
           _purchase_order_item_id: new Types.ObjectId(poItem.id),
           createdByUserId: userId,
@@ -384,6 +385,29 @@ export class ApiPurchaseOrderUpdateService {
         // }
 
         // TODO: Tổng SL giao kế hoạch khác SL mua: Thông báo mã lỗi MSG_ 059
+        // Tổng SL giao kế hoạch khác SL mua: Thông báo mã lỗi MSG_ 059
+        const poLineQuantity: Record<
+          string, // group theo poItemLine, vì có thể nhiều sản phẩm A ở các line khác nhau thì validate khác nhau
+          { quantityBuy: number; quantityPlanDelivery: number }
+        > = {}
+        po.poItems.forEach((poItem) => {
+          poLineQuantity[poItem.poItemLine] = {
+            quantityBuy: poItem.quantityBuy,
+            quantityPlanDelivery: 0,
+          }
+        })
+        po.poDeliveryItems.forEach((poDelivery) => {
+          poLineQuantity[poDelivery.poItemLine].quantityPlanDelivery +=
+            poDelivery.quantityPlanDelivery
+        })
+        Object.values(poLineQuantity).forEach((i) => {
+          if (i.quantityBuy !== i.quantityPlanDelivery) {
+            throw BusinessException.error({
+              message: 'msg.MSG_059',
+              error: { poLineQuantity },
+            })
+          }
+        })
       })
 
       // TODO: Phương thức vận chuyển không hoạt động: thông báo mã lỗi MSG_056

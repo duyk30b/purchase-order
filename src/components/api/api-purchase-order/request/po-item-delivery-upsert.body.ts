@@ -6,7 +6,7 @@ export class PoItemDeliveryUpsertBody {
   @ApiProperty({ example: 1 })
   @Expose()
   @IsNumber()
-  prLine: number // Thứ tự
+  poItemLine: number // Thứ tự item trên PO
 
   @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
   @Expose()
@@ -38,7 +38,7 @@ export class PoItemDeliveryUpsertBody {
   @ApiProperty({ example: 12 })
   @Expose()
   @IsNumber()
-  quantityDelivery: number
+  quantityPlanDelivery: number
 
   @ApiProperty({ example: 12 })
   @Expose()

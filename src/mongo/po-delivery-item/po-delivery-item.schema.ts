@@ -12,6 +12,9 @@ export class PoDeliveryItem extends BaseSchema {
   _purchase_order_item_id: Types.ObjectId
 
   @Prop()
+  poItemLine: number // số dòng trên danh sách sản phẩm của PO
+
+  @Prop()
   itemId: number
 
   @Prop()
@@ -24,7 +27,10 @@ export class PoDeliveryItem extends BaseSchema {
   quantityBuy: number // số lượng mua
 
   @Prop()
-  quantityDelivery: number // số lượng giao
+  quantityPlanDelivery: number // số lượng giao kế hoạch
+
+  @Prop()
+  quantityActualDelivery: number // số lượng giao thực tế
 
   @Prop()
   warehouseIdReceiving: number // kho nhận
