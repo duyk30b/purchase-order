@@ -11,6 +11,9 @@ import {
 } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { contentParser } from 'fastify-multer'
+import * as fs from 'fs'
+import { SpelunkerModule } from 'nestjs-spelunker'
+import * as path from 'path'
 import { AppModule } from './app.module'
 import { NatsConfig } from './components/transporter/nats/nats.config'
 import { GlobalConfig } from './config/global.config'
@@ -20,6 +23,18 @@ import {
 } from './core/exception-filter/exception-filter'
 import { AccessLogInterceptor } from './core/interceptor/access-log.interceptor'
 import { TransformResponseInterceptor } from './core/interceptor/transform-response.interceptor'
+
+function saveStringToFile(data, filePath) {
+  // Write the string to the file
+  fs.writeFile(filePath, data, (err) => {
+    if (err) {
+      // Handle error if any
+      console.error(`Error saving string to ${filePath}: ${err}`)
+      return
+    }
+    console.log(`String saved to ${filePath}`)
+  })
+}
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter()
@@ -82,6 +97,46 @@ async function bootstrap() {
     SwaggerModule.setup(`${CF.API_PATH}/swagger-docs`, app, document, {
       swaggerOptions: { persistAuthorization: true },
     })
+  }
+
+  if (CF.NODE_ENV !== 'production') {
+    const tree = SpelunkerModule.explore(app)
+    const root = SpelunkerModule.graph(tree)
+    const edges = SpelunkerModule.findGraphEdges(root).filter((e) => {
+      const ignoreImports = [
+        (moduleName) => moduleName.includes('I18nModule'),
+        (moduleName) => moduleName.includes('ConfigModule'),
+        (moduleName) => moduleName.includes('ConfigHostModule'),
+        (moduleName) => moduleName.includes('DiscoveryModule'),
+        (moduleName) => moduleName.includes('MongooseModule'),
+        (moduleName) => moduleName.includes('MongooseCoreModule'),
+        (moduleName) => moduleName.includes('HttpModule'),
+        (moduleName) => moduleName.includes('ScheduleModule'),
+        (moduleName) => moduleName.includes('BootModule'),
+        (moduleName) => moduleName.includes('ConsulModule'),
+        (moduleName) => moduleName.includes('ServiceModule'),
+        (moduleName) => moduleName.includes('KongGatewayModule'),
+      ]
+      return (
+        !ignoreImports.some((check) => check(e.from.module.name)) &&
+        !ignoreImports.some((check) => check(e.to.module.name))
+      )
+    })
+
+    const mermaidEdges = edges.map(
+      ({ from, to }) => `  ${from.module.name}-->${to.module.name}`
+    )
+
+    const rootDirectory = process.cwd() // Get the root directory of the application
+    const filePath = path.join(rootDirectory, 'diagram')
+    saveStringToFile('flowchart TD\n' + mermaidEdges.join('\n'), filePath)
+
+    // https://mermaid.live/
+    // {
+    //   "theme": "default",
+    //   "maxTextSize": 9999999,
+    //   "maxEdges": 2000
+    // }
   }
 
   await app.listen(CF.SERVER_HTTP_PORT, '0.0.0.0', () => {
