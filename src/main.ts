@@ -24,18 +24,6 @@ import {
 import { AccessLogInterceptor } from './core/interceptor/access-log.interceptor'
 import { TransformResponseInterceptor } from './core/interceptor/transform-response.interceptor'
 
-function saveStringToFile(data, filePath) {
-  // Write the string to the file
-  fs.writeFile(filePath, data, (err) => {
-    if (err) {
-      // Handle error if any
-      console.error(`Error saving string to ${filePath}: ${err}`)
-      return
-    }
-    console.log(`String saved to ${filePath}`)
-  })
-}
-
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter()
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -129,7 +117,12 @@ async function bootstrap() {
 
     const rootDirectory = process.cwd() // Get the root directory of the application
     const filePath = path.join(rootDirectory, 'diagram')
-    saveStringToFile('flowchart TD\n' + mermaidEdges.join('\n'), filePath)
+
+    fs.writeFile(
+      filePath,
+      'flowchart TD\n' + mermaidEdges.join('\n'),
+      (err) => {}
+    )
 
     // https://mermaid.live/
     // {
