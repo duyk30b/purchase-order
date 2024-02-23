@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Transform } from 'class-transformer'
-import { IsDate, IsDefined, IsMongoId, IsNumber } from 'class-validator'
+import {
+  IsDate,
+  IsDefined,
+  IsMongoId,
+  IsNumber,
+  IsString,
+} from 'class-validator'
 
 export class PoItemDeliveryUpsertBody {
   @ApiProperty({ example: 1 })
@@ -8,6 +14,12 @@ export class PoItemDeliveryUpsertBody {
   @IsDefined()
   @IsNumber()
   poItemLine: number // Thứ tự item trên PO
+
+  @ApiProperty({ example: 1.2 })
+  @Expose()
+  @IsDefined()
+  @IsString()
+  poDeliveryLine: string // Thứ tự item trên PO
 
   @ApiProperty({ example: '63fdde9517a7317f0e8f959a' })
   @Expose()

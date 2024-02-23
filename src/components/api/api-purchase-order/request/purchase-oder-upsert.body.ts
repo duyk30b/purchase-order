@@ -109,6 +109,7 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
     example: JSON.stringify(<PoItemUpsertBody[]>[
       {
         prItemLine: 1,
+        poItemLine: 1,
         purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
         itemId: 12,
         itemUnitId: 12,
@@ -140,6 +141,8 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
     type: String,
     example: JSON.stringify(<PoItemDeliveryUpsertBody[]>[
       {
+        poItemLine: 1,
+        poDeliveryLine: '1.1',
         purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
         itemId: 12,
         itemUnitId: 12, // đơn vị tính => trường này lấy theo nhà cung cấp
