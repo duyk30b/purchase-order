@@ -14,6 +14,10 @@ import {
   transformConditionMongoId,
 } from '../../../../common/dto/condition-mongo-id'
 import {
+  ConditionNumber,
+  transformConditionNumber,
+} from '../../../../common/dto/condition-number'
+import {
   ConditionString,
   transformConditionString,
 } from '../../../../common/dto/condition-string'
@@ -53,6 +57,11 @@ export class PurchaseOrderFilterQuery {
   @Transform(transformConditionString)
   @Allow()
   code: string | ConditionString
+
+  @Expose()
+  @Transform(transformConditionNumber)
+  @Allow()
+  incotermId: number | ConditionNumber
 
   @Expose()
   @Type(() => ConditionString)

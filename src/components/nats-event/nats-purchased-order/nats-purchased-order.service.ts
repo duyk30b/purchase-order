@@ -44,6 +44,7 @@ export class NatsPurchaseOrderService {
         orderDate: filter?.orderDate,
         deliveryDate: filter?.deliveryDate,
         supplierId: filter?.supplierId,
+        incotermId: filter?.incotermId,
         purchaseOrderKind: filter?.purchaseOrderKind,
         createdByUserId: filter?.createdByUserId,
         poPaymentStatus: filter?.poPaymentStatus,
