@@ -25,7 +25,7 @@ import { PoItemUpsertBody } from './po-item-upsert.body'
 export class PoPaymentPlanBody {
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   expectedDate: Date // ngày dự kiến
 
@@ -53,7 +53,7 @@ export class PoPaymentPlanBody {
 export class PoNoteBody {
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   date: Date
 
@@ -108,7 +108,8 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
     type: String,
     example: JSON.stringify(<PoItemUpsertBody[]>[
       {
-        prLine: 1,
+        prItemLine: 1,
+        poItemLine: 1,
         purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
         itemId: 12,
         itemUnitId: 12,
@@ -140,12 +141,14 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
     type: String,
     example: JSON.stringify(<PoItemDeliveryUpsertBody[]>[
       {
+        poItemLine: 1,
+        poDeliveryLine: '1.1',
         purchaseRequestItemId: '63fdde9517a7317f0e8f959a',
         itemId: 12,
         itemUnitId: 12, // đơn vị tính => trường này lấy theo nhà cung cấp
         deliveryTerm: 33, // thời hạn giao hàng => trường này lấy theo nhà cung cấp
         quantityBuy: 12,
-        quantityDelivery: 12,
+        quantityPlanDelivery: 12,
         warehouseIdReceiving: 12,
         deliveryDate: new Date('2024-01-19T06:50:24.977Z'), // ngày giao kế hoạch
       },
@@ -255,7 +258,7 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   orderDate: Date
 
@@ -327,7 +330,12 @@ export class PurchaseOrderCreateBody extends MultipleFileUpload {
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => {
+    if (!value || value === 'null') {
+      return undefined
+    }
+    return new Date(value)
+  })
   @IsDate()
   deliveryDate: Date
 

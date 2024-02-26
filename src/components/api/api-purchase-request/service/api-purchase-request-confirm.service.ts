@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
+import { uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestHistoryContent } from '../../../../mongo/purchase-request-history/purchase-request-history.constant'
@@ -20,6 +21,11 @@ import {
   CostCenterType,
   NatsClientCostCenterService,
 } from '../../../transporter/nats/service/nats-client-cost-center.service'
+import {
+  ItemActiveStatusEnum,
+  ItemType,
+  NatsClientItemService,
+} from '../../../transporter/nats/service/nats-client-item.service'
 
 @Injectable()
 export class ApiPurchaseRequestConfirmService {
@@ -27,9 +33,10 @@ export class ApiPurchaseRequestConfirmService {
 
   constructor(
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
-    private readonly purchaseOrderHistoryRepository: PurchaseRequestHistoryRepository,
+    private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
-    private readonly natsClientCostCenterService: NatsClientCostCenterService
+    private readonly natsClientCostCenterService: NatsClientCostCenterService,
+    private readonly natsClientItemService: NatsClientItemService
   ) {}
 
   async confirm(options: {
@@ -53,7 +60,7 @@ export class ApiPurchaseRequestConfirmService {
 
     rootList.forEach((i) => {
       if (![PurchaseRequestStatus.WAIT_CONFIRM].includes(i.status)) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
       }
     })
 
@@ -80,7 +87,7 @@ export class ApiPurchaseRequestConfirmService {
       return prHistoryDto
     })
 
-    await this.purchaseOrderHistoryRepository.insertManyFullField(
+    await this.purchaseRequestHistoryRepository.insertManyFullField(
       prHistoryDtoList
     )
 
@@ -90,6 +97,12 @@ export class ApiPurchaseRequestConfirmService {
   async validate(purchaseRequestList: PurchaseRequestType[]) {
     const costCenterIds = purchaseRequestList.map((i) => i.costCenterId)
     const supplierIds = purchaseRequestList.map((i) => i.supplierId)
+    const itemIdList = uniqueArray(
+      purchaseRequestList
+        .map((i) => i.purchaseRequestItems)
+        .flat()
+        .map((i) => i.itemId)
+    )
 
     const dataExtendsPromise = await Promise.allSettled([
       costCenterIds && costCenterIds.length
@@ -103,6 +116,9 @@ export class ApiPurchaseRequestConfirmService {
             relation: { supplierItems: true },
           })
         : {},
+      itemIdList && itemIdList.length
+        ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
+        : [],
     ])
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
       if (i.status === 'fulfilled') {
@@ -112,54 +128,74 @@ export class ApiPurchaseRequestConfirmService {
         this.logger.error(i)
         return []
       }
-    }) as [Record<string, CostCenterType>, Record<string, SupplierType>]
+    }) as [
+      Record<string, CostCenterType>,
+      Record<string, SupplierType>,
+      Record<string, ItemType>,
+    ]
 
-    const [costCenterMap, supplierMap] = dataExtendsResult
+    const [costCenterMap, supplierMap, itemMap] = dataExtendsResult
 
     purchaseRequestList.forEach((purchaseRequest) => {
       const costCenter = costCenterMap[purchaseRequest.costCenterId]
       const supplier = supplierMap[purchaseRequest.supplierId]
 
-      if (!costCenter) {
-        throw new BusinessException('error.CostCenter.NotFound')
-      }
       if (
+        !costCenter ||
         [
           CostCenterStatusEnum.DRAFT,
           CostCenterStatusEnum.DELETED,
           CostCenterStatusEnum.INACTIVE,
         ].includes(costCenter.status)
       ) {
-        throw new BusinessException('msg.MSG_041')
+        throw BusinessException.error({
+          message: 'msg.MSG_195',
+          i18args: { obj: 'Cost center' },
+          error: { costCenter: costCenter || null },
+        })
       }
 
-      if (!supplier) {
-        throw new BusinessException('error.Supplier.NotFound')
-      }
-      if ([SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
-        throw new BusinessException('msg.MSG_045')
+      if (!supplier || [SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
+        throw BusinessException.error({
+          message: 'msg.MSG_045',
+          error: { supplier: supplier || null },
+        })
       }
 
-      purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
+      purchaseRequest.purchaseRequestItems.forEach((poItem) => {
+        const item = itemMap[poItem.itemId]
+        if (
+          !item ||
+          ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
+        ) {
+          throw BusinessException.error({
+            message: 'msg.MSG_195',
+            i18args: { obj: 'Sản phẩm' },
+            error: { item: item || null },
+          })
+        }
+
         const supplierItem = (supplier.supplierItems || []).find(
-          (si) => purchaseRequestItem.itemId === si.itemId
+          (si) => poItem.itemId === si.itemId
         )
-        if (!supplierItem) {
-          throw new BusinessException('error.SupplierItem.NotFound')
-        }
-        // Đơn vị tính thay đổi thì báo lỗi
-        if (purchaseRequestItem.itemUnitId !== supplierItem.itemUnitId) {
-          throw BusinessException.error({
-            message: 'msg.MSG_035',
-            error: [{ purchaseRequestItem, supplierItem }],
-          })
-        }
+        // TOD: Đơn vị tính thay đổi thì báo lỗi // Đơn vị tính của Item thay đổi khác với PO
+        // if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+        //   throw BusinessException.error({
+        //     message: 'msg.MSG_298',
+        //     error: [{ purchaseRequestItem: poItem, supplierItem }],
+        //   })
+        // }
+
         // Thời hạn giao hàng thay đổi cũng báo lỗi
-        if (purchaseRequestItem.deliveryTerm !== supplierItem.deliveryTerm) {
-          throw BusinessException.error({
-            message: 'msg.MSG_035',
-            error: [{ purchaseRequestItem, supplierItem }],
-          })
+        if (supplierItem) {
+          if (supplierItem.deliveryTerm) {
+            if (poItem.deliveryTerm !== supplierItem?.deliveryTerm) {
+              throw BusinessException.error({
+                message: 'msg.MSG_043',
+                error: [{ purchaseRequestItem: poItem, supplierItem }],
+              })
+            }
+          }
         }
       })
     })

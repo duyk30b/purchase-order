@@ -63,7 +63,7 @@ export class ApiPurchaseRequestUpdateService {
         PurchaseRequestStatus.REJECT,
       ].includes(rootData.status)
     ) {
-      throw new BusinessException('msg.MSG_100')
+      throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
     }
 
     let status: PurchaseRequestStatus
@@ -139,7 +139,7 @@ export class ApiPurchaseRequestUpdateService {
           })
         : {},
       itemIdList && itemIdList.length
-        ? this.natsClientItemService.getItemListByIds({ itemIds: itemIdList })
+        ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
         : [],
     ])
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
@@ -153,36 +153,66 @@ export class ApiPurchaseRequestUpdateService {
     }) as [
       Record<string, CostCenterType>,
       Record<string, SupplierType>,
-      ItemType[],
+      Record<string, ItemType>,
     ]
 
-    const [costCenterMap, supplierMap, itemList] = dataExtendsResult
+    const [costCenterMap, supplierMap, itemMap] = dataExtendsResult
     const costCenter = costCenterMap[costCenterId]
     const supplier = supplierMap[supplierId]
 
-    if (!costCenter) {
-      throw new BusinessException('error.CostCenter.NotFound')
-    }
     if (
+      !costCenter ||
       [
         CostCenterStatusEnum.DRAFT,
         CostCenterStatusEnum.DELETED,
         CostCenterStatusEnum.INACTIVE,
       ].includes(costCenter.status)
     ) {
-      throw new BusinessException('msg.MSG_041')
+      throw BusinessException.error({
+        message: 'msg.MSG_195',
+        i18args: { obj: 'Cost center' },
+        error: { costCenter: costCenter || null },
+      })
     }
 
-    if (!supplier) {
-      throw new BusinessException('error.Supplier.NotFound')
-    }
-    if ([SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
-      throw new BusinessException('msg.MSG_045')
+    if (!supplier || [SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
+      throw BusinessException.error({
+        message: 'msg.MSG_045',
+        error: { supplier: supplier || null },
+      })
     }
 
-    itemList.forEach((i) => {
-      if ([ItemActiveStatusEnum.INACTIVE].includes(i.activeStatus)) {
-        throw new BusinessException('msg.MSG_032')
+    data.items.forEach((poItem) => {
+      const item = itemMap[poItem.itemId]
+      const supplierItem = supplier.supplierItems.find(
+        (j) => j.itemId === poItem.itemId
+      )
+
+      if (!item || ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)) {
+        throw BusinessException.error({
+          message: 'msg.MSG_195',
+          i18args: { obj: 'Sản phẩm' },
+          error: { item: item || null },
+        })
+      }
+      // TOD: Đơn vị tính thay đổi thì báo lỗi // Đơn vị tính của Item thay đổi khác với PO
+      // if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+      //   throw BusinessException.error({
+      //     message: 'msg.MSG_298',
+      //     error: [{ purchaseRequestItem: poItem, supplierItem }],
+      //   })
+      // }
+
+      // Thời hạn giao hàng thay đổi cũng báo lỗi
+      if (supplierItem) {
+        if (supplierItem.deliveryTerm) {
+          if (poItem.deliveryTerm !== supplierItem?.deliveryTerm) {
+            throw BusinessException.error({
+              message: 'msg.MSG_043',
+              error: [{ purchaseRequestItem: poItem, supplierItem }],
+            })
+          }
+        }
       }
     })
   }

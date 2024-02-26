@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
+import { uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseRequestHistoryContent } from '../../../../mongo/purchase-request-history/purchase-request-history.constant'
 import { PurchaseRequestHistoryRepository } from '../../../../mongo/purchase-request-history/purchase-request-history.repository'
+import { PurchaseRequestHistoryInsertType } from '../../../../mongo/purchase-request-history/purchase-request-history.schema'
 import { PurchaseRequestRepository } from '../../../../mongo/purchase-request/purchase-request.repository'
 import {
   PurchaseRequestStatus,
@@ -19,6 +21,11 @@ import {
   CostCenterType,
   NatsClientCostCenterService,
 } from '../../../transporter/nats/service/nats-client-cost-center.service'
+import {
+  ItemActiveStatusEnum,
+  ItemType,
+  NatsClientItemService,
+} from '../../../transporter/nats/service/nats-client-item.service'
 
 @Injectable()
 export class ApiPurchaseRequestWaitConfirmService {
@@ -28,30 +35,41 @@ export class ApiPurchaseRequestWaitConfirmService {
     private readonly purchaseRequestRepository: PurchaseRequestRepository,
     private readonly purchaseRequestHistoryRepository: PurchaseRequestHistoryRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
-    private readonly natsClientCostCenterService: NatsClientCostCenterService
+    private readonly natsClientCostCenterService: NatsClientCostCenterService,
+    private readonly natsClientItemService: NatsClientItemService
   ) {}
 
   async waitConfirm(options: {
-    id: string
+    ids: string[]
     userId: number
   }): Promise<BaseResponse> {
-    const { id, userId } = options
-    const rootData = await this.purchaseRequestRepository.findOne({
+    const { ids, userId } = options
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      throw BusinessException.error({
+        message: 'error.FILTER_EMPTY',
+        error: [{ ids }],
+      })
+    }
+    const rootList = await this.purchaseRequestRepository.findMany({
       relation: { purchaseRequestItems: true },
-      condition: { id },
+      condition: { id: { IN: ids } },
     })
-    if (!rootData) {
-      throw new BusinessException('error.PurchaseRequest.NotFound')
-    }
-    if (![PurchaseRequestStatus.DRAFT].includes(rootData.status)) {
-      throw new BusinessException('msg.MSG_010')
+    if (!rootList.length) {
+      throw new BusinessException('error.NOT_FOUND')
     }
 
-    await this.validate(rootData)
+    rootList.forEach((i) => {
+      if (![PurchaseRequestStatus.DRAFT].includes(i.status)) {
+        throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
+      }
+    })
 
+    await this.validate(rootList)
+
+    const idsObject = ids.map((id) => new Types.ObjectId(id))
     const purchaseRequest: PurchaseRequestType =
       await this.purchaseRequestRepository.updateOne(
-        { id },
+        { _id: { IN: idsObject } },
         {
           status: PurchaseRequestStatus.WAIT_CONFIRM,
           updatedByUserId: userId,
@@ -59,30 +77,55 @@ export class ApiPurchaseRequestWaitConfirmService {
       )
 
     // Lưu lịch sử
-    await this.purchaseRequestHistoryRepository.insertOneFullField({
-      _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
-      userId,
-      status: { before: rootData.status, after: purchaseRequest.status },
-      content: PurchaseRequestHistoryContent.WAIT_CONFIRM,
-      time: new Date(),
+    const prHistoryDtoList = rootList.map((pr) => {
+      const prHistoryDto: PurchaseRequestHistoryInsertType = {
+        _purchase_request_id: new Types.ObjectId(pr.id),
+        userId,
+        status: {
+          before: pr.status,
+          after: PurchaseRequestStatus.WAIT_CONFIRM,
+        },
+        content: PurchaseRequestHistoryContent.WAIT_CONFIRM,
+        time: new Date(),
+      }
+      return prHistoryDto
     })
-    return { data: purchaseRequest, message: 'msg.MSG_044' }
+
+    await this.purchaseRequestHistoryRepository.insertManyFullField(
+      prHistoryDtoList
+    )
+
+    return {
+      data: purchaseRequest,
+      message: 'msg.MSG_255',
+      args: { obj: 'Yêu cầu mua hàng' },
+    }
   }
 
-  async validate(purchaseRequest: PurchaseRequestType) {
-    const { costCenterId, supplierId } = purchaseRequest
+  async validate(purchaseRequestList: PurchaseRequestType[]) {
+    const costCenterIds = purchaseRequestList.map((i) => i.costCenterId)
+    const supplierIds = purchaseRequestList.map((i) => i.supplierId)
+    const itemIdList = uniqueArray(
+      purchaseRequestList
+        .map((i) => i.purchaseRequestItems)
+        .flat()
+        .map((i) => i.itemId)
+    )
     const dataExtendsPromise = await Promise.allSettled([
-      costCenterId
+      costCenterIds && costCenterIds.length
         ? this.natsClientCostCenterService.getCostCenterMap({
-            ids: [costCenterId],
+            ids: costCenterIds,
           })
         : {},
-      supplierId
+      supplierIds && supplierIds.length
         ? this.natsClientVendorService.getSupplierMap({
-            filter: { id: { IN: [supplierId] } },
+            filter: { id: { IN: supplierIds } },
             relation: { supplierItems: true },
           })
         : {},
+      itemIdList && itemIdList.length
+        ? this.natsClientItemService.getItemMapByIds({ itemIds: itemIdList })
+        : [],
     ])
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
       if (i.status === 'fulfilled') {
@@ -92,53 +135,77 @@ export class ApiPurchaseRequestWaitConfirmService {
         this.logger.error(i)
         return []
       }
-    }) as [Record<string, CostCenterType>, Record<string, SupplierType>]
+    }) as [
+      Record<string, CostCenterType>,
+      Record<string, SupplierType>,
+      Record<string, ItemType>,
+    ]
 
-    const [costCenterMap, supplierMap] = dataExtendsResult
-    const costCenter = costCenterMap[costCenterId]
-    const supplier = supplierMap[supplierId]
+    const [costCenterMap, supplierMap, itemMap] = dataExtendsResult
 
-    if (!costCenter) {
-      throw new BusinessException('error.CostCenter.NotFound')
-    }
-    if (
-      [
-        CostCenterStatusEnum.DRAFT,
-        CostCenterStatusEnum.DELETED,
-        CostCenterStatusEnum.INACTIVE,
-      ].includes(costCenter.status)
-    ) {
-      throw new BusinessException('msg.MSG_041')
-    }
+    purchaseRequestList.forEach((purchaseRequest) => {
+      const costCenter = costCenterMap[purchaseRequest.costCenterId]
+      const supplier = supplierMap[purchaseRequest.supplierId]
 
-    if (!supplier) {
-      throw new BusinessException('error.Supplier.NotFound')
-    }
-    if ([SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
-      throw new BusinessException('msg.MSG_045')
-    }
-
-    purchaseRequest.purchaseRequestItems.forEach((purchaseRequestItem) => {
-      const supplierItem = (supplier.supplierItems || []).find(
-        (si) => purchaseRequestItem.itemId === si.itemId
-      )
-      if (!supplierItem) {
-        throw new BusinessException('error.SupplierItem.NotFound')
-      }
-      // Đơn vị tính thay đổi thì báo lỗi
-      if (purchaseRequestItem.itemUnitId !== supplierItem.itemUnitId) {
+      if (
+        !costCenter ||
+        [
+          CostCenterStatusEnum.DRAFT,
+          CostCenterStatusEnum.DELETED,
+          CostCenterStatusEnum.INACTIVE,
+        ].includes(costCenter.status)
+      ) {
         throw BusinessException.error({
-          message: 'msg.MSG_035',
-          error: [{ purchaseRequestItem, supplierItem }],
+          message: 'msg.MSG_195',
+          i18args: { obj: 'Cost center' },
+          error: { costCenter: costCenter || null },
         })
       }
-      // Thời hạn giao hàng thay đổi cũng báo lỗi
-      if (purchaseRequestItem.deliveryTerm !== supplierItem.deliveryTerm) {
+
+      if (!supplier || [SUPPLIER_STATUS.INACTIVE].includes(supplier.status)) {
         throw BusinessException.error({
-          message: 'msg.MSG_035',
-          error: [{ purchaseRequestItem, supplierItem }],
+          message: 'msg.MSG_045',
+          error: { supplier: supplier || null },
         })
       }
+
+      purchaseRequest.purchaseRequestItems.forEach((poItem) => {
+        const item = itemMap[poItem.itemId]
+        const supplierItem = (supplier.supplierItems || []).find(
+          (si) => poItem.itemId === si.itemId
+        )
+
+        if (
+          !item ||
+          ![ItemActiveStatusEnum.ACTIVE].includes(item.activeStatus)
+        ) {
+          throw BusinessException.error({
+            message: 'msg.MSG_195',
+            i18args: { obj: 'Sản phẩm' },
+            error: { item: item || null },
+          })
+        }
+
+        // TOD: Đơn vị tính thay đổi thì báo lỗi // Đơn vị tính của Item thay đổi khác với PO
+        // if (poItem.itemUnitId !== supplierItem.itemUnitId) {
+        //   throw BusinessException.error({
+        //     message: 'msg.MSG_298',
+        //     error: [{ purchaseRequestItem: poItem, supplierItem }],
+        //   })
+        // }
+
+        // Thời hạn giao hàng thay đổi cũng báo lỗi
+        if (supplierItem) {
+          if (supplierItem.deliveryTerm) {
+            if (poItem.deliveryTerm !== supplierItem?.deliveryTerm) {
+              throw BusinessException.error({
+                message: 'msg.MSG_043',
+                error: [{ purchaseRequestItem: poItem, supplierItem }],
+              })
+            }
+          }
+        }
+      })
     })
   }
 }

@@ -46,7 +46,7 @@ export class ApiPurchaseRequestItemExchangeService {
       _purchase_request_id: { EQUAL: new Types.ObjectId(purchaseRequestId) },
     })
     if (!purchaseOrderList.length) {
-      throw new BusinessException('error.NOT_FOUND')
+      return { data: { data: [], meta: {} } }
     }
 
     const purchaseOrderMap = arrayToKeyValue(purchaseOrderList, 'id')
@@ -56,7 +56,11 @@ export class ApiPurchaseRequestItemExchangeService {
       _purchase_order_id: { IN: purchaseOrderIdList },
     })
 
-    const meta = await this.getDataExtends(poDeliveryItemList)
+    const meta = {
+      purchaseRequest,
+      purchaseOrderMap,
+      ...(await this.getDataExtends(poDeliveryItemList)),
+    }
 
     if (searchText) {
       poDeliveryItemList = poDeliveryItemList.filter((i) => {

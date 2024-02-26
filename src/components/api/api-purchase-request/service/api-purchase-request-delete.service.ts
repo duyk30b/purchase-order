@@ -36,7 +36,7 @@ export class ApiPurchaseRequestDeleteService {
     return { data: id, message: 'msg.MSG_016' }
   }
 
-  async deleteList(ids: string[]): Promise<BaseResponse> {
+  async deleteMultiple(ids: string[]): Promise<BaseResponse> {
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       throw BusinessException.error({
         message: 'error.FILTER_EMPTY',
@@ -55,7 +55,7 @@ export class ApiPurchaseRequestDeleteService {
           PurchaseRequestStatus.WAIT_CONFIRM,
         ].includes(i.status)
       ) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
       }
     })
 
@@ -65,6 +65,10 @@ export class ApiPurchaseRequestDeleteService {
       _purchase_request_id: { IN: idsObject },
     })
 
-    return { data: ids, message: 'msg.MSG_016' }
+    return {
+      data: ids,
+      message: 'msg.MSG_016',
+      args: { obj: 'Yêu cầu mua hàng' },
+    }
   }
 }

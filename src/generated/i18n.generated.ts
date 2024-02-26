@@ -147,6 +147,7 @@ export type I18nTranslations = {
         "MSG_006": string;
         "MSG_007": string;
         "MSG_008": string;
+        "MSG_009": string;
         "MSG_010": string;
         "MSG_011": string;
         "MSG_012": string;
@@ -500,7 +501,6 @@ export type I18nTranslations = {
         "MSG_360": string;
         "MSG_361": string;
         "MSG_362": string;
-        "MSG_363": string;
     };
 };
 export type I18nPath = Path<I18nTranslations>;

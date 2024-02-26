@@ -21,8 +21,9 @@ import {
 export class ItemUpsertBody {
   @ApiProperty({ example: 1 })
   @Expose()
+  @IsDefined()
   @IsNumber()
-  line: number // Thứ tự
+  prItemLine: number // Thứ tự
 
   @ApiProperty({ example: 12 })
   @Expose()
@@ -94,13 +95,13 @@ export class PurchaseRequestCreateBody {
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   requestDate: Date
 
   @ApiProperty({ example: '2024-01-19T06:50:24.977Z' })
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   receiveDate: Date
 

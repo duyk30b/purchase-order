@@ -16,62 +16,62 @@ import {
 
 export class ConditionDate {
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '>'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'GT'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '>='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'GTE'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '<'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'LT'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '<='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'LTE'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '=='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'EQUAL'?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   '!='?: Date
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date() : undefined))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsDate()
   'NOT'?: Date
 
@@ -86,7 +86,10 @@ export class ConditionDate {
   @Expose()
   @Transform(({ value }) => {
     if (!value) return undefined
-    return value.map((v: string | Date) => new Date(v))
+    return value.map((v: any) => {
+      if (v == null) return null
+      return new Date(v)
+    })
   })
   @IsArray()
   @IsDate({ each: true })
@@ -96,7 +99,10 @@ export class ConditionDate {
   @Expose()
   @Transform(({ value }) => {
     if (!value) return undefined
-    return value.map((v: string | Date) => new Date(v))
+    return value.map((v: any) => {
+      if (v == null) return null
+      return new Date(v)
+    })
   })
   @IsArray()
   @IsDate({ each: true })
@@ -113,7 +119,10 @@ export const transformConditionDate = ({ value, key }: TransformFnParams) => {
     if (!validate) throw new Error(`${key} must be a DateString`)
     return value
   } else if (typeof value === 'object') {
-    const instance = plainToInstance(ConditionDate, value)
+    const instance = plainToInstance(ConditionDate, value, {
+      exposeUnsetFields: false,
+      excludeExtraneousValues: false,
+    })
     const validate = validateSync(instance, {
       whitelist: true,
       forbidNonWhitelisted: true,

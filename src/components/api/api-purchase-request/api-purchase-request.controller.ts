@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { IdMongoParam } from '../../../common/dto/param'
+import { MultiMongoIdQuery } from '../../../common/dto/query'
 import { External, TExternal } from '../../../core/decorator/request-external'
 import { PermissionCode } from '../../../core/guard/authorization.guard'
 import {
@@ -28,7 +29,6 @@ import {
 import { PurchaseRequestStatus } from '../../../mongo/purchase-request/purchase-request.schema'
 import { ApiPurchaseRequestService } from './api-purchase-request.service'
 import {
-  PurchaseRequestActionManyQuery,
   PurchaseRequestCreateBody,
   PurchaseRequestGetManyQuery,
   PurchaseRequestGetOneByIdQuery,
@@ -132,7 +132,19 @@ export class ApiPurchaseRequestController {
     @Param() { id }: IdMongoParam
   ) {
     return await this.apiPurchaseRequestWaitConfirmService.waitConfirm({
-      id,
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('wait-confirm/multiple')
+  @PermissionCode(PURCHASE_REQUEST_WAIT_CONFIRM.code)
+  async waitConfirmMultiple(
+    @External() { user }: TExternal,
+    @Query() { ids }: MultiMongoIdQuery
+  ) {
+    return await this.apiPurchaseRequestWaitConfirmService.waitConfirm({
+      ids,
       userId: user.id,
     })
   }
@@ -149,13 +161,12 @@ export class ApiPurchaseRequestController {
     })
   }
 
-  @Patch('confirm-list')
+  @Patch('confirm/multiple')
   @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
-  async confirmList(
+  async confirmMultiple(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestConfirmService.confirm({
       ids,
       userId: user.id,
@@ -171,13 +182,12 @@ export class ApiPurchaseRequestController {
     })
   }
 
-  @Patch('reject-list')
-  @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
-  async rejectList(
+  @Patch('reject/multiple')
+  @PermissionCode(PURCHASE_REQUEST_REJECT.code)
+  async rejectMultiple(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestRejectService.reject({
       ids,
       userId: user.id,
@@ -193,13 +203,12 @@ export class ApiPurchaseRequestController {
     })
   }
 
-  @Patch('cancel-list')
-  @PermissionCode(PURCHASE_REQUEST_CONFIRM.code)
-  async cancelList(
+  @Patch('cancel/multiple')
+  @PermissionCode(PURCHASE_REQUEST_CANCEL.code)
+  async cancelMultiple(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
     return await this.apiPurchaseRequestCancelService.cancel({
       ids,
       userId: user.id,
@@ -213,14 +222,13 @@ export class ApiPurchaseRequestController {
     return await this.apiPurchaseRequestDeleteService.deleteOne(id)
   }
 
-  @Delete('delete-list')
+  @Delete('delete/multiple')
   @PermissionCode(PURCHASE_REQUEST_DELETE.code)
-  async deleteList(
+  async deleteMultiple(
     @External() { user }: TExternal,
-    @Query() query: PurchaseRequestActionManyQuery
+    @Query() { ids }: MultiMongoIdQuery
   ) {
-    const ids = query?.filter?.id?.['IN'] || []
-    return await this.apiPurchaseRequestDeleteService.deleteList(ids)
+    return await this.apiPurchaseRequestDeleteService.deleteMultiple(ids)
   }
 
   @Get('items-detail/:id')

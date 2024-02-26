@@ -35,7 +35,7 @@ export class ApiPurchaseRequestService {
       await this.purchaseRequestRepository.updateOne(
         { id },
         {
-          status: PurchaseRequestStatus.CONFIRM,
+          status: PurchaseRequestStatus.SUCCESS,
           updatedByUserId: userId,
         }
       )
@@ -44,7 +44,7 @@ export class ApiPurchaseRequestService {
     await this.purchaseRequestHistoryRepository.insertOneFullField({
       _purchase_request_id: new Types.ObjectId(purchaseRequest.id),
       userId,
-      status: { before: rootData.status, after: purchaseRequest.status },
+      status: { before: rootData.status, after: PurchaseRequestStatus.SUCCESS },
       content: 'Yêu cầu mua hoàn thành',
       time: new Date(),
     })

@@ -44,7 +44,10 @@ export const transformConditionString = ({ value, key }: TransformFnParams) => {
   if (typeof value === 'string') {
     return value
   } else if (typeof value === 'object') {
-    const instance = plainToInstance(ConditionString, value)
+    const instance = plainToInstance(ConditionString, value, {
+      exposeUnsetFields: false,
+      excludeExtraneousValues: false,
+    })
     const validate = validateSync(instance, {
       whitelist: true,
       forbidNonWhitelisted: true,

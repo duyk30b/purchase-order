@@ -34,7 +34,7 @@ export class ApiPurchaseOrderDeleteService {
 
     rootList.forEach((i) => {
       if (![PurchaseOrderStatus.DRAFT].includes(i.status)) {
-        throw new BusinessException('msg.MSG_010')
+        throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
       }
     })
 
@@ -53,6 +53,6 @@ export class ApiPurchaseOrderDeleteService {
       await this.purchaseOrderHistoryRepository.deleteManyBy({
         _purchase_order_id: { IN: poIdsObject },
       })
-    return { data: { ids } }
+    return { data: { ids }, message: 'msg.MSG_016' }
   }
 }

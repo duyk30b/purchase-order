@@ -10,7 +10,7 @@ export class PurchaseRequestItem extends BaseSchema {
   _purchase_request_id: Types.ObjectId
 
   @Prop()
-  line: number // số line của sản phẩm trên PR
+  prItemLine: number // số line của sản phẩm trên PR
 
   @Prop()
   itemId: number
