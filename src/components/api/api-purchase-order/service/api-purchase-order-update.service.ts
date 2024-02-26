@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
 import { FileDto } from '../../../../common/dto/file'
-import { arrayToKeyValue, uniqueArray } from '../../../../common/helpers'
+import {
+  arrayToKeyValue,
+  objectEnum,
+  uniqueArray,
+} from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
@@ -344,7 +348,10 @@ export class ApiPurchaseOrderUpdateService {
         throw BusinessException.error({
           message: 'msg.MSG_010',
           i18args: { obj: 'Đơn mua hàng' },
-          error: { purchaseRequest: pr || null },
+          error: {
+            purchaseRequest: pr || null,
+            PurchaseRequestStatus: objectEnum(PurchaseRequestStatus),
+          },
         })
       }
 
@@ -367,7 +374,10 @@ export class ApiPurchaseOrderUpdateService {
           throw BusinessException.error({
             message: 'msg.MSG_195',
             i18args: { obj: 'Sản phẩm' },
-            error: { item: item || null },
+            error: {
+              item: item || null,
+              ItemActiveStatusEnum: objectEnum(ItemActiveStatusEnum),
+            },
           })
         }
 

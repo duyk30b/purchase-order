@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
-import { arrayToKeyValue, uniqueArray } from '../../../../common/helpers'
+import {
+  arrayToKeyValue,
+  objectEnum,
+  uniqueArray,
+} from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PoDeliveryItemRepository } from '../../../../mongo/po-delivery-item/po-delivery-item.repository'
@@ -208,7 +212,10 @@ export class ApiPurchaseOrderConfirmService {
       if (!supplier || ![SUPPLIER_STATUS.ACTIVE].includes(supplier.status)) {
         throw BusinessException.error({
           message: 'msg.MSG_045',
-          error: { supplier: supplier || null },
+          error: {
+            supplier: supplier || null,
+            SUPPLIER_STATUS: objectEnum(SUPPLIER_STATUS),
+          },
         })
       }
 
@@ -217,7 +224,10 @@ export class ApiPurchaseOrderConfirmService {
         throw BusinessException.error({
           message: 'msg.MSG_010',
           i18args: { obj: 'Đơn mua hàng' },
-          error: { purchaseRequest: pr || null },
+          error: {
+            purchaseRequest: pr || null,
+            PurchaseRequestStatus: objectEnum(PurchaseRequestStatus),
+          },
         })
       }
 
@@ -244,7 +254,10 @@ export class ApiPurchaseOrderConfirmService {
           throw BusinessException.error({
             message: 'msg.MSG_195',
             i18args: { obj: 'Sản phẩm' },
-            error: { item: item || null },
+            error: {
+              item: item || null,
+              ItemActiveStatusEnum: objectEnum(ItemActiveStatusEnum),
+            },
           })
         }
 
@@ -274,12 +287,17 @@ export class ApiPurchaseOrderConfirmService {
         ) {
           throw BusinessException.error({
             message: 'msg.MSG_067',
-            error: { warehouse: warehouse || null },
+            error: {
+              warehouse: warehouse || null,
+              WarehouseStatusEnum: objectEnum(WarehouseStatusEnum),
+            },
           })
         }
 
-        if (poDelivery.deliveryDate.getTime() - po.orderDate.getTime() < 0) {
-          throw new BusinessException('msg.MSG_062')
+        if (poDelivery.deliveryDate && po.orderDate) {
+          if (poDelivery.deliveryDate.getTime() - po.orderDate.getTime() < 0) {
+            throw new BusinessException('msg.MSG_062')
+          }
         }
       })
     })
