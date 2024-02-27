@@ -40,6 +40,9 @@ export class PoDeliveryItem extends BaseSchema {
 
   @Prop({ required: false })
   deliveryDate: Date // ngày giao kế hoạch
+
+  @Prop({ required: false })
+  actualDeliveryDate: Date // ngày giao thực tế
 }
 
 const PoDeliveryItemSchema = SchemaFactory.createForClass(PoDeliveryItem)

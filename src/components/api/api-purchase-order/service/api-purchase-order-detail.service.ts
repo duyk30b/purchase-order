@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { keyBy } from 'lodash'
 import { uniqueArray } from '../../../../common/helpers'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
 import { PurchaseOrderType } from '../../../../mongo/purchase-order/purchase-order.schema'
+import { PurchaseRequestRepository } from '../../../../mongo/purchase-request/purchase-request.repository'
 import { IncotermType } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.response'
 import { NatsClientIncotermService } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.service'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
@@ -30,6 +32,7 @@ export class ApiPurchaseOrderDetailService {
 
   constructor(
     private readonly purchaseOrderRepository: PurchaseOrderRepository,
+    private readonly purchaseRequestRepository: PurchaseRequestRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
     private readonly natsClientUserService: NatsClientUserService,
     private readonly natsClientItemService: NatsClientItemService,
@@ -81,6 +84,14 @@ export class ApiPurchaseOrderDetailService {
     const warehouseIdList = uniqueArray(
       (data.poDeliveryItems || []).map((i) => i.warehouseIdReceiving)
     )
+
+    const purchasedRequest = data?.purchaseRequestId
+      ? await this.purchaseRequestRepository.findOne({
+          relation: { purchaseRequestItems: true },
+          condition: { id: data?.purchaseRequestId },
+        })
+      : {}
+    const purchasedRequestMap = keyBy([purchasedRequest], 'id')
 
     const dataExtendsPromise = await Promise.allSettled([
       userIdList.length
@@ -154,6 +165,7 @@ export class ApiPurchaseOrderDetailService {
       currencyMap,
       incotermMap,
       manufacturingCountryMap,
+      purchasedRequestMap,
     }
   }
 }

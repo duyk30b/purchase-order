@@ -225,6 +225,7 @@ export class ApiPurchaseOrderUpdateService {
         const dto: PoDeliveryItemInsertType = {
           ...item,
           quantityActualDelivery: 0,
+          actualDeliveryDate: null,
           _purchase_order_id: new Types.ObjectId(purchaseOrder.id),
           _purchase_order_item_id: new Types.ObjectId(poItem.id),
           createdByUserId: userId,
