@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ScheduleModule } from '@nestjs/schedule'
-import { SoapPurchaseRequestModule } from './soap-purchase-request/soap-purchase-request.module'
+import { OdataWarehouseImportModule } from './odata-warehouse-import/odata-warehouse-import.module'
 import { SyncDataController } from './sync-data.controller'
 
 @Module({
