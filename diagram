@@ -40,3 +40,15 @@ flowchart TD
   ApiModule-->MongoDbConnectModule
   ApiModule-->NatsClientModule
   ApiModule-->AxiosModule
+  AppModule-->TestModule
+  TestModule-->SoapPurchaseRequestModule
+  SoapPurchaseRequestModule-->SoapModule
+  SoapModule-->MongoDbConnectModule
+  SoapModule-->NatsClientModule
+  SoapModule-->AxiosModule
+  SoapPurchaseRequestModule-->MongoDbConnectModule
+  SoapPurchaseRequestModule-->NatsClientModule
+  SoapPurchaseRequestModule-->AxiosModule
+  TestModule-->MongoDbConnectModule
+  TestModule-->NatsClientModule
+  TestModule-->AxiosModule

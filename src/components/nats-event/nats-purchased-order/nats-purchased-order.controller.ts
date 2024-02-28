@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { NatsSubject } from '../../transporter/nats/nats.config'
@@ -19,12 +19,5 @@ export class NatsPurchaseOrderController {
   )
   async getMany(@Payload() payload: PurchaseOrderGetManyRequest) {
     return await this.natsPurchaseOrderService.getMany(payload)
-  }
-
-  @Get('test')
-  async test() {
-    return await this.natsPurchaseOrderService.getMany({
-      filter: { code: { IN: ['PO-0000004'] } },
-    } as any)
   }
 }
