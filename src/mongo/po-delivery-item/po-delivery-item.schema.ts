@@ -18,6 +18,9 @@ export class PoDeliveryItem extends BaseSchema {
   poDeliveryLine: string // số dòng trên danh sách sản phẩm của PO
 
   @Prop()
+  purchaseRequestItemId: string
+
+  @Prop()
   itemId: number
 
   @Prop()
