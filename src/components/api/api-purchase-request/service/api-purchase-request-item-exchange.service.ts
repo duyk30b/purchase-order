@@ -46,7 +46,7 @@ export class ApiPurchaseRequestItemExchangeService {
       _purchase_request_id: { EQUAL: new Types.ObjectId(purchaseRequestId) },
     })
     if (!purchaseOrderList.length) {
-      return { data: { data: [], meta: {} } }
+      return { data: { data: [], meta: { purchaseRequest } } }
     }
 
     const purchaseOrderMap = arrayToKeyValue(purchaseOrderList, 'id')
@@ -74,7 +74,7 @@ export class ApiPurchaseRequestItemExchangeService {
       })
     }
 
-    return { data: { data: poDeliveryItemList, meta } }
+    return { data: { data: poDeliveryItemList, meta: { purchaseRequest } } }
   }
 
   async getDataExtends(data: PoDeliveryItemType[]) {
