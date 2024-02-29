@@ -2,6 +2,7 @@ import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { OdataWarehouseImportConfig } from './odata-warehouse-import.config'
+import { OdataWarehouseImportJob } from './odata-warehouse-import.job'
 import { OdataWarehouseImportService } from './odata-warehouse-import.service'
 
 @Module({
@@ -13,7 +14,7 @@ import { OdataWarehouseImportService } from './odata-warehouse-import.service'
     }),
   ],
   controllers: [],
-  providers: [OdataWarehouseImportService],
-  exports: [OdataWarehouseImportService],
+  providers: [OdataWarehouseImportService, OdataWarehouseImportJob],
+  exports: [OdataWarehouseImportService, OdataWarehouseImportJob],
 })
 export class OdataWarehouseImportModule {}

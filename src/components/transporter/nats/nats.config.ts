@@ -22,6 +22,7 @@ export const NatsService = {
   PURCHASED_REQUEST:
     process.env.NATS_PURCHASED_REQUEST_SERVICE || 'purchased_request_service',
   SALE: process.env.NATS_SALE_SERVICE || 'sale_service',
+  REQUEST: process.env.NATS_REQUEST_SERVICE || 'request_service',
 }
 
 export const NatsConfig: NatsOptions = {
@@ -99,5 +100,8 @@ export const NatsSubject = {
   PURCHASED_REQUEST: {
     GET_PURCHASED_REQUEST_LIST:
       NatsService.PURCHASED_REQUEST + '.get_purchased_request_list',
+  },
+  REQUEST: {
+    CREATE_YN02_FROM_CAP: NatsService.REQUEST + 'create_yn02_from_cap',
   },
 }

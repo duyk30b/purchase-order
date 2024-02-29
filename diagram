@@ -1,9 +1,25 @@
 flowchart TD
   NatsClientModule-->MongoDbConnectModule
+  NatsClientModule-->BullModule
+  BullModule-->BullModule
+  BullModule-->MongoDbConnectModule
+  BullModule-->NatsClientModule
+  BullModule-->BullQueueModule
+  BullQueueModule-->BullModule
+  BullQueueModule-->MongoDbConnectModule
+  BullQueueModule-->NatsClientModule
+  BullQueueModule-->BullQueueModule
+  BullQueueModule-->AxiosModule
   AxiosModule-->MongoDbConnectModule
   AxiosModule-->NatsClientModule
+  AxiosModule-->BullModule
+  AxiosModule-->BullQueueModule
+  BullModule-->AxiosModule
+  NatsClientModule-->BullQueueModule
   NatsClientModule-->AxiosModule
   MongoDbConnectModule-->NatsClientModule
+  MongoDbConnectModule-->BullModule
+  MongoDbConnectModule-->BullQueueModule
   MongoDbConnectModule-->AxiosModule
   AppModule-->MongoDbConnectModule
   AppModule-->NatsClientModule
@@ -11,44 +27,68 @@ flowchart TD
   NatsEventModule-->NatsPurchaseOrderModule
   NatsPurchaseOrderModule-->MongoDbConnectModule
   NatsPurchaseOrderModule-->NatsClientModule
+  NatsPurchaseOrderModule-->BullModule
+  NatsPurchaseOrderModule-->BullQueueModule
   NatsPurchaseOrderModule-->AxiosModule
   NatsEventModule-->NatsPurchaseRequestModule
   NatsPurchaseRequestModule-->MongoDbConnectModule
   NatsPurchaseRequestModule-->NatsClientModule
+  NatsPurchaseRequestModule-->BullModule
+  NatsPurchaseRequestModule-->BullQueueModule
   NatsPurchaseRequestModule-->AxiosModule
   NatsEventModule-->MongoDbConnectModule
   NatsEventModule-->NatsClientModule
+  NatsEventModule-->BullModule
+  NatsEventModule-->BullQueueModule
   NatsEventModule-->AxiosModule
-  AppModule-->SyncDataModule
-  SyncDataModule-->MongoDbConnectModule
-  SyncDataModule-->NatsClientModule
-  SyncDataModule-->AxiosModule
+  AppModule-->BullQueueModule
+  AppModule-->BullProcessorModule
+  BullProcessorModule-->BullQueueModule
+  BullProcessorModule-->MongoDbConnectModule
+  BullProcessorModule-->NatsClientModule
+  BullProcessorModule-->BullModule
+  BullProcessorModule-->AxiosModule
   AppModule-->AxiosModule
   AppModule-->ApiModule
   ApiModule-->ApiPurchaseRequestModule
   ApiPurchaseRequestModule-->MongoDbConnectModule
   ApiPurchaseRequestModule-->NatsClientModule
+  ApiPurchaseRequestModule-->BullModule
+  ApiPurchaseRequestModule-->BullQueueModule
   ApiPurchaseRequestModule-->AxiosModule
   ApiModule-->ApiPurchaseOrderModule
   ApiPurchaseOrderModule-->MongoDbConnectModule
   ApiPurchaseOrderModule-->NatsClientModule
+  ApiPurchaseOrderModule-->BullModule
+  ApiPurchaseOrderModule-->BullQueueModule
   ApiPurchaseOrderModule-->AxiosModule
   ApiModule-->ApiUserActionModule
   ApiUserActionModule-->MongoDbConnectModule
   ApiUserActionModule-->NatsClientModule
+  ApiUserActionModule-->BullModule
+  ApiUserActionModule-->BullQueueModule
   ApiUserActionModule-->AxiosModule
   ApiModule-->MongoDbConnectModule
   ApiModule-->NatsClientModule
+  ApiModule-->BullModule
+  ApiModule-->BullQueueModule
   ApiModule-->AxiosModule
   AppModule-->TestModule
   TestModule-->SoapPurchaseRequestModule
   SoapPurchaseRequestModule-->SoapModule
   SoapModule-->MongoDbConnectModule
   SoapModule-->NatsClientModule
+  SoapModule-->BullModule
+  SoapModule-->BullQueueModule
   SoapModule-->AxiosModule
   SoapPurchaseRequestModule-->MongoDbConnectModule
   SoapPurchaseRequestModule-->NatsClientModule
+  SoapPurchaseRequestModule-->BullModule
+  SoapPurchaseRequestModule-->BullQueueModule
   SoapPurchaseRequestModule-->AxiosModule
   TestModule-->MongoDbConnectModule
   TestModule-->NatsClientModule
+  TestModule-->BullModule
+  TestModule-->BullQueueModule
   TestModule-->AxiosModule
+  AppModule-->BullModule

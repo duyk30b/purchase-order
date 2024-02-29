@@ -4,11 +4,7 @@ import { OdataWarehouseImportModule } from './odata-warehouse-import/odata-wareh
 import { SyncDataController } from './sync-data.controller'
 
 @Module({
-  imports: [
-    ScheduleModule.forRoot(),
-    // OdataWarehouseImportModule,
-    // SoapItemGroupModule,
-  ],
+  imports: [ScheduleModule.forRoot(), OdataWarehouseImportModule],
   controllers: [SyncDataController],
   providers: [],
 })

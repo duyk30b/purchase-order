@@ -16,7 +16,7 @@ const QUEUES: BullModuleOptions[] = [
     defaultJobOptions: { attempts: 3, removeOnComplete: true },
   },
   {
-    name: QUEUE_EVENT.ITEM_STOCK_MOVEMENT,
+    name: QUEUE_EVENT.REQUEST_YN02,
     limiter: { max: 1, duration: 200, groupKey: 'groupKey' },
   },
 ]
@@ -39,7 +39,7 @@ export class BullQueueModule {
                 db: +redisConfig.db,
               },
               defaultJobOptions: { removeOnComplete: true },
-              prefix: 'item-stock-planning',
+              prefix: 'purchased-orders',
             }
             return bullConfig
           },

@@ -68,14 +68,14 @@ import { MongoDbConnectModule } from './mongo/mongodb-connect.module'
     // KafkaClientModule,
     // KafkaEventModule,
 
-    // BullQueueModule.forRoot(),
-    // BullQueueModule.registerProducer(),
-    // BullProcessorModule,
+    BullQueueModule.forRoot(),
+    BullQueueModule.registerProducer(),
+    BullProcessorModule,
     // RedisClientModule,
 
     // EventListenerModule,
     // CronJobModule,
-    SyncDataModule,
+    // SyncDataModule,
     AxiosModule,
     ApiModule,
     TestModule,
