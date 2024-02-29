@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { BusinessException } from '../../../../core/exception-filter/exception-filter'
+import { IRequestYn02Message } from '../../redis/bull-queue/bull-queue.interface'
 import { NatsClientService } from '../nats-client.service'
 import { NatsSubject } from '../nats.config'
 import { NatsResponseInterface } from '../nats.interface'

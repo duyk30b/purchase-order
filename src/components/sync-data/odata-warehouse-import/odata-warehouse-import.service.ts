@@ -50,7 +50,7 @@ export class OdataWarehouseImportService {
         const response = await lastValueFrom(start)
         const responseData = response.data as {
           d: {
-            _count: string // number nhưng để dạng string
+            __count: string // number nhưng để dạng string
             results: OdataWarehouseImportType[]
           }
         }

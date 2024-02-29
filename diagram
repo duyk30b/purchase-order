@@ -9,11 +9,11 @@ flowchart TD
   BullQueueModule-->MongoDbConnectModule
   BullQueueModule-->NatsClientModule
   BullQueueModule-->BullQueueModule
-  BullQueueModule-->AxiosModule
   AxiosModule-->MongoDbConnectModule
   AxiosModule-->NatsClientModule
   AxiosModule-->BullModule
   AxiosModule-->BullQueueModule
+  BullQueueModule-->AxiosModule
   BullModule-->AxiosModule
   NatsClientModule-->BullQueueModule
   NatsClientModule-->AxiosModule
@@ -48,6 +48,18 @@ flowchart TD
   BullProcessorModule-->NatsClientModule
   BullProcessorModule-->BullModule
   BullProcessorModule-->AxiosModule
+  AppModule-->SyncDataModule
+  SyncDataModule-->OdataWarehouseImportModule
+  OdataWarehouseImportModule-->MongoDbConnectModule
+  OdataWarehouseImportModule-->NatsClientModule
+  OdataWarehouseImportModule-->BullModule
+  OdataWarehouseImportModule-->BullQueueModule
+  OdataWarehouseImportModule-->AxiosModule
+  SyncDataModule-->MongoDbConnectModule
+  SyncDataModule-->NatsClientModule
+  SyncDataModule-->BullModule
+  SyncDataModule-->BullQueueModule
+  SyncDataModule-->AxiosModule
   AppModule-->AxiosModule
   AppModule-->ApiModule
   ApiModule-->ApiPurchaseRequestModule

@@ -20,10 +20,10 @@ export class OdataWarehouseImportJob {
     let count = 0
     do {
       try {
-        const { _count, results } =
+        const { __count, results } =
           await this.odataWarehouseImportService.getData({ top, skip })
 
-        count = Number(_count)
+        count = Number(__count)
         skip = top + skip
 
         for (let i = 0; i < results.length; i++) {

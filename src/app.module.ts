@@ -75,7 +75,7 @@ import { MongoDbConnectModule } from './mongo/mongodb-connect.module'
 
     // EventListenerModule,
     // CronJobModule,
-    // SyncDataModule,
+    SyncDataModule,
     AxiosModule,
     ApiModule,
     TestModule,
