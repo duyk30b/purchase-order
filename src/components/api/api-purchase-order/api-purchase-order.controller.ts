@@ -253,18 +253,6 @@ export class ApiPurchaseOrderController {
     })
   }
 
-  @Patch('success/:id')
-  @PermissionCode(PURCHASE_ORDER_SUCCESS.code)
-  async success(
-    @External() { user }: TExternal,
-    @Param() { id }: IdMongoParam
-  ) {
-    return await this.apiPurchaseOrderSuccessService.success({
-      id,
-      userId: user.id,
-    })
-  }
-
   @Patch('wait-delivery/:id')
   @PermissionCode(PURCHASE_ORDER_WAIT_DELIVERY.code)
   async waitDelivery(
@@ -284,6 +272,30 @@ export class ApiPurchaseOrderController {
     @Query() { ids }: MultiMongoIdQuery
   ) {
     return await this.apiPurchaseOrderWaitDeliveryService.waitDelivery({
+      ids,
+      userId: user.id,
+    })
+  }
+
+  @Patch('success/:id')
+  @PermissionCode(PURCHASE_ORDER_SUCCESS.code)
+  async success(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam
+  ) {
+    return await this.apiPurchaseOrderSuccessService.success({
+      ids: [id],
+      userId: user.id,
+    })
+  }
+
+  @Patch('success/multiple')
+  @PermissionCode(PURCHASE_ORDER_SUCCESS.code)
+  async successMultiple(
+    @External() { user }: TExternal,
+    @Query() { ids }: MultiMongoIdQuery
+  ) {
+    return await this.apiPurchaseOrderSuccessService.success({
       ids,
       userId: user.id,
     })
