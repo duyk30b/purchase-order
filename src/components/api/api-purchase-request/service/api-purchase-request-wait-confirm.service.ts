@@ -67,14 +67,13 @@ export class ApiPurchaseRequestWaitConfirmService {
     await this.validate(rootList)
 
     const idsObject = ids.map((id) => new Types.ObjectId(id))
-    const purchaseRequest: PurchaseRequestType =
-      await this.purchaseRequestRepository.updateOne(
-        { _id: { IN: idsObject } },
-        {
-          status: PurchaseRequestStatus.WAIT_CONFIRM,
-          updatedByUserId: userId,
-        }
-      )
+    await this.purchaseRequestRepository.updateMany(
+      { _id: { IN: idsObject } },
+      {
+        status: PurchaseRequestStatus.WAIT_CONFIRM,
+        updatedByUserId: userId,
+      }
+    )
 
     // Lưu lịch sử
     const prHistoryDtoList = rootList.map((pr) => {
@@ -96,7 +95,7 @@ export class ApiPurchaseRequestWaitConfirmService {
     )
 
     return {
-      data: purchaseRequest,
+      data: ids,
       message: 'msg.MSG_255',
       args: { obj: 'Yêu cầu mua hàng' },
     }

@@ -33,7 +33,7 @@ export class ApiPurchaseRequestDeleteService {
     await this.purchaseRequestItemRepository.deleteManyBy({
       _purchase_request_id: { EQUAL: new Types.ObjectId(id) },
     })
-    return { data: id, message: 'msg.MSG_016' }
+    return { data: id, message: 'msg.MSG_092' }
   }
 
   async deleteMultiple(ids: string[]): Promise<BaseResponse> {
