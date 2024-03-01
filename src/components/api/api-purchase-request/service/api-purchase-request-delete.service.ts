@@ -67,7 +67,7 @@ export class ApiPurchaseRequestDeleteService {
 
     return {
       data: ids,
-      message: 'msg.MSG_016',
+      message: 'msg.MSG_092',
       args: { obj: 'Yêu cầu mua hàng' },
     }
   }

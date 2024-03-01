@@ -10,15 +10,39 @@ import { QUEUE_EVENT } from '../../transporter/redis/bull-queue/bull-queue.varia
 export class RequestYn02Processor {
   private readonly logger = new Logger(RequestYn02Processor.name)
 
-  constructor(
-    private readonly bullQueueService: BullQueueService,
-    private readonly natsRequestService: NatsRequestService
-  ) {}
+  constructor(private readonly natsRequestService: NatsRequestService) {}
 
   @Process('CREATE')
   async handleProcess({ data }: Job<IRequestYn02Message>) {
     this.logger.log('START JOB CREATE YNO2')
     this.logger.log(JSON.stringify(data))
+    const {} = await this.getInformation(data)
+
+    await this.natsRequestService.createYn02({
+      code: data.CCONF_ID,
+      costCenterId: 'string',
+      purchaseOrderId: 'string',
+      vendorId: 'string',
+      isApplyFee: true,
+      description: '',
+      details: [
+        {
+          warehouseId: 0,
+          itemId: 0,
+          itemTypeSettingId: 0,
+          requestMainQuantity: 0,
+          requestSubQuantity: 0,
+          price: 0,
+          currencyType: '',
+          amount: 0,
+          locatorId: '',
+        },
+      ],
+    })
+  }
+
+  async getInformation(data: IRequestYn02Message) {
+    return {}
   }
 
   @OnQueueFailed()
