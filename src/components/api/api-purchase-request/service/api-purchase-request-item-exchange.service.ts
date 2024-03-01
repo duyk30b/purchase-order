@@ -74,7 +74,7 @@ export class ApiPurchaseRequestItemExchangeService {
       })
     }
 
-    return { data: { data: poDeliveryItemList, meta: { purchaseRequest } } }
+    return { data: { data: poDeliveryItemList, meta } }
   }
 
   async getDataExtends(data: PoDeliveryItemType[]) {
