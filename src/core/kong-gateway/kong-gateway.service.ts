@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { catchError, firstValueFrom, map, of, retry } from 'rxjs'
 import { genericRetryStrategy } from 'src/common/utils/rxjs.util'
+import { GlobalConfig } from '../../config/global.config'
 import { KongGatewayServiceInterface } from './interface/kong-gateway.service.interface'
 
 @Injectable()
@@ -55,7 +56,7 @@ export class KongGatewayService
             name: this.upstreamName,
             protocol: 'http',
             host: this.dns,
-            port: 3000,
+            port: GlobalConfig().SERVER_HTTP_PORT,
             path: '/',
           })
           .pipe(
