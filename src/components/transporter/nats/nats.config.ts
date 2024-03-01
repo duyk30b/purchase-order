@@ -102,6 +102,6 @@ export const NatsSubject = {
       NatsService.PURCHASED_REQUEST + '.get_purchased_request_list',
   },
   REQUEST: {
-    CREATE_YN02_FROM_CAP: NatsService.REQUEST + 'create_yn02_from_cap',
+    CREATE_YN02_FROM_CAP: NatsService.REQUEST + 'create_yn02_sap',
   },
 }

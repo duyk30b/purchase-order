@@ -173,6 +173,18 @@ export class NatsClientItemService {
     return currencyMap
   }
 
+  async getCurrencyListByCodes(request: { codes: string[] }) {
+    if (request.codes.length === 0) return []
+    const response: NatsResponseInterface = await this.natsClient.send(
+      `${NatsService.ITEM}.get_currency_units_by_codes`,
+      { codes: request.codes }
+    )
+    if (response.statusCode !== 200) {
+      throw new BusinessException(response.message as any)
+    }
+    return response.data as CurrencyType[]
+  }
+
   async getManufCountryListByIds(request: { ids: number[] }) {
     if (request.ids.length === 0) return []
     const response: NatsResponseInterface = await this.natsClient.send(

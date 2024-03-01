@@ -26,13 +26,18 @@ export class OdataWarehouseImportJob {
         count = Number(__count)
         skip = top + skip
 
-        for (let i = 0; i < results.length; i++) {
-          const result = results[i]
-          await this.bullQueueService.addRequestYn02Job('CREATE', {
-            groupKey: 'groupKey',
-            ...result,
-          })
-        }
+        await this.bullQueueService.addRequestYn02Job('CREATE', {
+          groupKey: 'groupKey',
+          ...results[0],
+        })
+
+        // for (let i = 0; i < results.length; i++) {
+        //   const result = results[i]
+        //   await this.bullQueueService.addRequestYn02Job('CREATE', {
+        //     groupKey: 'groupKey',
+        //     ...result,
+        //   })
+        // }
         this.logger.log('Send YN02 add to Queue Success !!!')
       } catch (err) {
         // Gửi email

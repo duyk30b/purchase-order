@@ -85,7 +85,7 @@ class CreateYn02SapRequestDetailDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  currencyType: string
+  currencyId: number
 
   @ApiPropertyOptional()
   @IsPositive()

@@ -12,6 +12,7 @@ export class NatsRequestService {
   constructor(private readonly natsClient: NatsClientService) {}
 
   async createYn02(request: CreateYn02SapRequestDto) {
+    console.log('🚀 ~ NatsRequestService ~ createYn02 ~ request:', request)
     const response: NatsResponseInterface = await this.natsClient.send(
       NatsSubject.REQUEST.CREATE_YN02_FROM_CAP,
       request

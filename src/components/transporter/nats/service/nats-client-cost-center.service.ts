@@ -14,6 +14,8 @@ export enum CostCenterStatusEnum {
 
 export type GetCostCentersRequest = {
   ids?: string[]
+  codes?: string[]
+  statuses?: number[]
 }
 
 export type CostCenterType = {

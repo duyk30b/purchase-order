@@ -95,8 +95,9 @@ export class PurchaseOrderFilterQuery {
   poPaymentStatus: PoPaymentStatus // trạng thái thanh toán
 
   @Expose()
-  @IsIn(valuesEnum(PurchaseOrderStatus))
-  status: PurchaseOrderStatus // trạng thái đơn mua hàng
+  @Transform(transformConditionNumber)
+  @Allow()
+  status: number | ConditionNumber
 }
 
 export class PurchaseOrderSortQuery extends SortQuery {
