@@ -118,10 +118,41 @@ export class ApiPurchaseRequestController {
     @Param() { id }: IdMongoParam,
     @Body() body: PurchaseRequestUpdateBody
   ) {
-    return await this.apiPurchaseRequestUpdateService.updateOne({
+    return await this.apiPurchaseRequestUpdateService.update({
       id,
       body,
       userId: user.id,
+      status: null,
+    })
+  }
+
+  @Patch('update-draft/:id')
+  @PermissionCode(PURCHASE_REQUEST_UPDATE.code)
+  async updateDraft(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam,
+    @Body() body: PurchaseRequestUpdateBody
+  ) {
+    return await this.apiPurchaseRequestUpdateService.update({
+      id,
+      body,
+      userId: user.id,
+      status: PurchaseRequestStatus.DRAFT,
+    })
+  }
+
+  @Patch('update-wait-confirm/:id')
+  @PermissionCode(PURCHASE_REQUEST_UPDATE.code)
+  async updateWaitConfirm(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam,
+    @Body() body: PurchaseRequestUpdateBody
+  ) {
+    return await this.apiPurchaseRequestUpdateService.update({
+      id,
+      body,
+      userId: user.id,
+      status: PurchaseRequestStatus.WAIT_CONFIRM,
     })
   }
 

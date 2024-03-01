@@ -87,7 +87,7 @@ export class ApiPurchaseOrderUpdateService {
       throw new BusinessException('error.NOT_FOUND')
     }
 
-    if (!status) {
+    if (status == null) {
       if (rootData.status === PurchaseOrderStatus.DRAFT) {
         status = PurchaseOrderStatus.DRAFT
       } else if (rootData.status === PurchaseOrderStatus.WAIT_CONFIRM) {
@@ -105,7 +105,7 @@ export class ApiPurchaseOrderUpdateService {
     ) {
       // Trạng thái nháp được update thành nháp hoặc đề nghị duyệt
     } else if (
-      [PurchaseOrderStatus.WAIT_CONFIRM, , PurchaseOrderStatus.REJECT].includes(
+      [PurchaseOrderStatus.WAIT_CONFIRM, PurchaseOrderStatus.REJECT].includes(
         rootData.status
       ) &&
       [PurchaseOrderStatus.WAIT_CONFIRM].includes(status)

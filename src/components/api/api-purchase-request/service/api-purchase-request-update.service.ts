@@ -42,12 +42,14 @@ export class ApiPurchaseRequestUpdateService {
     private readonly natsClientCostCenterService: NatsClientCostCenterService
   ) {}
 
-  async updateOne(options: {
+  async update(options: {
     id: string
     body: PurchaseRequestUpdateBody
     userId: number
+    status: PurchaseRequestStatus
   }): Promise<BaseResponse> {
     const { id, body, userId } = options
+    let status = options.status
     const { items, ...purchaseRequestBody } = body
 
     await this.validate(body)
@@ -56,23 +58,36 @@ export class ApiPurchaseRequestUpdateService {
     if (!rootData) {
       throw new BusinessException('error.PurchaseRequest.NotFound')
     }
-    if (
-      ![
-        PurchaseRequestStatus.DRAFT,
-        PurchaseRequestStatus.WAIT_CONFIRM,
-        PurchaseRequestStatus.REJECT,
-      ].includes(rootData.status)
-    ) {
-      throw new BusinessException('msg.MSG_010', { obj: 'Yêu cầu mua hàng' })
+
+    if (status == null) {
+      if (rootData.status === PurchaseRequestStatus.DRAFT) {
+        status = PurchaseRequestStatus.DRAFT
+      } else if (rootData.status === PurchaseRequestStatus.WAIT_CONFIRM) {
+        status = PurchaseRequestStatus.WAIT_CONFIRM
+      } else if (rootData.status === PurchaseRequestStatus.REJECT) {
+        status = PurchaseRequestStatus.WAIT_CONFIRM
+      }
     }
 
-    let status: PurchaseRequestStatus
-    if (rootData.status === PurchaseRequestStatus.DRAFT) {
-      status = PurchaseRequestStatus.DRAFT
-    } else if (rootData.status === PurchaseRequestStatus.WAIT_CONFIRM) {
-      status = PurchaseRequestStatus.WAIT_CONFIRM
-    } else if (rootData.status === PurchaseRequestStatus.REJECT) {
-      status = PurchaseRequestStatus.WAIT_CONFIRM
+    if (
+      [PurchaseRequestStatus.DRAFT].includes(rootData.status) &&
+      [
+        PurchaseRequestStatus.DRAFT,
+        PurchaseRequestStatus.WAIT_CONFIRM,
+      ].includes(status)
+    ) {
+      // Trạng thái nháp được update thành nháp hoặc đề nghị duyệt
+    } else if (
+      [
+        PurchaseRequestStatus.WAIT_CONFIRM,
+        PurchaseRequestStatus.REJECT,
+      ].includes(rootData.status) &&
+      [PurchaseRequestStatus.WAIT_CONFIRM].includes(status)
+    ) {
+      // Trạng thái đề nghị duyệt hoặc reject được update thành đề nghị duyệt
+    } else {
+      // Nếu không thuộc các trường hợp trên thì lỗi
+      throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
     }
 
     const purchaseRequest: PurchaseRequestType =
