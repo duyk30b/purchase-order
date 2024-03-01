@@ -32,7 +32,6 @@ import {
 import { FastifyFilesInterceptor } from '../../../core/interceptor/fastify-files-interceptor'
 import { PurchaseOrderStatus } from '../../../mongo/purchase-order/purchase-order.schema'
 import {
-  PurchaseOrderActionManyQuery,
   PurchaseOrderCreateBody,
   PurchaseOrderGetManyQuery,
   PurchaseOrderGetOneQuery,
@@ -160,6 +159,45 @@ export class ApiPurchaseOrderController {
       body,
       files,
       userId: user.id,
+      status: null,
+    })
+  }
+
+  @Patch('update-draft/:id')
+  @PermissionCode(PURCHASE_ORDER_UPDATE.code)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FastifyFilesInterceptor('files', 10, {}))
+  async updateDraft(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam,
+    @UploadedFiles() files: FileDto[],
+    @Body() body: PurchaseOrderUpdateBody
+  ) {
+    return await this.apiPurchaseOrderUpdateService.update({
+      id,
+      body,
+      files,
+      userId: user.id,
+      status: PurchaseOrderStatus.DRAFT,
+    })
+  }
+
+  @Patch('update-wait-confirm/:id')
+  @PermissionCode(PURCHASE_ORDER_UPDATE.code)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FastifyFilesInterceptor('files', 10, {}))
+  async updateWaitConfirm(
+    @External() { user }: TExternal,
+    @Param() { id }: IdMongoParam,
+    @UploadedFiles() files: FileDto[],
+    @Body() body: PurchaseOrderUpdateBody
+  ) {
+    return await this.apiPurchaseOrderUpdateService.update({
+      id,
+      body,
+      files,
+      userId: user.id,
+      status: PurchaseOrderStatus.WAIT_CONFIRM,
     })
   }
 

@@ -25,17 +25,14 @@ import {
   PurchaseRequestStatus,
   PurchaseRequestType,
 } from '../../../../mongo/purchase-request/purchase-request.schema'
-import { UserActionRepository } from '../../../../mongo/user-action/user-action.repository'
 import { FileService } from '../../../transporter/axios/file.service'
 import { IncotermType } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.response'
 import { NatsClientIncotermService } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.service'
 import {
   SUPPLIER_STATUS,
-  SupplierItemType,
   SupplierType,
 } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
-import { NatsClientCostCenterService } from '../../../transporter/nats/service/nats-client-cost-center.service'
 import {
   ItemActiveStatusEnum,
   ItemType,
@@ -59,10 +56,8 @@ export class ApiPurchaseOrderUpdateService {
     private readonly poDeliveryItemRepository: PoDeliveryItemRepository,
     private readonly purchaseOrderHistoryRepository: PurchaseOrderHistoryRepository,
     private readonly fileService: FileService,
-    private readonly userActionRepository: UserActionRepository,
     private readonly natsClientVendorService: NatsClientVendorService,
     private readonly natsClientItemService: NatsClientItemService,
-    private readonly natsClientCostCenterService: NatsClientCostCenterService,
     private readonly natsClientWarehouseService: NatsClientWarehouseService,
     private readonly natsClientIncotermService: NatsClientIncotermService
   ) {}
@@ -72,8 +67,10 @@ export class ApiPurchaseOrderUpdateService {
     body: PurchaseOrderUpdateBody
     files: FileDto[]
     userId: number
+    status: PurchaseOrderStatus
   }): Promise<BaseResponse> {
     const { id, body, userId } = options
+    let status = options.status
     const {
       files,
       poAttachFiles: poAttachFilesBody,
@@ -89,23 +86,34 @@ export class ApiPurchaseOrderUpdateService {
     if (!rootData) {
       throw new BusinessException('error.NOT_FOUND')
     }
-    if (
-      ![
-        PurchaseOrderStatus.DRAFT,
-        PurchaseOrderStatus.WAIT_CONFIRM,
-        PurchaseOrderStatus.REJECT,
-      ].includes(rootData.status)
-    ) {
-      throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
+
+    if (!status) {
+      if (rootData.status === PurchaseOrderStatus.DRAFT) {
+        status = PurchaseOrderStatus.DRAFT
+      } else if (rootData.status === PurchaseOrderStatus.WAIT_CONFIRM) {
+        status = PurchaseOrderStatus.WAIT_CONFIRM
+      } else if (rootData.status === PurchaseOrderStatus.REJECT) {
+        status = PurchaseOrderStatus.WAIT_CONFIRM
+      }
     }
 
-    let status: PurchaseOrderStatus
-    if (rootData.status === PurchaseOrderStatus.DRAFT) {
-      status = PurchaseOrderStatus.DRAFT
-    } else if (rootData.status === PurchaseOrderStatus.WAIT_CONFIRM) {
-      status = PurchaseOrderStatus.WAIT_CONFIRM
-    } else if (rootData.status === PurchaseOrderStatus.REJECT) {
-      status = PurchaseOrderStatus.WAIT_CONFIRM
+    if (
+      [PurchaseOrderStatus.DRAFT].includes(rootData.status) &&
+      [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.WAIT_CONFIRM].includes(
+        status
+      )
+    ) {
+      // Trạng thái nháp được update thành nháp hoặc đề nghị duyệt
+    } else if (
+      [PurchaseOrderStatus.WAIT_CONFIRM, , PurchaseOrderStatus.REJECT].includes(
+        rootData.status
+      ) &&
+      [PurchaseOrderStatus.WAIT_CONFIRM].includes(status)
+    ) {
+      // Trạng thái đề nghị duyệt hoặc reject được update thành đề nghị duyệt
+    } else {
+      // Nếu không thuộc các trường hợp trên thì lỗi
+      throw new BusinessException('msg.MSG_010', { obj: 'Đơn mua hàng' })
     }
 
     const poAttachFilesInsert: PoAttachFile[] = []
