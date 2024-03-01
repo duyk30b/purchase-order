@@ -13,7 +13,7 @@ export class OdataWarehouseImportJob {
     private readonly bullQueueService: BullQueueService
   ) {}
 
-  @Interval(SAP_WAREHOUSE_IMPORT_INTERVAL)
+  // @Interval(SAP_WAREHOUSE_IMPORT_INTERVAL)
   async start() {
     const top = 50
     let skip = 0
