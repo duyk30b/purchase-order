@@ -264,3 +264,9 @@ export type PurchaseOrderUpdateType = Omit<
   | 'poDeliveryItems'
   | 'purchaseOrderHistories'
 >
+
+// export type ItemKeepType = LeanDocument<ItemKeep> & {
+//   id?: string;
+//   itemStockId?: string;
+//   itemStock?: ItemStock;
+// };
