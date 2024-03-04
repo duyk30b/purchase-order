@@ -79,7 +79,7 @@ export class PurchaseOrderGetQuery {
   @ApiPropertyOptional({
     type: String,
     example: JSON.stringify(<PurchaseOrderSortQuery>{
-      id: 'ASC',
+      id: 'DESC',
       purchaseRequestCode: 'DESC',
       supplierId: 'ASC',
       orderDate: 'DESC',

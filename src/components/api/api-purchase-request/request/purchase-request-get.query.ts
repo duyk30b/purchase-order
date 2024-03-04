@@ -75,6 +75,7 @@ export class PurchaseRequestGetQuery {
   @ApiPropertyOptional({
     type: String,
     example: JSON.stringify(<PurchaseRequestSortQuery>{
+      id: 'DESC',
       code: 'ASC',
       costCenterId: 'DESC',
       sourceAddress: 'ASC',
@@ -107,7 +108,7 @@ export class PurchaseRequestPaginationQuery extends IntersectionType(
 ) {}
 
 export class PurchaseRequestGetManyQuery extends IntersectionType(
-  PickType(PurchaseRequestGetQuery, ['filter', 'relation']),
+  PickType(PurchaseRequestGetQuery, ['filter', 'relation', 'sort']),
   LimitQuery
 ) {}
 

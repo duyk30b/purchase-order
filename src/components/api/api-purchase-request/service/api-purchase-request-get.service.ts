@@ -66,7 +66,7 @@ export class ApiPurchaseRequestGetService {
   }
 
   async getMany(query: PurchaseRequestGetManyQuery): Promise<BaseResponse> {
-    const { limit, filter, relation } = query
+    const { limit, filter, relation, sort } = query
 
     const data = await this.purchaseRequestRepository.findMany({
       relation,
@@ -81,6 +81,7 @@ export class ApiPurchaseRequestGetService {
         status: filter?.status,
       },
       limit,
+      sort: sort || { _id: 'DESC' },
     })
     const meta = await this.getDataExtends(data)
     return { data: { data, meta } }
