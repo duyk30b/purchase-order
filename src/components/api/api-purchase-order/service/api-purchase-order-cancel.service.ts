@@ -43,7 +43,7 @@ export class ApiPurchaseOrderCancelService {
 
     rootList.forEach((i) => {
       if (
-        [
+        ![
           PurchaseOrderStatus.CONFIRM,
           PurchaseOrderStatus.WAIT_DELIVERY,
           PurchaseOrderStatus.DELIVERING,
