@@ -3,9 +3,9 @@ import { uniqueArray } from '../../../../common/helpers'
 import { BaseResponse } from '../../../../core/interceptor/transform-response.interceptor'
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
 import { PurchaseOrderType } from '../../../../mongo/purchase-order/purchase-order.schema'
-import { SupplierType } from '../../../transporter/nats/nats-vendor/nats-client-vendor.response'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
 import {
+  CurrencyType,
   ItemType,
   ItemUnitType,
   NatsClientItemService,
@@ -124,7 +124,7 @@ export class ApiPurchaseOrderListService {
       ...(purchaseOrderItems || []).map((i) => i.itemUnitId),
       ...(poDeliveryItems || []).map((i) => i.itemUnitId),
     ])
-
+    const currencyIdList = uniqueArray(data.map((i) => i.currencyId))
     const userIdList = uniqueArray(data.map((i) => i.createdByUserId))
 
     const dataExtendsPromise = await Promise.allSettled([
@@ -141,6 +141,11 @@ export class ApiPurchaseOrderListService {
             unitIds: itemUnitIdList,
           })
         : {},
+      currencyIdList.length
+        ? this.natsClientItemService.getCurrencyMapByIds({
+            ids: currencyIdList,
+          })
+        : {},
     ])
 
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
@@ -155,15 +160,17 @@ export class ApiPurchaseOrderListService {
       Record<string, UserType>,
       Record<string, ItemType>,
       Record<string, ItemUnitType>,
+      Record<string, CurrencyType>,
     ]
 
-    const [userMap, itemMap, itemUnitMap] = dataExtendsResult
+    const [userMap, itemMap, itemUnitMap, currencyMap] = dataExtendsResult
 
     return {
       supplierMap,
       userMap,
       itemMap,
       itemUnitMap,
+      currencyMap,
     }
   }
 }

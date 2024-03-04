@@ -8,7 +8,7 @@ export class NatsEventService {
     return {
       meta: data,
       data: {
-        message: 'report-service: pong',
+        message: 'purchase-order-service: pong',
         time: Date.now(),
       },
     }

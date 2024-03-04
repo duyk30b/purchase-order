@@ -23,6 +23,7 @@ export const NatsService = {
     process.env.NATS_PURCHASED_REQUEST_SERVICE || 'purchased_request_service',
   SALE: process.env.NATS_SALE_SERVICE || 'sale_service',
   REQUEST: process.env.NATS_REQUEST_SERVICE || 'request_service',
+  INVOICE: process.env.NATS_INVOICE_SERVICE || 'voice_service',
 }
 
 export const NatsConfig: NatsOptions = {
@@ -94,6 +95,7 @@ export const NatsSubject = {
     GET_TEMPLATES_BY_IDS: NatsService.ATTRIBUTE + '.get_templates_by_ids',
   },
   PURCHASE_ORDER: {
+    PING: NatsService.PURCHASE_ORDER + '.ping',
     GET_PURCHASED_ORDER_LIST:
       NatsService.PURCHASE_ORDER + '.get_purchase_order_list',
   },
@@ -103,5 +105,8 @@ export const NatsSubject = {
   },
   REQUEST: {
     CREATE_YN02_FROM_CAP: NatsService.REQUEST + 'create_yn02_sap',
+  },
+  INVOICE: {
+    PING: NatsService.INVOICE + '.ping',
   },
 }

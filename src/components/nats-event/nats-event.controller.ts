@@ -59,7 +59,7 @@ export class NatsEventController {
     return response
   }
 
-  @MessagePattern(NatsSubject.REPORT.PING, Transport.NATS)
+  @MessagePattern(NatsSubject.PURCHASE_ORDER.PING, Transport.NATS)
   pong(@Payload() payload: any, @Ctx() context: NatsContext) {
     return this.natsEventService.pong(payload)
   }
