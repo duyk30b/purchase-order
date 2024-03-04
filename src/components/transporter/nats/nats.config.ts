@@ -23,7 +23,7 @@ export const NatsService = {
     process.env.NATS_PURCHASED_REQUEST_SERVICE || 'purchased_request_service',
   SALE: process.env.NATS_SALE_SERVICE || 'sale_service',
   REQUEST: process.env.NATS_REQUEST_SERVICE || 'request_service',
-  INVOICE: process.env.NATS_INVOICE_SERVICE || 'voice_service',
+  INVOICE: process.env.NATS_INVOICE_SERVICE || 'invoice_service',
 }
 
 export const NatsConfig: NatsOptions = {
@@ -108,5 +108,7 @@ export const NatsSubject = {
   },
   INVOICE: {
     PING: NatsService.INVOICE + '.ping',
+    GET_PURCHASE_INVOICE_LIST:
+      NatsService.INVOICE + '.get_purchase_invoice_list',
   },
 }

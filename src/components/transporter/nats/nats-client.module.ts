@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common'
 import { ClientProxyFactory } from '@nestjs/microservices'
 import { NatsClientService } from './nats-client.service'
+import { NatsClientPurchaseInvoiceService } from './nats-invoice/nats-client-purchase-invoice.service'
 import { NatsRequestService } from './nats-request/nats-request.service'
 import { NatsClientIncotermService } from './nats-sale/nats-client-incoterm/nats-client-incoterm.service'
 import { NatsClientVendorService } from './nats-vendor/nats-client-vendor.service'
@@ -37,6 +38,7 @@ import { NatsClientWarehouseService } from './service/nats-client-warehouse.serv
     NatsClientVendorService,
     NatsClientIncotermService,
     NatsRequestService,
+    NatsClientPurchaseInvoiceService,
   ],
   exports: [
     NatsClientService,
@@ -52,6 +54,7 @@ import { NatsClientWarehouseService } from './service/nats-client-warehouse.serv
     NatsClientVendorService,
     NatsClientIncotermService,
     NatsRequestService,
+    NatsClientPurchaseInvoiceService,
   ],
 })
 export class NatsClientModule {}

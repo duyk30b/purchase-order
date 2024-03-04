@@ -6,6 +6,8 @@ import { BaseResponse } from '../../../../core/interceptor/transform-response.in
 import { PurchaseOrderRepository } from '../../../../mongo/purchase-order/purchase-order.repository'
 import { PurchaseOrderType } from '../../../../mongo/purchase-order/purchase-order.schema'
 import { PurchaseRequestRepository } from '../../../../mongo/purchase-request/purchase-request.repository'
+import { PurchaseInvoiceType } from '../../../transporter/nats/nats-invoice/nats-client-purchase-invoice.response'
+import { NatsClientPurchaseInvoiceService } from '../../../transporter/nats/nats-invoice/nats-client-purchase-invoice.service'
 import { IncotermType } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.response'
 import { NatsClientIncotermService } from '../../../transporter/nats/nats-sale/nats-client-incoterm/nats-client-incoterm.service'
 import { NatsClientVendorService } from '../../../transporter/nats/nats-vendor/nats-client-vendor.service'
@@ -37,7 +39,8 @@ export class ApiPurchaseOrderDetailService {
     private readonly natsClientUserService: NatsClientUserService,
     private readonly natsClientItemService: NatsClientItemService,
     private readonly natsClientIncotermService: NatsClientIncotermService,
-    private readonly natsClientWarehouseService: NatsClientWarehouseService
+    private readonly natsClientWarehouseService: NatsClientWarehouseService,
+    private readonly natsClientPurchaseInvoiceService: NatsClientPurchaseInvoiceService
   ) {}
 
   async getOne(
@@ -127,6 +130,10 @@ export class ApiPurchaseOrderDetailService {
             ids: [data.manufacturingCountryId],
           })
         : {},
+      this.natsClientPurchaseInvoiceService.getPurchaseInvoiceMap({
+        relation: { purchasedInvoiceItems: true },
+        filter: { poCode: data.code },
+      }),
     ])
     const dataExtendsResult = dataExtendsPromise.map((i, index) => {
       if (i.status === 'fulfilled') {
@@ -144,6 +151,7 @@ export class ApiPurchaseOrderDetailService {
       Record<string, CurrencyType>,
       Record<string, IncotermType>,
       Record<string, ManufCountryType>,
+      Record<string, PurchaseInvoiceType>,
     ]
 
     const [
@@ -154,6 +162,7 @@ export class ApiPurchaseOrderDetailService {
       currencyMap,
       incotermMap,
       manufacturingCountryMap,
+      purchaseInvoiceMap,
     ] = dataExtendsResult
 
     return {
@@ -166,6 +175,7 @@ export class ApiPurchaseOrderDetailService {
       incotermMap,
       manufacturingCountryMap,
       purchasedRequestMap,
+      purchaseInvoiceMap,
     }
   }
 }
