@@ -42,6 +42,7 @@ export class NatsPurchaseRequestService {
       condition: {
         ...(filter?.searchText ? { code: { LIKE: filter.searchText } } : {}),
         ...(filter?.code ? { code: filter.code } : {}),
+        id: filter?.id,
         requestDate: filter?.requestDate,
         receiveDate: filter?.receiveDate,
         costCenterId: filter?.costCenterId,

@@ -39,6 +39,7 @@ export class NatsPurchaseOrderService {
               ],
             }
           : {}),
+        id: filter?.id,
         code: filter?.code,
         purchaseRequestCode: filter?.purchaseRequestCode,
         orderDate: filter?.orderDate,
